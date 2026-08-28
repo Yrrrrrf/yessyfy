@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Árbol de Conversación · Flujo de Chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg-0:#062628; --bg-1:#0a3d40; --bg-2:#0e4a4d; --bg-3:#125255;
+    --line:rgba(255,255,255,0.07);
+    --line-strong:rgba(255,255,255,0.16);
+    --ink:#eaf6f5; --ink-dim:#9bc1c1; --ink-faint:#6a9192; --ink-mute:#3f5c5e;
+
+    /* brand */
+    --brand-1:#15d97e;     /* lime green */
+    --brand-2:#2dd4bf;     /* teal */
+
+    /* phase accents */
+    --c-start: #5dd1e3;
+    --c-route: #b8b3c7;
+    --c-info:  #c79bff;
+    --c-quote: #15d97e;
+    --c-work:  #2dd4bf;
+    --c-check: #fbbf24;
+    --c-pay:   #f9a8d4;
+    --c-inv:   #c79bff;
+    --c-done:  #15d97e;
+    --c-error: #fb7185;
+    --c-warn:  #fbbf24;
+
+    /* shortcut categories */
+    --sc-action:#15d97e;
+    --sc-state: #2dd4bf;
+    --sc-flow:  #c79bff;
+    --sc-warn:  #fbbf24;
+    --sc-end:   #f9a8d4;
+    --sc-error: #fb7185;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{
+    background:var(--bg-0);color:var(--ink);
+    font-family:Montserrat,system-ui,sans-serif;
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+  }
+  body{
+    min-height:100vh;
+    background: radial-gradient(1200px 600px at 80% -10%, rgba(45,212,191,.08), transparent 60%);
+    background-attachment:fixed;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:56px 56px;
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+    pointer-events:none;z-index:0;
+  }
+
+  .page{
+    position:relative;z-index:1;
+    max-width:1080px;margin:0 auto;
+    padding: 56px 24px 120px;
+  }
+
+  /* ───────── HEADER ───────── */
+  header.hero{
+    display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;
+    padding-bottom:24px;border-bottom:1px solid var(--line);
+    margin-bottom:48px;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--c-done);box-shadow:0 0 12px var(--c-done)}
+  .hero h1{
+    font-family:Montserrat,sans-serif;font-weight:400;
+    font-size:clamp(36px,4.6vw,52px);line-height:1.05;letter-spacing:-0.01em;
+  }
+  .hero h1 em{font-style:italic;color:var(--c-quote)}
+  .hero p.lede{margin-top:12px;color:var(--ink-dim);font-size:14.5px;line-height:1.6;max-width:48ch}
+  .hero .meta{
+    text-align:right;font-family:Montserrat,sans-serif;font-size:11px;
+    color:var(--ink-faint);line-height:1.8;
+  }
+  .hero .meta b{color:var(--ink-dim);font-weight:500}
+
+  /* ───────── LEGEND (color key for shortcuts) ───────── */
+  .legend{
+    display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-bottom:32px;
+  }
+  .legend .key{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:Montserrat,sans-serif;font-size:11px;
+    padding:5px 10px;border-radius:999px;
+    background:rgba(255,255,255,.03);border:1px solid var(--line);
+    color:var(--ink-dim);
+  }
+  .legend .key .swatch{width:8px;height:8px;border-radius:50%;background:var(--c)}
+
+  /* ───────── CANVAS + WIRES ───────── */
+  .canvas{position:relative}
+  .wires{
+    position:absolute;inset:0;width:100%;height:100%;
+    pointer-events:none;overflow:visible;z-index:0;
+  }
+
+  .tree{
+    position:relative;z-index:1;
+    display:flex;flex-direction:column;align-items:center;
+    gap:56px;
+  }
+
+  /* ───────── NODES ───────── */
+  .node{
+    --c: var(--c-start);
+    position:relative;
+    background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border:1px solid color-mix(in oklab, var(--c) 25%, var(--line));
+    border-radius:16px;
+    padding:18px 22px;
+    min-width:340px;max-width:520px;
+    text-align:center;
+    box-shadow:
+      0 18px 40px -22px color-mix(in oklab, var(--c) 60%, transparent),
+      inset 0 1px 0 rgba(255,255,255,.04);
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .node:hover{
+    transform:translateY(-2px);
+    border-color: color-mix(in oklab, var(--c) 55%, var(--line));
+    box-shadow:
+      0 26px 60px -24px color-mix(in oklab, var(--c) 75%, transparent),
+      inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .node::before{
+    /* color rail on top */
+    content:"";position:absolute;left:14px;right:14px;top:0;height:2px;
+    background:linear-gradient(90deg, transparent, var(--c), transparent);
+    opacity:.7;
+  }
+  .node-tag{
+    font-family:Montserrat,sans-serif;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color: var(--c);opacity:.85;
+    margin-bottom:6px;
+  }
+  .node-title{
+    font-size:17px;font-weight:600;letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .node-sub{
+    color:var(--ink-dim);font-size:12.5px;line-height:1.55;margin-top:6px;
+  }
+  .node-shortcuts{
+    display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+    margin-top:12px;
+  }
+  .node-foot{
+    margin-top:10px;font-family:Montserrat,sans-serif;font-size:10.5px;
+    color:var(--ink-faint);letter-spacing:.05em;
+  }
+
+  /* anchor dots on nodes */
+  .anchor{
+    position:absolute;left:50%;width:9px;height:9px;border-radius:50%;
+    background: var(--c);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--c) 22%, transparent),
+                0 0 14px color-mix(in oklab, var(--c) 60%, transparent);
+    transform:translateX(-50%);
+  }
+  .anchor.top{top:-5px}
+  .anchor.bot{bottom:-5px}
+
+  /* node color variants */
+  .n-start{--c:var(--c-start)}
+  .n-route{--c:var(--c-route)}
+  .n-info {--c:var(--c-info)}
+  .n-quote{--c:var(--c-quote)}
+  .n-work {--c:var(--c-work)}
+  .n-check{--c:var(--c-check)}
+  .n-pay  {--c:var(--c-pay)}
+  .n-inv  {--c:var(--c-inv)}
+  .n-good {--c:var(--c-good)}
+  .n-warm {--c:var(--c-warm)}
+  .n-error{--c:var(--c-error)}
+  .n-done {--c:var(--c-done)}
+
+  /* compact node variant */
+  .node.is-compact{min-width:200px;padding:14px 18px}
+  .node.is-compact .node-title{font-size:14.5px}
+
+  /* the start "hi" bubble — slightly bigger */
+  .node.is-pill{
+    border-radius:999px;min-width:auto;padding:14px 28px;
+  }
+
+  /* ───────── SERVICES FAN ───────── */
+  .services{
+    display:grid;grid-template-columns:repeat(6,1fr);gap:10px;
+    width:100%;max-width:920px;
+  }
+  .svc{
+    --sc:#6ea8fe;
+    position:relative;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:14px 8px 16px;
+    border-radius:12px;
+    background: color-mix(in oklab, var(--sc) 10%, var(--bg-2));
+    border:1px solid color-mix(in oklab, var(--sc) 30%, var(--line));
+    font-size:12.5px;font-weight:500;color:var(--ink);
+    transition: all .2s ease;
+  }
+  .svc:hover{
+    transform:translateY(-2px);
+    border-color: color-mix(in oklab, var(--sc) 60%, transparent);
+    box-shadow: 0 12px 30px -10px color-mix(in oklab, var(--sc) 50%, transparent);
+  }
+  .svc .sym{
+    width:30px;height:30px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    background: color-mix(in oklab, var(--sc) 22%, transparent);
+    color:var(--sc);font-size:15px;
+  }
+  .svc .anchor{--c:var(--sc)}
+  .svc-plomeria  {--sc:#5eead4}
+  .svc-electrica {--sc:#fb923c}
+  .svc-cerrajeria{--sc:#86efac}
+  .svc-jardineria{--sc:#fbbf24}
+  .svc-hogar     {--sc:#f9a8d4}
+  .svc-albanil   {--sc:#93c5fd}
+
+  /* ───────── FORKS (2 columns) ───────── */
+  .fork{
+    display:grid;grid-template-columns:1fr 1fr;gap:48px;
+    width:100%;max-width:780px;
+  }
+
+  /* ───────── SHORTCUT PILLS ───────── */
+  .sc{
+    --sc-c: var(--sc-action);
+    display:inline-flex;align-items:center;gap:5px;
+    padding:4px 9px 4px 7px;border-radius:7px;
+    font-family:Montserrat,sans-serif;font-size:11.5px;font-weight:500;
+    color:var(--sc-c);
+    background: color-mix(in oklab, var(--sc-c) 14%, transparent);
+    border:1px solid color-mix(in oklab, var(--sc-c) 30%, transparent);
+    transition: all .2s ease;
+    white-space:nowrap;
+  }
+  .sc:hover{
+    background: color-mix(in oklab, var(--sc-c) 24%, transparent);
+    border-color: color-mix(in oklab, var(--sc-c) 60%, transparent);
+    box-shadow: 0 0 14px -2px color-mix(in oklab, var(--sc-c) 55%, transparent);
+  }
+  .sc .glyph{font-size:9.5px;opacity:.65}
+  .sc.is-state{--sc-c:var(--sc-state)}
+  .sc.is-flow {--sc-c:var(--sc-flow)}
+  .sc.is-warn {--sc-c:var(--sc-warn)}
+  .sc.is-end  {--sc-c:var(--sc-end)}
+  .sc.is-error{--sc-c:var(--sc-error)}
+
+  /* status flow strip (work phase) */
+  .flow-strip{
+    margin-top:12px;
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;
+    padding:10px 12px;border-radius:10px;
+    background: color-mix(in oklab, var(--c) 8%, var(--bg-1));
+    border:1px dashed color-mix(in oklab, var(--c) 28%, var(--line));
+  }
+  .flow-strip .arrow{color:var(--ink-faint);font-family:Montserrat,sans-serif;font-size:12px;padding:0 1px}
+
+  .agent-note{
+    display:inline-flex;align-items:center;gap:8px;margin-top:10px;
+    padding:5px 10px;border-radius:999px;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);
+    font-size:11px;color:var(--ink-dim);font-family:Montserrat,sans-serif;
+    letter-spacing:.05em;
+  }
+  .agent-note .av{
+    width:16px;height:16px;border-radius:50%;
+    background:linear-gradient(135deg,#7dd3fc,#c79bff);
+  }
+
+  /* final "done" badge */
+  .final{
+    display:flex;align-items:center;gap:14px;
+    padding: 16px 24px;border-radius:999px;
+    background:
+      radial-gradient(120% 200% at 50% 0%, color-mix(in oklab, var(--c-done) 22%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border:1px solid color-mix(in oklab, var(--c-done) 40%, var(--line));
+    font-family:Montserrat,sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em;
+    color:var(--c-done);
+    box-shadow: 0 18px 50px -18px color-mix(in oklab, var(--c-done) 60%, transparent);
+  }
+  .final .check{
+    width:28px;height:28px;border-radius:50%;
+    background: color-mix(in oklab, var(--c-done) 24%, transparent);
+    border:1px solid color-mix(in oklab, var(--c-done) 50%, transparent);
+    color:var(--c-done);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:Montserrat,sans-serif;font-size:14px;
+  }
+
+  /* shortcut interaction */
+  .sc{cursor:pointer;user-select:none}
+  .sc:active{transform:translateY(1px)}
+  .sc::after{
+    content:"";display:inline-block;width:1px;height:10px;
+    background: currentColor;opacity:.25;margin-left:4px;
+  }
+
+  /* ───────── SHORTCUT MODAL ───────── */
+  .sheet-overlay{
+    position:fixed;inset:0;z-index:80;
+    background: rgba(4,24,26,0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+    opacity:0;pointer-events:none;
+    transition: opacity .25s ease;
+  }
+  .sheet-overlay.is-open{opacity:1;pointer-events:auto}
+  .sheet{
+    --c: var(--c-start);
+    width:min(560px, 100%);
+    max-height:min(82vh, 720px);
+    background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border:1px solid color-mix(in oklab, var(--c) 35%, var(--line));
+    border-radius:20px;
+    box-shadow:
+      0 40px 100px -30px color-mix(in oklab, var(--c) 70%, transparent),
+      0 0 0 1px rgba(255,255,255,0.04) inset;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    transform: translateY(8px) scale(.985);
+    opacity:0;
+    transition: transform .28s cubic-bezier(.2,.7,.2,1), opacity .25s ease;
+    position:relative;
+  }
+  .sheet-overlay.is-open .sheet{transform:none;opacity:1}
+  .sheet::before{
+    content:"";position:absolute;left:18px;right:18px;top:0;height:2px;
+    background: linear-gradient(90deg, transparent, var(--c), transparent);
+    opacity:.7;
+  }
+  .sheet-head{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+    padding: 22px 24px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  .sheet-head .left{display:flex;flex-direction:column;gap:8px;min-width:0}
+  .sheet-tag{
+    font-family:Montserrat,sans-serif;font-size:10.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--c);opacity:.9;
+  }
+  .sheet-shortcut{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:Montserrat,sans-serif;font-size:18px;font-weight:600;
+    color:var(--c);
+    padding:6px 12px;border-radius:10px;
+    background: color-mix(in oklab, var(--c) 14%, transparent);
+    border:1px solid color-mix(in oklab, var(--c) 32%, transparent);
+    width:fit-content;
+  }
+  .sheet-shortcut .glyph{font-size:13px;opacity:.65}
+  .sheet-title{
+    font-family:Montserrat,sans-serif;font-weight:400;
+    font-size:24px;letter-spacing:-0.01em;color:var(--ink);
+    margin-top:2px;
+  }
+  .sheet-close{
+    width:32px;height:32px;border-radius:10px;flex:none;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    cursor:pointer;font-size:16px;
+    display:flex;align-items:center;justify-content:center;
+    transition: all .2s ease;
+  }
+  .sheet-close:hover{color:var(--ink);background:rgba(255,255,255,.08);border-color:var(--line-strong)}
+  .sheet-body{
+    padding: 18px 24px 22px;
+    overflow-y:auto;
+    flex:1;min-height:0;
+  }
+  .sheet-label{
+    font-family:Montserrat,sans-serif;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .sheet-label::before, .sheet-label::after{
+    content:"";flex:1;height:1px;background:var(--line);
+  }
+  .sheet-msg{
+    background:
+      radial-gradient(140% 100% at 0% 0%, color-mix(in oklab, var(--c) 12%, transparent), transparent 60%),
+      var(--bg-0);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+    font-family:Montserrat,sans-serif;font-size:12.5px;line-height:1.65;
+    color:var(--ink);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .sheet-msg b{color:var(--c)}
+  .sheet-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding: 14px 24px 20px;
+    border-top:1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+  }
+  .sheet-foot .hint{
+    font-family:Montserrat,sans-serif;font-size:10.5px;
+    color:var(--ink-faint);letter-spacing:.05em;
+  }
+  .sheet-copy{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:Montserrat,sans-serif;font-size:11.5px;font-weight:500;
+    padding:8px 14px;border-radius:8px;cursor:pointer;
+    color: var(--c);
+    background: color-mix(in oklab, var(--c) 14%, transparent);
+    border:1px solid color-mix(in oklab, var(--c) 35%, transparent);
+    transition: all .2s ease;
+  }
+  .sheet-copy:hover{
+    background: color-mix(in oklab, var(--c) 22%, transparent);
+    border-color: color-mix(in oklab, var(--c) 60%, transparent);
+    box-shadow: 0 0 18px -4px color-mix(in oklab, var(--c) 60%, transparent);
+  }
+  .sheet-copy.is-copied{background: color-mix(in oklab, var(--c-done) 18%, transparent);border-color: color-mix(in oklab, var(--c-done) 50%, transparent);color: var(--c-done)}
+
+  /* color tinting on the modal — match shortcut category */
+  .sheet[data-cat="action"]{--c: var(--sc-action)}
+  .sheet[data-cat="state"] {--c: var(--sc-state)}
+  .sheet[data-cat="flow"]  {--c: var(--sc-flow)}
+  .sheet[data-cat="warn"]  {--c: var(--sc-warn)}
+  .sheet[data-cat="end"]   {--c: var(--sc-end)}
+  .sheet[data-cat="error"] {--c: var(--sc-error)}
+
+  /* ───────── responsive ───────── */
+  @media (max-width: 760px){
+    .canvas{overflow-x:auto;overflow-y:visible;padding-bottom:8px}
+    .tree{min-width:760px}
+    .services{grid-template-columns:repeat(6,minmax(110px,1fr))}
+    .fork{max-width:760px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> Caso de uso · Guía de gestión de chat</div>
+      <h1>Árbol de <em>conversación</em><br/>flujo del cliente.</h1>
+      <p class="lede">
+        Diagrama del recorrido completo: del saludo a la factura, con shortcuts
+        codificados por color, bifurcaciones visibles y loops de retorno cuando
+        el cliente negocia o reporta un problema.
+      </p>
+    </div>
+    <div class="meta">
+      <div><b>v</b> 3.0 · 2026.05</div>
+      <div><b>nodos</b> 14</div>
+      <div><b>shortcuts</b> 14</div>
+      <div><b>servicios</b> 06</div>
+    </div>
+  </header>
+
+
+  <!-- color key -->
+  <div class="legend">
+    <span class="key" style="--c:var(--sc-action)"><span class="swatch"></span> Acción</span>
+    <span class="key" style="--c:var(--sc-state)"><span class="swatch"></span> Estado</span>
+    <span class="key" style="--c:var(--sc-flow)"><span class="swatch"></span> Flujo</span>
+    <span class="key" style="--c:var(--sc-warn)"><span class="swatch"></span> Negociación</span>
+    <span class="key" style="--c:var(--sc-error)"><span class="swatch"></span> Problema</span>
+    <span class="key" style="--c:var(--sc-end)"><span class="swatch"></span> Cierre</span>
+  </div>
+
+  <!-- ─────────────── TREE CANVAS ─────────────── -->
+  <div class="canvas" id="canvas">
+    <svg class="wires" id="wires" aria-hidden="true">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,0.45)"/>
+        </marker>
+        <marker id="arrow-warn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#fbbf24"/>
+        </marker>
+        <marker id="arrow-error" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#fb7185"/>
+        </marker>
+      </defs>
+    </svg>
+
+    <div class="tree" id="tree">
+
+      <!-- 01 START /hi -->
+      <div class="node n-start is-pill" data-node="start">
+        <div class="node-tag" style="margin-bottom:0">Saludo</div>
+        <div class="node-shortcuts" style="margin-top:6px;margin-bottom:2px;justify-content:center">
+          <span class="sc"><span class="glyph">⌘</span>/hi</span>
+        </div>
+        <span class="anchor bot"></span>
+      </div>
+
+      <!-- 02 ROUTE -->
+      <div class="node n-route" data-node="route">
+        <span class="anchor top"></span>
+        <div class="node-tag">Triage</div>
+        <div class="node-title">¿Qué servicio necesitas?</div>
+        <div class="node-sub">Botones rápidos en el chat. La elección define el resto del árbol.</div>
+        <span class="anchor bot"></span>
+      </div>
+
+      <!-- 03 SERVICES FAN -->
+      <div class="services" data-row="services">
+        <div class="svc svc-plomeria"   data-svc="plomeria">  <span class="anchor top"></span><span class="sym">🔧</span>Plomería  <span class="anchor bot"></span></div>
+        <div class="svc svc-electrica"  data-svc="electrica"> <span class="anchor top"></span><span class="sym">⚡</span>Eléctrica <span class="anchor bot"></span></div>
+        <div class="svc svc-cerrajeria" data-svc="cerrajeria"><span class="anchor top"></span><span class="sym">🔐</span>Cerrajería<span class="anchor bot"></span></div>
+        <div class="svc svc-jardineria" data-svc="jardineria"><span class="anchor top"></span><span class="sym">🌿</span>Jardinería<span class="anchor bot"></span></div>
+        <div class="svc svc-hogar"      data-svc="hogar">     <span class="anchor top"></span><span class="sym">🏠</span>Hogar     <span class="anchor bot"></span></div>
+        <div class="svc svc-albanil"    data-svc="albanil">   <span class="anchor top"></span><span class="sym">🧱</span>Albañil   <span class="anchor bot"></span></div>
+      </div>
+
+      <!-- 04 INFO -->
+      <div class="node n-info" data-node="info">
+        <span class="anchor top"></span>
+        <div class="node-tag">Discovery</div>
+        <div class="node-title">Recopilar información</div>
+        <div class="node-shortcuts">
+          <span class="sc is-flow"><span class="glyph">⌘</span>/ubicacion_tipo</span>
+          <span style="color:var(--ink-faint);font-family:Montserrat,sans-serif;font-size:12px">→</span>
+          <span class="sc is-flow"><span class="glyph">⌘</span>/urgencia</span>
+        </div>
+        <div class="node-foot">¿Dónde? + ¿Qué tan urgente?</div>
+        <span class="anchor bot"></span>
+      </div>
+
+      <!-- 05 QUOTE -->
+      <div class="node n-quote" data-node="quote">
+        <span class="anchor top"></span>
+        <div class="node-tag">Decisión · presupuesto</div>
+        <div class="node-title">Confirmar presupuesto</div>
+        <div class="node-shortcuts">
+          <span class="sc"><span class="glyph">⌘</span>/confirmacion_ok</span>
+          <span class="sc is-warn"><span class="glyph">⌘</span>/descuento_solicitar</span>
+        </div>
+        <span class="anchor bot"></span>
+      </div>
+
+      <!-- 06 FORK 1 — accept | negotiate -->
+      <div class="fork" data-row="fork1">
+        <div class="node n-good is-compact" data-node="accepted">
+          <span class="anchor top"></span>
+          <div class="node-tag">Avanza</div>
+          <div class="node-title">✓ Aceptó</div>
+          <span class="anchor bot"></span>
+        </div>
+        <div class="node n-warm is-compact" data-node="negotiate">
+          <span class="anchor top"></span>
+          <div class="node-tag">Loop</div>
+          <div class="node-title">💬 Negociar</div>
+          <div class="node-foot" style="color:var(--c-warn)">↻ vuelve a información</div>
+          <span class="anchor bot"></span>
+        </div>
+      </div>
+
+      <!-- 07 WORK -->
+      <div class="node n-work" data-node="work">
+        <span class="anchor top"></span>
+        <div class="node-tag">Ejecución</div>
+        <div class="node-title">Trabajo en ejecución</div>
+        <div class="flow-strip">
+          <span class="sc is-state"><span class="glyph">⌘</span>/en_camino</span>
+          <span class="arrow">→</span>
+          <span class="sc is-state"><span class="glyph">⌘</span>/en_proceso</span>
+          <span class="arrow">→</span>
+          <span class="sc is-state"><span class="glyph">⌘</span>/por_terminar</span>
+          <span class="arrow">→</span>
+          <span class="sc is-state"><span class="glyph">⌘</span>/finalizado</span>
+        </div>
+        <div class="agent-note"><span class="av"></span> Agente humano gestiona estos estados</div>
+        <span class="anchor bot"></span>
+      </div>
+
+      <!-- 08 VALIDATE -->
+      <div class="node n-check" data-node="validate">
+        <span class="anchor top"></span>
+        <div class="node-tag">Validación</div>
+        <div class="node-title">Validar trabajo</div>
+        <div class="node-shortcuts">
+          <span class="sc"><span class="glyph">⌘</span>/validacion_ok</span>
+          <span class="sc is-error"><span class="glyph">⌘</span>/problema_pendiente</span>
+        </div>
+        <span class="anchor bot"></span>
+      </div>
+
+      <!-- 09 FORK 2 — ok | problema -->
+      <div class="fork" data-row="fork2">
+        <div class="node n-good is-compact" data-node="ok">
+          <span class="anchor top"></span>
+          <div class="node-tag">Avanza</div>
+          <div class="node-title">✓ OK</div>
+          <span class="anchor bot"></span>
+        </div>
+        <div class="node n-error is-compact" data-node="problema">
+          <span class="anchor top"></span>
+          <div class="node-tag">Loop</div>
+          <div class="node-title">⚠ Problema</div>
+          <div class="node-foot" style="color:var(--c-error)">↻ vuelve a ejecución</div>
+          <span class="anchor bot"></span>
+        </div>
+      </div>
+
+      <!-- 10 PAYMENT -->
+      <div class="node n-pay" data-node="pay">
+        <span class="anchor top"></span>
+        <div class="node-tag">Cobro</div>
+        <div class="node-title">Procesar pago</div>
+        <div class="node-shortcuts">
+          <span class="sc is-end"><span class="glyph">⌘</span>/pago</span>
+        </div>
+        <div class="node-foot">Datos bancarios + confirmación de transferencia</div>
+        <span class="anchor bot"></span>
+      </div>
+
+      <!-- 11 INVOICE -->
+      <div class="node n-inv" data-node="invoice">
+        <span class="anchor top"></span>
+        <div class="node-tag">Cierre</div>
+        <div class="node-title">Enviar factura digital</div>
+        <div class="node-shortcuts">
+          <span class="sc"><span class="glyph">⌘</span>/factura_digital</span>
+        </div>
+        <div class="node-foot">PDF al correo del cliente</div>
+        <span class="anchor bot"></span>
+      </div>
+
+      <!-- 12 DONE -->
+      <div class="final" data-node="done">
+        <span class="anchor top" style="--c:var(--c-done)"></span>
+        <span class="check">✓</span> Conversación completa
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('canvas');
+  const svg = document.getElementById('wires');
+
+  // Connections to draw on the SVG layer.
+  // type: 'straight' | 'fan-out' | 'fan-in' | 'loop'
+  const CONNECTIONS = [
+    { from:'start',     to:'route',    type:'straight', stroke:'rgba(255,255,255,0.18)' },
+    { from:'route',     to:['plomeria','electrica','cerrajeria','jardineria','hogar','albanil'], type:'fan-out' },
+    { from:['plomeria','electrica','cerrajeria','jardineria','hogar','albanil'], to:'info', type:'fan-in' },
+    { from:'info',      to:'quote',    type:'straight' },
+    { from:'quote',     to:['accepted','negotiate'], type:'fork' },
+    { from:'accepted',  to:'work',     type:'merge-from-left' },
+    { from:'work',      to:'validate', type:'straight' },
+    { from:'validate',  to:['ok','problema'], type:'fork' },
+    { from:'ok',        to:'pay',      type:'merge-from-left' },
+    { from:'pay',       to:'invoice',  type:'straight' },
+    { from:'invoice',   to:'done',     type:'straight' },
+
+    // Loop-backs (dashed arcs)
+    { from:'negotiate', to:'info',     type:'loop',  side:'right', stroke:'#fbbf24', label:'negociar' },
+    { from:'problema',  to:'work',     type:'loop',  side:'right', stroke:'#fb7185', label:'reabrir'  },
+  ];
+
+  function getAnchor(nodeId, side){
+    const el = document.querySelector(`[data-node="${nodeId}"], [data-svc="${nodeId}"]`);
+    if(!el) return null;
+    const a = el.querySelector(`.anchor.${side}`);
+    if(!a) return null;
+    const ar = a.getBoundingClientRect();
+    const cr = canvas.getBoundingClientRect();
+    return { x: ar.left - cr.left + ar.width/2, y: ar.top - cr.top + ar.height/2 };
+  }
+
+  function nodeRect(nodeId){
+    const el = document.querySelector(`[data-node="${nodeId}"], [data-svc="${nodeId}"]`);
+    if(!el) return null;
+    const r = el.getBoundingClientRect();
+    const cr = canvas.getBoundingClientRect();
+    return { left:r.left-cr.left, right:r.right-cr.left, top:r.top-cr.top, bottom:r.bottom-cr.top, w:r.width, h:r.height, cx:r.left-cr.left+r.width/2 };
+  }
+
+  function path(d, opts){
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', d);
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke', opts.stroke || 'rgba(255,255,255,0.20)');
+    p.setAttribute('stroke-width', opts.width || 1.5);
+    if(opts.dash) p.setAttribute('stroke-dasharray', opts.dash);
+    if(opts.marker) p.setAttribute('marker-end', `url(#${opts.marker})`);
+    if(opts.opacity !== undefined) p.setAttribute('opacity', opts.opacity);
+    if(opts.cls) p.setAttribute('class', opts.cls);
+    return p;
+  }
+
+  function label(text, x, y, color){
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x); t.setAttribute('y', y);
+    t.setAttribute('fill', color);
+    t.setAttribute('font-family','Montserrat, sans-serif');
+    t.setAttribute('font-size', '10');
+    t.setAttribute('letter-spacing', '0.1em');
+    t.setAttribute('text-anchor', 'middle');
+    t.textContent = text.toUpperCase();
+    return t;
+  }
+
+  function clearChildren(node){
+    while(node.firstChild && node.firstChild.tagName !== 'defs'){
+      node.removeChild(node.firstChild);
+    }
+    // remove old paths/texts but keep <defs>
+    [...node.children].forEach(ch => { if(ch.tagName !== 'defs') node.removeChild(ch); });
+  }
+
+  function draw(){
+    // size svg to canvas
+    const cr = canvas.getBoundingClientRect();
+    svg.setAttribute('width', cr.width);
+    svg.setAttribute('height', cr.height);
+    svg.setAttribute('viewBox', `0 0 ${cr.width} ${cr.height}`);
+    clearChildren(svg);
+
+    CONNECTIONS.forEach(conn => {
+      if(conn.type === 'straight'){
+        const a = getAnchor(conn.from, 'bot');
+        const b = getAnchor(conn.to, 'top');
+        if(!a||!b) return;
+        const my = (a.y + b.y)/2;
+        const d = `M ${a.x} ${a.y} C ${a.x} ${my}, ${b.x} ${my}, ${b.x} ${b.y}`;
+        svg.appendChild(path(d, { stroke:conn.stroke || 'rgba(255,255,255,0.22)', width:1.5, marker:'arrow' }));
+      }
+      else if(conn.type === 'fork'){
+        const a = getAnchor(conn.from, 'bot');
+        if(!a) return;
+        conn.to.forEach(toId => {
+          const b = getAnchor(toId, 'top');
+          if(!b) return;
+          // bend midway with constant elbow height
+          const my = a.y + (b.y - a.y)*0.55;
+          const d = `M ${a.x} ${a.y} C ${a.x} ${my}, ${b.x} ${my}, ${b.x} ${b.y}`;
+          svg.appendChild(path(d, { stroke:'rgba(255,255,255,0.25)', width:1.5, marker:'arrow' }));
+        });
+      }
+      else if(conn.type === 'merge-from-left'){
+        // 'accepted'/'ok' (left) merges into next centered node;
+        // we also draw an implicit merge from the right branch IF that branch is a loop, skip it (loop handles it).
+        const a = getAnchor(conn.from, 'bot');
+        const b = getAnchor(conn.to, 'top');
+        if(!a||!b) return;
+        const my = a.y + (b.y - a.y)*0.55;
+        const d = `M ${a.x} ${a.y} C ${a.x} ${my}, ${b.x} ${my}, ${b.x} ${b.y}`;
+        svg.appendChild(path(d, { stroke:'rgba(255,255,255,0.25)', width:1.5, marker:'arrow' }));
+      }
+      else if(conn.type === 'fan-out'){
+        const a = getAnchor(conn.from, 'bot');
+        if(!a) return;
+        conn.to.forEach(toId => {
+          const b = getAnchor(toId, 'top');
+          if(!b) return;
+          const my = a.y + (b.y - a.y)*0.5;
+          const d = `M ${a.x} ${a.y} C ${a.x} ${my}, ${b.x} ${my}, ${b.x} ${b.y}`;
+          svg.appendChild(path(d, { stroke:'rgba(255,255,255,0.18)', width:1.2, opacity:0.85 }));
+        });
+      }
+      else if(conn.type === 'fan-in'){
+        const b = getAnchor(conn.to, 'top');
+        if(!b) return;
+        conn.from.forEach(fromId => {
+          const a = getAnchor(fromId, 'bot');
+          if(!a) return;
+          const my = a.y + (b.y - a.y)*0.5;
+          const d = `M ${a.x} ${a.y} C ${a.x} ${my}, ${b.x} ${my}, ${b.x} ${b.y}`;
+          svg.appendChild(path(d, { stroke:'rgba(255,255,255,0.18)', width:1.2, opacity:0.85, marker:'arrow' }));
+        });
+      }
+      else if(conn.type === 'loop'){
+        // Curved arc going OUT from bottom of `from` (right branch),
+        // sweeping right around, and coming back into top of `to`.
+        const a = getAnchor(conn.from, 'bot');
+        const b = getAnchor(conn.to, 'top');
+        if(!a||!b) return;
+        const cr = canvas.getBoundingClientRect();
+        const sweepX = Math.min(cr.width - 24, Math.max(a.x, b.x) + 180);
+        // Bezier: down from a, way out right, up and back into b
+        const d = `
+          M ${a.x} ${a.y}
+          C ${sweepX} ${a.y + 30}, ${sweepX} ${b.y - 30}, ${b.x} ${b.y}
+        `;
+        const isError = conn.stroke && conn.stroke.includes('fb7185');
+        const marker = isError ? 'arrow-error' : 'arrow-warn';
+        svg.appendChild(path(d, {
+          stroke: conn.stroke || '#fbbf24',
+          width: 1.5,
+          dash: '6 5',
+          marker,
+          opacity: 0.85,
+          cls: 'loop-line'
+        }));
+        if(conn.label){
+          // Place label at the midpoint of the curve, on the outer side
+          const lx = sweepX - 4;
+          const ly = (a.y + b.y)/2;
+          // background pill
+          const text = conn.label.toUpperCase();
+          const padX = 8, padY = 4, charW = 6.2;
+          const w = text.length*charW + padX*2;
+          const h = 16;
+          const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+          rect.setAttribute('x', lx - w);
+          rect.setAttribute('y', ly - h/2);
+          rect.setAttribute('width', w);
+          rect.setAttribute('height', h);
+          rect.setAttribute('rx', 8);
+          rect.setAttribute('fill', '#161a26');
+          rect.setAttribute('stroke', conn.stroke);
+          rect.setAttribute('stroke-opacity', '0.5');
+          svg.appendChild(rect);
+          svg.appendChild(label(conn.label, lx - w/2, ly + 3, conn.stroke));
+        }
+      }
+    });
+  }
+
+  // initial + responsive redraw
+  function ready(){
+    draw();
+    // double-rAF to ensure fonts settled
+    requestAnimationFrame(()=>requestAnimationFrame(draw));
+  }
+  window.addEventListener('load', ready);
+  window.addEventListener('resize', () => requestAnimationFrame(draw));
+
+  // observe layout shifts
+  const ro = new ResizeObserver(() => requestAnimationFrame(draw));
+  ro.observe(canvas);
+  // re-draw once fonts load
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+})();
+
+/* ───────── SHORTCUT MODAL ───────── */
+(function(){
+  const RESPONSES = {
+    "hi": {
+      title: "Saludo general",
+      tag: "Bienvenida",
+      msg: "¡Hola! 👋 Bienvenido/a a [NOMBRE EMPRESA]\n\nEs un placer saludarte. Estamos aquí para ayudarte con lo que necesites.\n\n¿Cuál es el servicio que buscas hoy?\n\n🔧 Plomería\n⚡ Electricidad\n🔐 Cerrajería\n🌿 Jardinería\n🏠 Trabajos del hogar\n🧱 Albañilería\n\nResponde el que necesites y te damos un presupuesto rápido 💨"
+    },
+    "ubicacion_tipo": {
+      title: "Confirmar tipo de ubicación",
+      tag: "Discovery",
+      msg: "Perfecto, necesito confirmar la ubicación 📍\n\n¿Dónde está el problema?\n\n🏠 RESIDENCIAL  (acceso fácil, tarifa base)\n   · Casa familiar\n   · Apartamento\n   · Edificio\n\n🏢 COMERCIAL  (horarios limitados, complejidad media)\n   · Oficina\n   · Local comercial\n   · Tienda\n\n⭐ PREMIUM / HOTEL  (coordinación extra, discreto)\n   · Hotel / Hospedaje\n   · Spa / Salón\n   · Centro cultural\n\n¿Cuál es? 👇"
+    },
+    "urgencia": {
+      title: "Confirmar urgencia",
+      tag: "Discovery",
+      msg: "Excelente, ahora la urgencia ⏰\n\n¿Cuándo lo necesitas?\n\n⏱️ NORMAL — Cuando puedas llegar en los próximos días\n   Multiplicador: ×1.0\n\n📅 MISMO DÍA — Necesitamos que venga hoy\n   Multiplicador: ×1.3\n\n🚨 EMERGENCIA 24/7 — Es urgentísimo, necesitamos ahora\n   Multiplicador: ×1.8\n\nElige la opción 👇"
+    },
+    "confirmacion_ok": {
+      title: "Cliente acepta presupuesto",
+      tag: "Decisión",
+      msg: "¡Excelente! ✓\n\nPresupuesto confirmado en $130\n\nAquí está la información de tu servicio:\n\n📍 Ubicación: Apartamento\n🕒 Urgencia: Mismo día\n🔧 Servicio: Reparación de fuga\n💵 Total: $130\n\nEl colaborador llegará en máximo 2-3 horas.\n\nTe enviaremos:\n✓ Ubicación exacta del colaborador\n✓ Fotos del trabajo en tiempo real\n✓ Confirmación cuando termine\n\n¿Alguna duda? Aquí ando 😊"
+    },
+    "descuento_solicitar": {
+      title: "Cliente quiere negociar",
+      tag: "Negociación",
+      msg: "Entiendo, ¿cuál es tu propuesta? 💬\n\nNos gustaría poder ajustar, pero estos son nuestros costos reales:\n\n💡 Lo que podemos ofrecer:\n✓ Descuento por referencia (si nos recomiendas amigos)\n✓ Paquete: Si necesitas múltiples servicios\n✓ Cliente recurrente: Si usas nuestro servicio regularmente\n\n¿Alguna de estas opciones te interesa?\n\nO si prefieres, continuamos con el presupuesto de $130 👇"
+    },
+    "en_camino": {
+      title: "Colaborador en viaje",
+      tag: "Estado · ejecución",
+      msg: "¡En camino! 🚗\n\nTu servicio está en ruta ➡️\n\n📍 UBICACIÓN EN VIVO\nGoogle Maps: [LINK]\n\n⏱️ ETA: 23 minutos\n🚙 Vehículo: Plomería Express — Placa ABC123\n👤 Colaborador: Juan García (⭐ 4.9/5)\n\nRecibirás actualizaciones cada 10 minutos.\n\n¿Algo que necesites preparar en casa? 👇"
+    },
+    "en_proceso": {
+      title: "Trabajo comenzó",
+      tag: "Estado · ejecución",
+      msg: "¡Trabajo en proceso! 🔧\n\nEl colaborador acaba de llegar y comenzó el diagnóstico.\n\n📍 EN TU UBICACIÓN\n👤 Colaborador: Juan García\n🕒 Hora de inicio: 14:35\n⏱️ Tiempo estimado: 45 minutos\n\n📷 FOTOS DEL TRABAJO\n[Galería se actualiza en vivo]\n\nTe iremos enviando fotos del avance cada 10 minutos ✓\n\n¿Alguna pregunta mientras trabaja? 👇"
+    },
+    "por_terminar": {
+      title: "Trabajo casi listo",
+      tag: "Estado · ejecución",
+      msg: "¡Ya casi! ✓\n\nEl trabajo está en sus últimas etapas.\n\n🔧 ESTADO ACTUAL\n✓ Diagnóstico completado\n✓ Tubería reparada\n⏳ Pruebas finales en proceso\n⏳ Limpieza del área\n\n⏱️ Falta: ~5 minutos\n\n📷 FOTOS FINALES\n[Galería actualizada]\n\nCuando termine, el colaborador te avisará para validación 👇"
+    },
+    "finalizado": {
+      title: "Trabajo completado",
+      tag: "Estado · ejecución",
+      msg: "¡TRABAJO COMPLETADO! ✓\n\nEl colaborador terminó exitosamente.\n\n✅ RESUMEN DEL TRABAJO\n├─ Reparación: Fuga en tubería principal\n├─ Tiempo total: 47 minutos\n├─ Resultado: Flujo normal, sin goteos\n└─ Garantía: 30 días en la reparación\n\n📷 FOTOS FINALES\n[Galería con 8 fotos del proceso]\n\n📊 HISTÓRICO\n• 14:35 — En proceso\n• 14:52 — Por terminar\n• 15:22 — Completado ✓\n\n⏭ Próximo paso: Validación rápida 👇"
+    },
+    "validacion_ok": {
+      title: "Cliente satisfecho",
+      tag: "Validación",
+      msg: "¡Excelente! ✓ Validación confirmada\n\n¿Quedaste satisfecho con el trabajo? Dime si necesitas algo más.\n\n✓ TODO OK — Procederemos al pago\n\nResumen de satisfacción:\n✓ Trabajo completado según lo esperado\n✓ Zona limpia y ordenada\n✓ Explicación de lo que se hizo\n✓ Garantía de 30 días\n\nVamos al siguiente paso: Pago 👇"
+    },
+    "problema_pendiente": {
+      title: "Cliente reporta problema",
+      tag: "Validación · issue",
+      msg: "Entendido, hay un problema pendiente 🔍\n\n¿Cuál es la situación?\n· El trabajo no se completó como se esperaba\n· Hay un detalle que no quedó bien\n· Cambio de decisión\n· Otro\n\nEl colaborador está aquí para resolverlo.\nCuéntame exactamente qué pasó 👇"
+    },
+    "pago": {
+      title: "Pago por transferencia",
+      tag: "Cobro",
+      msg: "Perfecto, vamos con el pago 💳\n\n📋 DATOS PARA TRANSFERENCIA\n├─ Banco: [BANCO]\n├─ Cuenta: [CUENTA]\n├─ Titular: [TITULAR]\n├─ Monto: $130\n└─ Concepto: \"Reparación de fuga — [TU NOMBRE]\"\n\n⏳ PRÓXIMOS PASOS\n1. Realiza la transferencia ahora\n2. Envíanos el comprobante (captura de pantalla)\n3. Te enviamos factura digital al correo\n\n¿Ya lo hiciste? Envía el comprobante 👇"
+    },
+    "factura_digital": {
+      title: "Enviar factura digital",
+      tag: "Cierre",
+      msg: "¡Factura enviada! 📧\n\nTe llegará en tu correo: cliente@email.com\n\n📄 FACTURA DIGITAL\n├─ Número: #2024-001234\n├─ Fecha: 15/05/2024\n├─ Concepto: Reparación de fuga — Plomería\n├─ Monto: $130\n├─ Estado: Pagado ✓\n└─ Descargar: [PDF ADJUNTO]\n\n📋 Incluye:\n✓ Detalle de trabajo realizado\n✓ Fotos del proceso\n✓ Garantía de 30 días\n✓ Contacto para garantía\n\n¿Necesitas algo más? 👇"
+    }
+  };
+
+  // Map .sc class → category
+  function categoryOf(el){
+    if(el.classList.contains('is-state')) return 'state';
+    if(el.classList.contains('is-flow'))  return 'flow';
+    if(el.classList.contains('is-warn'))  return 'warn';
+    if(el.classList.contains('is-end'))   return 'end';
+    if(el.classList.contains('is-error')) return 'error';
+    return 'action';
+  }
+
+  // Build modal once
+  const overlay = document.createElement('div');
+  overlay.className = 'sheet-overlay';
+  overlay.innerHTML = `
+    <div class="sheet" role="dialog" aria-modal="true" data-cat="action">
+      <div class="sheet-head">
+        <div class="left">
+          <span class="sheet-tag">Shortcut</span>
+          <span class="sheet-shortcut"><span class="glyph">⌘</span><span data-role="key">/hi</span></span>
+          <div class="sheet-title" data-role="title">—</div>
+        </div>
+        <button class="sheet-close" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="sheet-label">Mensaje al cliente</div>
+        <div class="sheet-msg" data-role="msg">—</div>
+      </div>
+      <div class="sheet-foot">
+        <span class="hint">Esc · cerrar</span>
+        <button class="sheet-copy" data-role="copy">⧉ Copiar mensaje</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const sheet  = overlay.querySelector('.sheet');
+  const elKey  = overlay.querySelector('[data-role="key"]');
+  const elTit  = overlay.querySelector('[data-role="title"]');
+  const elMsg  = overlay.querySelector('[data-role="msg"]');
+  const elCopy = overlay.querySelector('[data-role="copy"]');
+  const elTag  = overlay.querySelector('.sheet-tag');
+
+  function open(key, cat){
+    const data = RESPONSES[key];
+    if(!data) return;
+    sheet.dataset.cat = cat;
+    elKey.textContent = '/' + key;
+    elTit.textContent = data.title;
+    elTag.textContent = data.tag || 'Shortcut';
+    elMsg.textContent = data.msg;
+    elCopy.classList.remove('is-copied');
+    elCopy.textContent = '⧉ Copiar mensaje';
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    overlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  overlay.addEventListener('click', e => { if(e.target === overlay) close(); });
+  overlay.querySelector('.sheet-close').addEventListener('click', close);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') close(); });
+
+  function copyText(text){
+    // 1. modern API (works on https / top-level)
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    // 2. fallback for iframes / non-secure contexts
+    return new Promise((resolve, reject) => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly','');
+        ta.style.position = 'fixed';
+        ta.style.top = '0';
+        ta.style.left = '0';
+        ta.style.opacity = '0';
+        ta.style.pointerEvents = 'none';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        ok ? resolve() : reject(new Error('execCommand returned false'));
+      } catch(err) { reject(err); }
+    });
+  }
+
+  function flashCopy(state){
+    if(state === 'ok'){
+      elCopy.classList.add('is-copied');
+      elCopy.textContent = '✓ Copiado';
+    } else {
+      elCopy.classList.add('is-copied');
+      elCopy.style.setProperty('--c', 'var(--sc-error)');
+      elCopy.textContent = '⚠ No se pudo copiar';
+    }
+    setTimeout(() => {
+      elCopy.classList.remove('is-copied');
+      elCopy.style.removeProperty('--c');
+      elCopy.textContent = '⧉ Copiar mensaje';
+    }, 1800);
+  }
+
+  elCopy.addEventListener('click', async () => {
+    const text = elMsg.textContent;
+    try { await copyText(text); flashCopy('ok'); }
+    catch(err){ console.warn('[copy] fallback also failed:', err); flashCopy('err'); }
+  });
+
+  // Bind every .sc pill
+  document.querySelectorAll('.sc').forEach(pill => {
+    // extract token after the slash
+    const text = pill.textContent.trim();
+    const m = text.match(/\/([\w_]+)/);
+    if(!m) return;
+    const key = m[1];
+    if(!RESPONSES[key]){ pill.style.cursor='default'; return; }
+    pill.setAttribute('role','button');
+    pill.setAttribute('tabindex','0');
+    pill.addEventListener('click', e => { e.stopPropagation(); open(key, categoryOf(pill)); });
+    pill.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(key, categoryOf(pill)); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

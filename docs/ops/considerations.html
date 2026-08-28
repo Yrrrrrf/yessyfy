@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yessyfy — La mejor forma de aproximar esto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --teal-dark:   #0b3d47;
+      --teal-mid:    #0f5a6a;
+      --teal-deep:   #062628;
+      --green:       #00c97a;
+      --green-dark:  #00a862;
+      --green-light: #4ade9f;
+      --blue:        #1ab8cc;
+      --offwhite:    #f4f8f7;
+      --white:       #ffffff;
+      --ink:         #0b1e22;
+      --ink-mid:     #3a5a62;
+      --ink-light:   #7a9ea6;
+      --border:      #e4ecee;
+      --amber:       #fbbf24;
+      --rose:        #fb7185;
+      /* loop accents — carried from the dashboard's phase palette */
+      --p1: #5dd1e3;  --p2: #c79bff;  --p3: #1ab8cc;
+      --p4: #fbbf24;  --p5: #f9a8d4;  --p6: #00c97a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      color: var(--ink);
+      background: var(--offwhite);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+
+    /* ───────── HERO ───────── */
+    .hero {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, var(--teal-deep) 0%, var(--teal-dark) 50%, #0d6e7e 100%);
+      color: var(--white);
+      padding: 72px 0 84px;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0; opacity: 0.9;
+      background:
+        radial-gradient(620px 420px at 88% -10%, rgba(0,201,122,0.18), transparent 60%),
+        radial-gradient(520px 460px at 5% 110%, rgba(26,184,204,0.16), transparent 60%);
+      pointer-events: none;
+    }
+    .hero .wrap { position: relative; }
+    .brand { display: flex; align-items: center; gap: 11px; margin-bottom: 40px; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 19px; color: var(--teal-dark);
+    }
+    .brand-name { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
+    .brand-tag {
+      margin-left: auto; font-size: 11.5px; font-weight: 700; letter-spacing: 1.4px;
+      text-transform: uppercase; color: var(--green-light);
+      border: 1px solid rgba(74,222,159,0.35); padding: 6px 13px; border-radius: 100px;
+    }
+    .eyebrow {
+      font-size: 12px; font-weight: 700; letter-spacing: 2.4px; text-transform: uppercase;
+      color: var(--green-light); margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 54px); font-weight: 800; line-height: 1.04;
+      letter-spacing: -1.6px; max-width: 16ch;
+    }
+    .hero h1 em { font-style: normal; color: var(--green-light); }
+    .thesis {
+      margin-top: 26px; font-size: clamp(17px, 2.2vw, 21px); font-weight: 400;
+      color: rgba(255,255,255,0.78); max-width: 56ch; line-height: 1.5;
+    }
+    .thesis b { color: var(--white); font-weight: 700; }
+
+    .model-band {
+      margin-top: 38px; display: inline-flex; align-items: center; gap: 16px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 16px; padding: 16px 22px; flex-wrap: wrap;
+    }
+    .model-band .mb-key {
+      font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+    .model-band .mb-val { font-size: 18px; font-weight: 800; color: var(--white); }
+    .model-band .mb-val span { color: var(--green-light); }
+    .model-band .mb-note { font-size: 13px; color: rgba(255,255,255,0.62); max-width: 30ch; }
+
+    /* ───────── SECTION SHELL ───────── */
+    section { padding: 64px 0; }
+    .sec-head { margin-bottom: 30px; }
+    .sec-kicker {
+      font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--green-dark); margin-bottom: 8px;
+    }
+    .sec-title { font-size: clamp(24px, 3.2vw, 32px); font-weight: 800; letter-spacing: -0.8px; }
+    .sec-sub { font-size: 16px; color: var(--ink-mid); margin-top: 8px; max-width: 62ch; }
+
+    /* ───────── EL MOTOR (the loop) ───────── */
+    .engine { background: var(--white); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .loop {
+      display: flex; align-items: stretch; flex-wrap: wrap; gap: 0;
+      background: var(--offwhite); border: 1px solid var(--border);
+      border-radius: 20px; padding: 14px; overflow: hidden;
+    }
+    .node {
+      flex: 1 1 130px; min-width: 130px;
+      display: flex; flex-direction: column; gap: 7px;
+      padding: 18px 16px; border-radius: 14px; position: relative; background: var(--white);
+      border: 1px solid var(--border); margin: 4px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .node:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(11,61,71,0.10); }
+    .node .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .node .n-name { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+    .node .n-desc { font-size: 12.5px; color: var(--ink-light); line-height: 1.4; }
+    .node .n-idx {
+      position: absolute; top: 13px; right: 14px; font-size: 11px; font-weight: 800;
+      color: var(--ink-light); opacity: 0.6;
+    }
+    .loop-foot {
+      margin-top: 18px; display: flex; align-items: center; gap: 10px;
+      font-size: 14px; color: var(--ink-mid); font-weight: 600;
+    }
+    .loop-foot .recycle {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(0,201,122,0.12); color: var(--green-dark);
+      display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900;
+    }
+    .loop-foot b { color: var(--ink); }
+
+    /* ───────── LA RUTA (phased roadmap) ───────── */
+    .road { position: relative; }
+    .phase {
+      position: relative; display: grid; grid-template-columns: 88px 1fr; gap: 0;
+      padding-bottom: 26px;
+    }
+    .rail { position: relative; display: flex; flex-direction: column; align-items: center; }
+    .rail::before {
+      content: ''; position: absolute; top: 8px; bottom: -26px; left: 50%;
+      width: 2px; transform: translateX(-50%);
+      background: linear-gradient(to bottom, var(--border), var(--border));
+    }
+    .phase:last-child .rail::before { display: none; }
+    .rail .num {
+      position: relative; z-index: 2;
+      width: 52px; height: 52px; border-radius: 15px; flex-shrink: 0;
+      background: var(--teal-dark); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
+      box-shadow: 0 6px 18px rgba(11,61,71,0.22);
+    }
+    .phase.is-zero .rail .num { background: linear-gradient(135deg, var(--ink-mid), var(--teal-dark)); }
+    .phase.is-launch .rail .num { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: var(--teal-dark); }
+
+    .card {
+      background: var(--white); border: 1px solid var(--border); border-radius: 18px;
+      padding: 24px 26px; margin-left: 4px;
+      box-shadow: 0 2px 0 rgba(11,61,71,0.02);
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    .card:hover { border-color: rgba(0,201,122,0.3); box-shadow: 0 16px 44px rgba(11,61,71,0.09); transform: translateY(-2px); }
+    .ph-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+    .ph-name { font-size: 21px; font-weight: 800; letter-spacing: -0.5px; }
+    .ph-when {
+      font-size: 11.5px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+      color: var(--green-dark); background: rgba(0,201,122,0.1); padding: 4px 10px; border-radius: 8px;
+    }
+    .ph-goal { font-size: 15px; color: var(--ink-mid); line-height: 1.55; margin-bottom: 18px; }
+    .ph-goal b { color: var(--ink); font-weight: 700; }
+
+    .ph-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .cell { border-radius: 12px; padding: 14px 15px; background: var(--offwhite); border: 1px solid var(--border); }
+    .cell.gate  { background: rgba(0,201,122,0.07); border-color: rgba(0,201,122,0.22); }
+    .cell.risk  { background: rgba(251,113,133,0.06); border-color: rgba(251,113,133,0.2); }
+    .cell .c-lab {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+      color: var(--ink-light); margin-bottom: 7px; display: flex; align-items: center; gap: 6px;
+    }
+    .cell.gate .c-lab { color: var(--green-dark); }
+    .cell.risk .c-lab { color: #e0556e; }
+    .cell .c-body { font-size: 13.5px; color: var(--ink-mid); line-height: 1.48; }
+    .cell .c-body b { color: var(--ink); font-weight: 700; }
+
+    /* ───────── FOOTER GRID ───────── */
+    .foot { background: var(--teal-deep); color: var(--white); }
+    .foot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .foot h3 {
+      font-size: 13px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase;
+      color: var(--green-light); margin-bottom: 20px;
+    }
+    .lock { display: flex; gap: 13px; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .lock:last-child { border-bottom: none; }
+    .lock .lk { flex-shrink: 0; font-size: 13px; font-weight: 900; color: var(--teal-dark); background: var(--green-light); width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .lock .lt { font-size: 14px; color: rgba(255,255,255,0.9); line-height: 1.45; }
+    .lock .lt b { color: var(--white); font-weight: 700; }
+
+    .metric-group { margin-bottom: 22px; }
+    .metric-group .mg-lab {
+      font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+      color: var(--white); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .mg-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip {
+      font-size: 12.5px; font-weight: 500; color: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      padding: 6px 11px; border-radius: 8px;
+    }
+
+    .signoff { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 44px; padding-top: 24px; font-size: 13px; color: rgba(255,255,255,0.5); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+    /* ───────── reveal ───────── */
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ───────── responsive ───────── */
+    @media (max-width: 760px) {
+      .phase { grid-template-columns: 1fr; }
+      .rail { flex-direction: row; align-items: center; gap: 12px; margin-bottom: 14px; }
+      .rail::before { display: none; }
+      .card { margin-left: 0; }
+      .ph-grid { grid-template-columns: 1fr; }
+      .foot-grid { grid-template-columns: 1fr; gap: 32px; }
+      .model-band { gap: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      html { scroll-behavior: auto; }
+      .node, .card { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ───────── HERO ───────── -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="brand">
+        <div class="brand-mark">Y</div>
+        <div class="brand-name">yessyfy</div>
+        <div class="brand-tag">Plan de aproximación</div>
+      </div>
+
+      <div class="eyebrow">Antes del desarrollo principal</div>
+      <h1>La mejor forma de <em>aproximar esto</em></h1>
+      <p class="thesis">
+        No construyas la máquina completa. <b>Pon a girar un solo loop a mano</b> —en una zona, con dos oficios— y
+        sólo después automatiza las partes que ya duelen. El dashboard que ya tienes es tu sala de operaciones manual.
+      </p>
+
+      <div class="model-band">
+        <div>
+          <div class="mb-key">Decisión raíz</div>
+          <div class="mb-val">Managed marketplace <span>·</span> tú operas</div>
+        </div>
+        <div class="mb-note">Tú controlas precio, despacho, dinero y garantía. Es la única versión donde el dashboard que dibujaste tiene sentido.</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ───────── EL MOTOR ───────── -->
+  <section class="engine">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">El motor</div>
+        <h2 class="sec-title">Un solo loop que tiene que girar</h2>
+        <p class="sec-sub">Todo el negocio es este ciclo cerrándose y repitiéndose. Si gira a mano para 20 servicios, gira automatizado para 20 000.</p>
+      </div>
+
+      <div class="loop reveal">
+        <div class="node"><span class="n-idx">01</span><span class="dot" style="background:var(--p1)"></span><span class="n-name">Pedido</span><span class="n-desc">Llega por WhatsApp · saludo + triage</span></div>
+        <div class="node"><span class="n-idx">02</span><span class="dot" style="background:var(--p2)"></span><span class="n-name">Match</span><span class="n-desc">Colaborador de la zona, despacho</span></div>
+        <div class="node"><span class="n-idx">03</span><span class="dot" style="background:var(--p3)"></span><span class="n-name">Ejecución</span><span class="n-desc">Cotización en sitio + trabajo</span></div>
+        <div class="node"><span class="n-idx">04</span><span class="dot" style="background:var(--p4)"></span><span class="n-name">Validación</span><span class="n-desc">QA, fotos, garantía respaldada</span></div>
+        <div class="node"><span class="n-idx">05</span><span class="dot" style="background:var(--p5)"></span><span class="n-name">Pago</span><span class="n-desc">Tú cobras · CFDI · pago al colab.</span></div>
+        <div class="node"><span class="n-idx">06</span><span class="dot" style="background:var(--p6)"></span><span class="n-name">Recompra</span><span class="n-desc">Membresía como retención, no como ingreso</span></div>
+      </div>
+
+      <div class="loop-foot reveal">
+        <span class="recycle">↻</span>
+        <span>La métrica que importa no es cuántos entran al loop, sino <b>qué porcentaje vuelve a entrar.</b></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── LA RUTA ───────── -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">La ruta</div>
+        <h2 class="sec-title">Cinco fases, en orden, sin saltarse ninguna</h2>
+        <p class="sec-sub">Cada fase tiene una puerta de salida verificable. No avanzas hasta cruzarla — así el equipo puede iterar solo, sin pedir permiso a cada paso.</p>
+      </div>
+
+      <div class="road">
+
+        <!-- FASE 00 -->
+        <div class="phase is-zero reveal">
+          <div class="rail"><div class="num">00</div></div>
+          <div class="card">
+            <div class="ph-top">
+              <span class="ph-name">Decidir y blindar</span>
+              <span class="ph-when" style="background:rgba(58,90,98,0.12);color:var(--ink-mid)">Antes de una línea de código</span>
+            </div>
+            <p class="ph-goal">Cierra las decisiones que lo condicionan todo. Esto es legal, fiscal y de seguros — <b>no es producto.</b> Construir antes de esto es construir sobre arena.</p>
+            <div class="ph-grid">
+              <div class="cell"><div class="c-lab">Construyes</div><div class="c-body">Contratos, póliza de responsabilidad, modelo fiscal (PAC para CFDI), procesador de pago MX, figura del colaborador.</div></div>
+              <div class="cell gate"><div class="c-lab">✓ Puerta</div><div class="c-body">Seguro cotizado · <b>abogado MX validó</b> la figura de colaboradores · 1 procesador + 1 PAC elegidos.</div></div>
+              <div class="cell risk"><div class="c-lab">⚠ Riesgo</div><div class="c-body">Clasificación laboral (REPSE / subordinación) y quién paga cuando un técnico rompe algo.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASE 01 -->
+        <div class="phase is-launch reveal">
+          <div class="rail"><div class="num">01</div></div>
+          <div class="card">
+            <div class="ph-top">
+              <span class="ph-name">Lanzamiento concierge</span>
+              <span class="ph-when">1 zona · 1–2 oficios</span>
+            </div>
+            <p class="ph-goal">Valida el loop completo <b>a mano.</b> Una persona operando el dashboard + WhatsApp que ya tienes. Sin producto nuevo. Aquí descubres si el negocio existe.</p>
+            <div class="ph-grid">
+              <div class="cell"><div class="c-lab">Construyes</div><div class="c-body">Nada. 5–10 colaboradores en una colonia + el dashboard actual operado en vivo.</div></div>
+              <div class="cell gate"><div class="c-lab">✓ Puerta</div><div class="c-body"><b>20–30 servicios</b> cerrados, cobrados y facturados · % medible de clientes pide un segundo.</div></div>
+              <div class="cell risk"><div class="c-lab">⚠ Riesgo</div><div class="c-body">Prometer "Disponible: Hoy" sin densidad de oferta para cumplirlo.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASE 02 -->
+        <div class="phase reveal">
+          <div class="rail"><div class="num">02</div></div>
+          <div class="card">
+            <div class="ph-top">
+              <span class="ph-name">Instrumentar y apretar</span>
+              <span class="ph-when">Cerrar fugas de confianza</span>
+            </div>
+            <p class="ph-goal">Mide el loop y tapa las grietas que matan marketplaces de servicios: <b>la confianza.</b> Aquí el producto es la garantía, no la reserva.</p>
+            <div class="ph-grid">
+              <div class="cell"><div class="c-lab">Construyes</div><div class="c-body">Tracking de KPIs nuevos · flujo de garantía/retrabajo · integridad de precio (sitio = realidad).</div></div>
+              <div class="cell gate"><div class="c-lab">✓ Puerta</div><div class="c-body">Disputa y retrabajo medidos y <b>a la baja</b> · margen por servicio positivo.</div></div>
+              <div class="cell risk"><div class="c-lab">⚠ Riesgo</div><div class="c-body">La brecha entre el "desde $X" del landing y el precio final en sitio.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASE 03 -->
+        <div class="phase reveal">
+          <div class="rail"><div class="num">03</div></div>
+          <div class="card">
+            <div class="ph-top">
+              <span class="ph-name">Automatizar lo que duele</span>
+              <span class="ph-when">Sólo donde ya duele</span>
+            </div>
+            <p class="ph-goal">Ahora —y sólo ahora— construyes producto para quitar el trabajo manual que se volvió cuello de botella. <b>Aquí nace la app del colaborador</b>, el cuarto producto que falta.</p>
+            <div class="ph-grid">
+              <div class="cell"><div class="c-lab">Construyes</div><div class="c-body">App del colaborador (aceptar, navegar, fotos, check-in, cobrar) · bot de Triage en WABA · despacho asistido.</div></div>
+              <div class="cell gate"><div class="c-lab">✓ Puerta</div><div class="c-body">Utilización y tiempo-a-match mejoran <b>sin crecer el equipo de ops.</b></div></div>
+              <div class="cell risk"><div class="c-lab">⚠ Riesgo</div><div class="c-body">Costo por conversación de WABA + aprobación de plantillas de Meta (lead time real).</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FASE 04 -->
+        <div class="phase reveal">
+          <div class="rail"><div class="num">04</div></div>
+          <div class="card">
+            <div class="ph-top">
+              <span class="ph-name">Escalar por zonas</span>
+              <span class="ph-when">Playbook, colonia por colonia</span>
+            </div>
+            <p class="ph-goal">Repite el mismo playbook zona por zona — <b>no oficio por oficio de golpe.</b> Recién aquí enciendes el self-serve completo que ya diseñaste.</p>
+            <div class="ph-grid">
+              <div class="cell"><div class="c-lab">Construyes</div><div class="c-body">App consumidor pulida · "Soy profesional" self-serve · membresía como motor de retención.</div></div>
+              <div class="cell gate"><div class="c-lab">✓ Puerta</div><div class="c-body">Fill rate sano en zona 1 <b>antes</b> de abrir zona 2 · CAC payback dentro de meta.</div></div>
+              <div class="cell risk"><div class="c-lab">⚠ Riesgo</div><div class="c-body">Diluir densidad abriendo demasiadas zonas a la vez y romper la promesa de disponibilidad.</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── FOOTER ───────── -->
+  <footer class="foot">
+    <div class="wrap" style="padding-top:60px;padding-bottom:56px;">
+      <div class="foot-grid">
+
+        <div class="reveal">
+          <h3>Decisiones que se fijan primero</h3>
+          <div class="lock"><span class="lk">a</span><span class="lt"><b>Modelo:</b> managed marketplace — tú controlas precio, despacho, dinero y garantía.</span></div>
+          <div class="lock"><span class="lk">b</span><span class="lt"><b>Dinero:</b> tú retienes el pago · comisión por servicio · membresía = retención, no ingreso core.</span></div>
+          <div class="lock"><span class="lk">c</span><span class="lt"><b>Garantía:</b> cobertura definida + seguro contratado <b>antes</b> de anunciarla.</span></div>
+          <div class="lock"><span class="lk">d</span><span class="lt"><b>Trabajo:</b> figura del colaborador validada por abogado MX (REPSE / subordinación).</span></div>
+          <div class="lock"><span class="lk">e</span><span class="lt"><b>Precio:</b> una sola narrativa — el landing dice la verdad de lo que se cobra en sitio.</span></div>
+        </div>
+
+        <div class="reveal">
+          <h3>Qué medir desde el día 1</h3>
+          <div class="metric-group">
+            <div class="mg-lab"><span class="mg-dot" style="background:var(--blue)"></span>Liquidez (el lado difícil)</div>
+            <div class="chips">
+              <span class="chip">fill rate · zona/oficio</span><span class="chip">tiempo-a-match</span>
+              <span class="chip">utilización del colaborador</span><span class="chip">servicios/colab/día</span><span class="chip">churn de colaboradores</span>
+            </div>
+          </div>
+          <div class="metric-group">
+            <div class="mg-lab"><span class="mg-dot" style="background:var(--amber)"></span>Calidad y riesgo</div>
+            <div class="chips">
+              <span class="chip">tasa de disputa</span><span class="chip">retrabajo / callbacks</span>
+              <span class="chip">reclamos de garantía</span><span class="chip">no-shows (ambos lados)</span>
+            </div>
+          </div>
+          <div class="metric-group">
+            <div class="mg-lab"><span class="mg-dot" style="background:var(--green)"></span>Dinero de verdad</div>
+            <div class="chips">
+              <span class="chip">margen por servicio</span><span class="chip">CAC payback</span>
+              <span class="chip">recompra / MRR</span><span class="chip">ticket promedio</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="signoff">
+        <span>Yessyfy · ruta de aproximación al desarrollo</span>
+        <span>Pon a girar un loop antes de construir la máquina ↻</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach((el, i) => {
+      el.style.transitionDelay = Math.min(i * 60, 240) + 'ms';
+      io.observe(el);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YESSYFY · Escala &amp; Cuello de Botella de Cómputo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg-0:#062628; --bg-1:#0a3d40; --bg-2:#0e4a4d; --bg-3:#125255;
+    --line:rgba(255,255,255,0.07);
+    --line-strong:rgba(255,255,255,0.16);
+    --ink:#eaf6f5; --ink-dim:#9bc1c1; --ink-faint:#6a9192; --ink-mute:#3f5c5e;
+
+    --brand-1:#15d97e;   /* lime */
+    --brand-2:#2dd4bf;   /* teal */
+
+    /* one machine = one color, used everywhere consistently */
+    --m-pi:   #fbbf24;   /* Pi 5      — amber */
+    --m-kvm:  #c79bff;   /* KVM 8     — violet */
+    --m-hx:   #15d97e;   /* HX 370    — brand green */
+
+    --demand: #5dd1e3;   /* the rising demand curve */
+    --danger: #fb7185;
+
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{
+    background:var(--bg-0);color:var(--ink);
+    font-family:Montserrat,system-ui,sans-serif;font-weight:500;
+    -webkit-font-smoothing:antialiased;
+  }
+  body{
+    min-height:100vh;
+    background:radial-gradient(1200px 600px at 80% -10%, rgba(45,212,191,.08), transparent 60%);
+    background-attachment:fixed;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(ellipse at center, #000 30%, transparent 80%);
+    pointer-events:none;z-index:0;
+  }
+  .page{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:56px 24px 120px}
+
+  /* ── header ── */
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--brand-1);box-shadow:0 0 12px var(--brand-1)}
+  h1{font-weight:400;font-size:clamp(32px,4.4vw,50px);line-height:1.05;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--brand-1)}
+  .lede{margin-top:14px;color:var(--ink-dim);font-size:14.5px;line-height:1.65;max-width:62ch}
+  .lede b{color:var(--ink);font-weight:600}
+
+  header.hero{padding-bottom:28px;border-bottom:1px solid var(--line);margin-bottom:40px}
+
+  h2{font-weight:600;font-size:21px;letter-spacing:-.01em;margin:0 0 4px}
+  .section-tag{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:6px}
+  .section{margin-top:56px}
+  .section-sub{color:var(--ink-dim);font-size:13px;line-height:1.6;max-width:64ch;margin-bottom:24px}
+
+  /* ── machine spec cards ── */
+  .machines{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .mcard{
+    --c:var(--m-pi);
+    background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
+    border:1px solid color-mix(in oklab,var(--c) 22%,var(--line));
+    border-radius:16px;padding:18px 18px 16px;position:relative;overflow:hidden;
+  }
+  .mcard::before{content:"";position:absolute;left:14px;right:14px;top:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--c),transparent);opacity:.75}
+  .mcard.pi{--c:var(--m-pi)} .mcard.kvm{--c:var(--m-kvm)} .mcard.hx{--c:var(--m-hx)}
+  .mcard .role{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);opacity:.9;margin-bottom:6px}
+  .mcard .name{font-size:16px;font-weight:700;letter-spacing:-.01em}
+  .mcard .chip{font-family:var(--mono);font-size:11px;color:var(--ink-dim);margin-top:2px}
+  .mcard ul{list-style:none;margin:14px 0 0;display:grid;gap:7px}
+  .mcard li{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--ink-dim);border-bottom:1px dashed var(--line);padding-bottom:6px}
+  .mcard li:last-child{border-bottom:0;padding-bottom:0}
+  .mcard li b{color:var(--ink);font-weight:600;font-family:var(--mono);font-size:11.5px;text-align:right}
+  .mcard .ai-badge{
+    margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-size:10.5px;
+    padding:4px 9px;border-radius:999px;border:1px solid color-mix(in oklab,var(--c) 30%,var(--line));
+    color:var(--c);background:color-mix(in oklab,var(--c) 8%,transparent);font-weight:600;
+  }
+  .mcard .ai-badge.none{color:var(--ink-faint);border-color:var(--line)}
+
+  /* ── controls panel ── */
+  .controls{
+    background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
+    border:1px solid var(--line-strong);border-radius:16px;padding:20px 22px;
+    display:grid;grid-template-columns:1fr 1fr;gap:22px 32px;
+  }
+  .ctl label{display:block;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px}
+  .ctl .hint{font-size:11px;color:var(--ink-faint);margin-bottom:10px;line-height:1.45}
+  .ctl .val{font-family:var(--mono);color:var(--brand-1);font-weight:600}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;
+    background:linear-gradient(90deg,var(--brand-2),var(--brand-1));outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--ink);border:3px solid var(--bg-1);box-shadow:0 0 0 1px var(--brand-1);cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--bg-1);box-shadow:0 0 0 1px var(--brand-1);cursor:pointer}
+  input:focus-visible{box-shadow:0 0 0 3px color-mix(in oklab,var(--brand-1) 50%,transparent)}
+
+  .seg{display:inline-flex;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+  .seg button{
+    font-family:inherit;font-size:12px;font-weight:600;color:var(--ink-dim);
+    background:transparent;border:0;border-radius:7px;padding:7px 12px;cursor:pointer;transition:.18s;
+  }
+  .seg button.is-on{background:color-mix(in oklab,var(--brand-1) 18%,var(--bg-3));color:var(--ink)}
+  .seg button:focus-visible{outline:2px solid var(--brand-1);outline-offset:1px}
+
+  .toggle-row{display:flex;align-items:center;gap:14px;grid-column:1/-1;padding-top:4px;border-top:1px solid var(--line)}
+  .switch{position:relative;width:46px;height:26px;flex:0 0 auto}
+  .switch input{opacity:0;width:0;height:0;position:absolute}
+  .switch .track{position:absolute;inset:0;border-radius:99px;background:var(--bg-3);border:1px solid var(--line-strong);transition:.2s;cursor:pointer}
+  .switch .track::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--ink-faint);transition:.2s}
+  .switch input:checked + .track{background:color-mix(in oklab,var(--brand-1) 30%,var(--bg-3))}
+  .switch input:checked + .track::after{transform:translateX(20px);background:var(--brand-1);box-shadow:0 0 10px var(--brand-1)}
+  .switch input:focus-visible + .track{outline:2px solid var(--brand-1);outline-offset:2px}
+
+  /* ── chart frame ── */
+  .chart-card{
+    background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
+    border:1px solid var(--line-strong);border-radius:18px;padding:22px 22px 16px;margin-top:18px;
+  }
+  .chart-head{display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+  .chart-head h3{font-size:15px;font-weight:700}
+  .chart-head .note{font-size:11.5px;color:var(--ink-faint)}
+  svg.chart{width:100%;height:auto;display:block;overflow:visible}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:11.5px;color:var(--ink-dim)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+  .legend i.dash{background:repeating-linear-gradient(90deg,currentColor 0 5px,transparent 5px 9px)}
+
+  /* ── runway result cards ── */
+  .runways{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+  .run{--c:var(--m-pi);background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
+    border:1px solid color-mix(in oklab,var(--c) 22%,var(--line));border-radius:16px;padding:18px}
+  .run.pi{--c:var(--m-pi)} .run.kvm{--c:var(--m-kvm)} .run.hx{--c:var(--m-hx)}
+  .run .rname{font-size:13px;font-weight:700;color:var(--c);display:flex;align-items:center;gap:8px}
+  .run .rname .swatch{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
+  .run .big{font-family:var(--mono);font-size:30px;font-weight:600;line-height:1.1;margin:12px 0 2px;color:var(--ink)}
+  .run .big small{font-size:13px;color:var(--ink-dim);font-weight:400}
+  .run .meta{font-size:12px;color:var(--ink-dim);line-height:1.55}
+  .run .meta b{color:var(--ink);font-weight:600}
+  .run .verdict{margin-top:12px;font-size:11.5px;line-height:1.5;color:var(--ink-faint);border-top:1px dashed var(--line);padding-top:10px}
+  .pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:6px;text-transform:uppercase}
+  .pill.ok{background:color-mix(in oklab,var(--brand-1) 16%,transparent);color:var(--brand-1)}
+  .pill.warn{background:color-mix(in oklab,var(--m-pi) 16%,transparent);color:var(--m-pi)}
+  .pill.bad{background:color-mix(in oklab,var(--danger) 16%,transparent);color:var(--danger)}
+
+  /* ── caveat / footnotes ── */
+  .callout{
+    margin-top:22px;border:1px solid var(--line);border-left:3px solid var(--brand-2);
+    background:rgba(45,212,191,.05);border-radius:12px;padding:16px 18px;font-size:12.5px;line-height:1.6;color:var(--ink-dim);
+  }
+  .callout b{color:var(--ink)}
+  .foot{margin-top:48px;border-top:1px solid var(--line);padding-top:18px;font-size:11px;color:var(--ink-mute);line-height:1.7}
+  .foot code{font-family:var(--mono);color:var(--ink-faint)}
+
+  @media (max-width:760px){
+    .machines,.runways{grid-template-columns:1fr}
+    .controls{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <div class="eyebrow"><span class="dot"></span> YESSYFY · Infraestructura · Solo escala</div>
+    <h1>¿Cuándo cada servidor se vuelve el <em>cuello de botella</em>?</h1>
+    <p class="lede">
+      Tres candidatos para hospedar YESSYFY en la <b>ZMVM (CDMX + Estado de México)</b>.
+      Esta página modela el <b>cómputo</b> únicamente: cuántos usuarios activos en paralelo y
+      cuánta <b>verificación con IA</b> aguanta cada máquina antes de saturarse — y en qué mes
+      de operación choca contra ese techo. Mueve los controles: el modelo es tuyo, no mío.
+    </p>
+  </header>
+
+  <!-- ───────────── MACHINES ───────────── -->
+  <section>
+    <div class="section-tag">Los tres candidatos</div>
+    <h2 style="margin-bottom:18px">Lo que importa para escalar</h2>
+    <div class="machines">
+      <div class="mcard pi">
+        <div class="role">A · Single-board</div>
+        <div class="name">Raspberry Pi 5</div>
+        <div class="chip">BCM2712 · 4× Cortex-A76 @2.4GHz</div>
+        <ul>
+          <li>Núcleos / hilos <b>4 / 4</b></li>
+          <li>RAM <b>8 GB LPDDR4X</b></li>
+          <li>Disco <b>NVMe PCIe 2.0 ×1</b></li>
+          <li>Red <b>1× GbE</b></li>
+          <li>ECC <b>No</b></li>
+        </ul>
+        <span class="ai-badge none">⚠ Sin acelerador IA</span>
+      </div>
+      <div class="mcard kvm">
+        <div class="role">B · VPS administrado</div>
+        <div class="name">Hostinger KVM 8</div>
+        <div class="chip">EPYC / Xeon (vCPU compartido)</div>
+        <ul>
+          <li>vCPU <b>8</b></li>
+          <li>RAM <b>32 GB</b></li>
+          <li>Disco <b>400 GB NVMe</b></li>
+          <li>Tráfico <b>32 TB/mes</b></li>
+          <li>Red <b>Datacenter · 99.9%</b></li>
+        </ul>
+        <span class="ai-badge none">⚠ IA solo por CPU</span>
+      </div>
+      <div class="mcard hx">
+        <div class="role">C · Mini-servidor propio</div>
+        <div class="name">Ryzen AI 9 HX 370</div>
+        <div class="chip">Strix Point · 4× Zen5 + 8× Zen5c</div>
+        <ul>
+          <li>Núcleos / hilos <b>12 / 24</b></li>
+          <li>RAM <b>≤128 GB DDR5 · ECC*</b></li>
+          <li>Disco <b>NVMe PCIe 4.0</b></li>
+          <li>iGPU <b>Radeon 890M</b></li>
+          <li>NPU <b>XDNA 2 · 50 TOPS</b></li>
+        </ul>
+        <span class="ai-badge">✦ NPU de IA dedicada</span>
+      </div>
+    </div>
+    <p class="section-sub" style="margin-top:14px">
+      El “HX 470” que mencionaste corresponde al <b>Ryzen AI 9 HX 370</b> (Strix Point) — es el único de los
+      tres con cómputo de IA de verdad en silicio. *ECC disponible en la variante PRO.
+    </p>
+  </section>
+
+  <!-- ───────────── CONTROLS ───────────── -->
+  <section class="section">
+    <div class="section-tag">El modelo · supuestos</div>
+    <h2>Ajusta la operación esperada</h2>
+    <p class="section-sub">
+      La carga de YESSYFY no la generan las visitas, sino los <b>usuarios activos en paralelo</b> (emparejamiento,
+      chat, notificaciones, pagos en garantía) y, sobre todo, la <b>verificación de alta</b>: OCR de identificación
+      + cotejo facial + prueba de vida + score de fraude. Eso último es puro cómputo de IA.
+    </p>
+
+    <div class="controls" role="group" aria-label="Parámetros del modelo">
+      <div class="ctl">
+        <label for="reach">Mercado alcanzable · adultos con smartphone <span class="val" id="reach-v">15.0 M</span></label>
+        <div class="hint">ZMVM ≈ 22 M habitantes. Adultos con smartphone que podrían usar la app.</div>
+        <input id="reach" type="range" min="6" max="18" step="0.5" value="15" />
+      </div>
+
+      <div class="ctl">
+        <label for="frac">Activos en paralelo en hora pico <span class="val" id="frac-v">3.0 %</span></label>
+        <div class="hint">Fracción de usuarios registrados conectados y activos al mismo tiempo en el pico.</div>
+        <input id="frac" type="range" min="1" max="6" step="0.25" value="3" />
+      </div>
+
+      <div class="ctl" style="grid-column:1/-1">
+        <label style="margin-bottom:10px">Agresividad de adopción · penetración a 36 meses</label>
+        <div class="seg" id="adopt" role="radiogroup" aria-label="Agresividad de adopción">
+          <button data-a="cons" role="radio">Conservadora · 0.6%</button>
+          <button data-a="base" class="is-on" role="radio" aria-checked="true">Base · 1.5%</button>
+          <button data-a="aggr" role="radio">Agresiva · 3.5%</button>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <span class="switch">
+          <input id="aiToggle" type="checkbox" checked aria-label="Procesar IA en el servidor" />
+          <span class="track"></span>
+        </span>
+        <div>
+          <label for="aiToggle" style="margin-bottom:2px">Procesar la IA en el propio servidor</label>
+          <div class="hint" id="ai-hint" style="margin-bottom:0">
+            Encendido: verificación y ranking corren en la máquina → la NPU del HX 370 pesa muchísimo.
+            Apagado: la IA se delega a una API externa → la ventaja de la NPU desaparece.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── GROWTH CHART ───────────── -->
+  <section class="section">
+    <div class="section-tag">Gráfica 1 · Crecimiento en operación</div>
+    <h2>Cómo sube la demanda mes a mes</h2>
+    <p class="section-sub">Curva en S de adopción. La línea clara es la demanda real que llega al servidor: usuarios activos en paralelo en el pico.</p>
+    <div class="chart-card">
+      <div class="chart-head">
+        <h3>Adopción y carga pico · 36 meses</h3>
+        <span class="note" id="growth-note"></span>
+      </div>
+      <svg class="chart" id="growthChart" viewBox="0 0 920 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Curva de crecimiento de usuarios"></svg>
+      <div class="legend">
+        <span style="color:var(--ink-dim)"><i style="background:rgba(155,193,193,.5)"></i> Usuarios registrados</span>
+        <span style="color:var(--demand)"><i style="background:var(--demand)"></i> Usuarios activos en paralelo (pico)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── BOTTLENECK CHART ───────────── -->
+  <section class="section">
+    <div class="section-tag">Gráfica 2 · El techo de cada máquina</div>
+    <h2>El momento en que la demanda atraviesa el techo</h2>
+    <p class="section-sub">
+      Cada línea horizontal es la capacidad sostenible de una máquina. Donde la curva de demanda la cruza,
+      esa máquina deja de dar abasto. Eje Y en escala logarítmica para ver los tres techos a la vez.
+    </p>
+
+    <div class="seg" id="metric" role="radiogroup" aria-label="Métrica del cuello de botella" style="margin-bottom:6px">
+      <button data-m="cau" class="is-on" role="radio" aria-checked="true">Carga de servicio (usuarios)</button>
+      <button data-m="ai" role="radio">Cómputo de IA (verificaciones/h)</button>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <h3 id="bn-title">Usuarios activos en paralelo vs. capacidad</h3>
+        <span class="note" id="bn-note"></span>
+      </div>
+      <svg class="chart" id="bnChart" viewBox="0 0 920 380" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Cuellos de botella por máquina"></svg>
+      <div class="legend">
+        <span style="color:var(--demand)"><i style="background:var(--demand)"></i> Demanda</span>
+        <span style="color:var(--m-pi)"><i class="dash" style="color:var(--m-pi)"></i> Techo Pi 5</span>
+        <span style="color:var(--m-kvm)"><i class="dash" style="color:var(--m-kvm)"></i> Techo KVM 8</span>
+        <span style="color:var(--m-hx)"><i class="dash" style="color:var(--m-hx)"></i> Techo HX 370</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── RUNWAYS ───────────── -->
+  <section class="section">
+    <div class="section-tag">Resultado · pista de cada máquina</div>
+    <h2>Cuánto te dura cada una antes de saturarse</h2>
+    <div class="runways" id="runways"></div>
+  </section>
+
+  <div class="callout" id="caveat"></div>
+
+  <div class="foot">
+    Modelo de orden de magnitud para comparar <b>escala relativa</b>, no un benchmark.
+    Supone un stack compilado (p.ej. <code>Go/Rust + Postgres + Redis</code>) con app+BD+caché en una sola caja.
+    Techos de cómputo: estimaciones de ingeniería que escalan con núcleos × ancho de banda de memoria × E/S, y —cuando la IA va a bordo— con TOPS de NPU.
+    El escalamiento horizontal (varias réplicas, BD gestionada aparte) cambia por completo estos números.
+    Fuentes de especificaciones: AMD / Notebookcheck (HX 370), Hostinger / VPSBenchmarks (KVM 8), Raspberry Pi (Pi 5). Junio 2026.
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ════════════════════════════════════════════════════════════════
+   MODEL
+   Why these shapes: load is driven by concurrent active users (CAU),
+   and onboarding/AI verification is the heaviest compute event.
+   Every constant is an order-of-magnitude estimate, tunable above.
+   ════════════════════════════════════════════════════════════════ */
+
+const MONTHS = 36;
+
+// Adoption presets → (penetration of reachable market, logistic steepness k, midpoint t0)
+const ADOPT = {
+  cons: { pen: 0.006, k: 0.22, t0: 24 },
+  base: { pen: 0.015, k: 0.28, t0: 19 },
+  aggr: { pen: 0.035, k: 0.34, t0: 15 },
+};
+
+// Sustainable ceilings per machine (single all-in-one box, tuned stack).
+const MACHINE = {
+  pi:  { name:'Raspberry Pi 5',   cls:'pi',  cau: 300,   ai: 80,
+         bindCrud:'RAM 8 GB + NIC 1× GbE', bindAi:'CPU sin acelerador' },
+  kvm: { name:'Hostinger KVM 8',  cls:'kvm', cau: 4000,  ai: 600,
+         bindCrud:'vCPU + contención de vecinos', bindAi:'IA solo por CPU' },
+  hx:  { name:'Ryzen AI 9 HX 370',cls:'hx',  cau: 12000, ai: 9000,
+         bindCrud:'12 núcleos Zen5 + RAM', bindAi:'NPU 50 TOPS + iGPU' },
+};
+const ORDER = ['pi','kvm','hx'];
+
+const state = {
+  reach: 15e6,     // reachable adults
+  frac: 0.03,      // peak concurrent fraction of registered
+  adopt: 'base',
+  ai: true,        // AI processed on-box
+  metric: 'cau',   // which bottleneck chart is shown
+};
+
+const logistic = (t, L, k, t0) => L / (1 + Math.exp(-k * (t - t0)));
+
+/* Build per-month series from current state. */
+function series(){
+  const p = ADOPT[state.adopt];
+  const L = state.reach * p.pen;           // registered users at saturation
+  const reg = [], cau = [], ai = [];
+  for (let t = 0; t <= MONTHS; t++){
+    const r = logistic(t, L, p.k, p.t0);
+    reg.push(r);
+    cau.push(r * state.frac);              // peak concurrent active users
+    // AI demand (verifications-equiv / hour at peak):
+    //   onboarding: new registrations this month, spread over a 10h active window/day, 30 days
+    const prev = t > 0 ? logistic(t-1, L, p.k, p.t0) : 0;
+    const newRegPerHour = Math.max(0, (r - prev)) / (30 * 10);
+    const onboardingOps = newRegPerHour * 4;        // ~4 AI passes per alta (OCR+face+liveness+fraud)
+    const steadyOps = (r * state.frac) * 1.5;       // ranking + fraude por usuario activo /hora
+    ai.push(onboardingOps + steadyOps);
+  }
+  return { L, reg, cau, ai };
+}
+
+/* First month index where demand >= ceiling (or null if never within horizon). */
+function crossMonth(arr, ceiling){
+  for (let t = 0; t <= MONTHS; t++) if (arr[t] >= ceiling) return t;
+  return null;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SVG HELPERS  (hand-rolled, dependency-free)
+   ════════════════════════════════════════════════════════════════ */
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs={}) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+};
+const fmtUsers = v => v >= 1e6 ? (v/1e6).toFixed(1)+' M'
+                   : v >= 1e3 ? (v/1e3).toFixed(v>=1e4?0:1)+' k'
+                   : Math.round(v).toString();
+
+const PAD = { l: 60, r: 24, t: 18, b: 34 };
+
+/* ── Growth chart: linear y, registered (area) + peak CAU (line) ── */
+function drawGrowth(){
+  const svg = document.getElementById('growthChart');
+  svg.innerHTML = '';
+  const W = 920, H = 360, iw = W - PAD.l - PAD.r, ih = H - PAD.t - PAD.b;
+  const { reg, cau } = series();
+  const ymax = Math.max(...reg) * 1.08 || 1;
+  const X = t => PAD.l + (t / MONTHS) * iw;
+  const Y = v => PAD.t + ih - (v / ymax) * ih;
+
+  // gridlines + y labels
+  for (let i = 0; i <= 4; i++){
+    const v = ymax * i / 4, y = Y(v);
+    svg.appendChild(el('line', { x1:PAD.l, y1:y, x2:W-PAD.r, y2:y, stroke:'rgba(255,255,255,.06)' }));
+    const lab = el('text', { x:PAD.l-10, y:y+4, 'text-anchor':'end', fill:'#6a9192', 'font-size':'11', 'font-family':'JetBrains Mono, monospace' });
+    lab.textContent = fmtUsers(v); svg.appendChild(lab);
+  }
+  // x labels every 6 months
+  for (let m = 0; m <= MONTHS; m += 6){
+    const x = X(m);
+    const lab = el('text', { x, y:H-12, 'text-anchor':'middle', fill:'#6a9192', 'font-size':'11', 'font-family':'JetBrains Mono, monospace' });
+    lab.textContent = 'M'+m; svg.appendChild(lab);
+  }
+
+  // registered area
+  let d = `M ${X(0)} ${Y(0)}`;
+  reg.forEach((v,t)=> d += ` L ${X(t)} ${Y(v)}`);
+  d += ` L ${X(MONTHS)} ${Y(0)} Z`;
+  const area = el('path', { d, fill:'rgba(155,193,193,.12)', stroke:'none' });
+  svg.appendChild(area);
+  let dl = '';
+  reg.forEach((v,t)=> dl += (t?'L':'M')+` ${X(t)} ${Y(v)} `);
+  svg.appendChild(el('path', { d:dl, fill:'none', stroke:'rgba(155,193,193,.55)', 'stroke-width':'2' }));
+
+  // peak CAU line (bright)
+  let dc = '';
+  cau.forEach((v,t)=> dc += (t?'L':'M')+` ${X(t)} ${Y(v)} `);
+  svg.appendChild(el('path', { d:dc, fill:'none', stroke:'var(--demand)', 'stroke-width':'2.5' }));
+
+  // endpoint marker
+  const lastR = reg[MONTHS];
+  const dot = el('circle', { cx:X(MONTHS), cy:Y(lastR), r:'4', fill:'rgba(155,193,193,.9)' });
+  svg.appendChild(dot);
+
+  document.getElementById('growth-note').textContent =
+    `Tope ≈ ${fmtUsers(reg[MONTHS])} registrados · ${fmtUsers(cau[MONTHS])} activos pico`;
+}
+
+/* ── Bottleneck chart: log y, demand vs 3 ceilings, crossing markers ── */
+function drawBottleneck(){
+  const svg = document.getElementById('bnChart');
+  svg.innerHTML = '';
+  const W = 920, H = 380, iw = W - PAD.l - PAD.r, ih = H - PAD.t - PAD.b;
+  const s = series();
+  const isCau = state.metric === 'cau';
+  const demand = isCau ? s.cau : s.ai;
+  const ceilKey = isCau ? 'cau' : 'ai';
+
+  // log scale bounds
+  const ceilVals = ORDER.map(k => MACHINE[k][ceilKey]);
+  const peak = Math.max(...demand, 1);
+  const hi = Math.max(peak, Math.max(...ceilVals)) * 1.25;
+  const lo = Math.max(1, Math.min(...ceilVals) * 0.4, Math.min(...demand.filter(v=>v>0), 1) * 0.6);
+  const L10 = Math.log10, logLo = L10(lo), logHi = L10(hi);
+  const X = t => PAD.l + (t / MONTHS) * iw;
+  const Y = v => { const lv = L10(Math.max(v, lo*0.5)); return PAD.t + ih - ((lv - logLo)/(logHi - logLo)) * ih; };
+
+  // log gridlines at powers of 10 (and helpful midpoints)
+  for (let p = Math.floor(logLo); p <= Math.ceil(logHi); p++){
+    [1,3].forEach(m=>{
+      const v = m * Math.pow(10,p);
+      if (v < lo*0.9 || v > hi) return;
+      const y = Y(v);
+      svg.appendChild(el('line', { x1:PAD.l, y1:y, x2:W-PAD.r, y2:y, stroke:'rgba(255,255,255,.05)' }));
+      const lab = el('text', { x:PAD.l-10, y:y+4, 'text-anchor':'end', fill:'#6a9192', 'font-size':'11', 'font-family':'JetBrains Mono, monospace' });
+      lab.textContent = fmtUsers(v); svg.appendChild(lab);
+    });
+  }
+  for (let m = 0; m <= MONTHS; m += 6){
+    const lab = el('text', { x:X(m), y:H-12, 'text-anchor':'middle', fill:'#6a9192', 'font-size':'11', 'font-family':'JetBrains Mono, monospace' });
+    lab.textContent = 'M'+m; svg.appendChild(lab);
+  }
+
+  // ceiling lines + cross markers
+  ORDER.forEach(key=>{
+    const c = MACHINE[key], y = Y(c[ceilKey]);
+    const col = `var(--m-${key})`;
+    svg.appendChild(el('line', { x1:PAD.l, y1:y, x2:W-PAD.r, y2:y, stroke:col, 'stroke-width':'1.6', 'stroke-dasharray':'6 5', opacity:'.85' }));
+    const tag = el('text', { x:W-PAD.r, y:y-7, 'text-anchor':'end', fill:col, 'font-size':'11', 'font-weight':'600', 'font-family':'Montserrat,sans-serif' });
+    tag.textContent = c.name + ' · ' + fmtUsers(c[ceilKey]);
+    svg.appendChild(tag);
+
+    const cm = crossMonth(demand, c[ceilKey]);
+    if (cm !== null){
+      const cx = X(cm), cy = Y(c[ceilKey]);
+      svg.appendChild(el('line', { x1:cx, y1:cy, x2:cx, y2:H-PAD.b, stroke:col, 'stroke-width':'1', opacity:'.25' }));
+      svg.appendChild(el('circle', { cx, cy, r:'9', fill:'none', stroke:col, 'stroke-width':'1.5', opacity:'.5' }));
+      const dot = el('circle', { cx, cy, r:'5', fill:col });
+      dot.setAttribute('style', 'filter:drop-shadow(0 0 6px '+ (key==='pi'?'#fbbf24':key==='kvm'?'#c79bff':'#15d97e') +')');
+      svg.appendChild(dot);
+      const ml = el('text', { x:cx, y:H-PAD.b+0, 'text-anchor':'middle', fill:col, 'font-size':'11', 'font-weight':'700', 'font-family':'JetBrains Mono, monospace' });
+      ml.textContent = 'M'+cm; svg.appendChild(ml);
+    }
+  });
+
+  // demand curve on top
+  let dd = '';
+  demand.forEach((v,t)=> dd += (t?'L':'M')+` ${X(t)} ${Y(v)} `);
+  svg.appendChild(el('path', { d:dd, fill:'none', stroke:'var(--demand)', 'stroke-width':'3', 'stroke-linejoin':'round' }));
+  svg.appendChild(el('circle', { cx:X(MONTHS), cy:Y(demand[MONTHS]), r:'4.5', fill:'var(--demand)' }));
+
+  document.getElementById('bn-title').textContent = isCau
+    ? 'Usuarios activos en paralelo vs. capacidad'
+    : 'Verificaciones de IA por hora vs. capacidad';
+  document.getElementById('bn-note').textContent = isCau
+    ? 'Pico ≈ ' + fmtUsers(demand[MONTHS]) + ' activos'
+    : 'Pico ≈ ' + fmtUsers(demand[MONTHS]) + ' verif./h';
+}
+
+/* ── Runway result cards ── */
+function drawRunways(){
+  const s = series();
+  const wrap = document.getElementById('runways');
+  wrap.innerHTML = '';
+  const verdicts = {
+    pi:  'Piloto / una colonia. Ideal para validar el flujo, no para producción.',
+    kvm:'Producción de arranque. Te lleva por buena parte del crecimiento; luego escalas horizontal.',
+    hx: 'Mayor cómputo bruto y única con IA real a bordo. El límite práctico pasa a ser la red, no el chip.',
+  };
+
+  ORDER.forEach(key=>{
+    const m = MACHINE[key];
+    const cmCau = crossMonth(s.cau, m.cau);
+    const cmAi  = state.ai ? crossMonth(s.ai, m.ai) : null;
+
+    // binding bottleneck = earliest crossing across active axes
+    let cm = cmCau, bind = m.bindCrud, axis = 'carga';
+    if (cmAi !== null && (cmCau === null || cmAi < cmCau)){ cm = cmAi; bind = m.bindAi; axis = 'IA'; }
+
+    const regAt = cm !== null ? s.reg[cm] : s.reg[MONTHS];
+    let pill, pillTxt;
+    if (cm === null){ pill='ok';  pillTxt='Aguanta el horizonte'; }
+    else if (cm <= 6){ pill='bad';  pillTxt='Satura temprano'; }
+    else if (cm <= 18){ pill='warn'; pillTxt='Satura a medio camino'; }
+    else { pill='ok'; pillTxt='Satura tarde'; }
+
+    const card = document.createElement('div');
+    card.className = 'run ' + m.cls;
+    card.innerHTML = `
+      <div class="rname"><span class="swatch"></span>${m.name}</div>
+      <div class="big">${cm!==null ? 'Mes '+cm : '36+'}<br><small>${cm!==null ? '≈ '+fmtUsers(regAt)+' registrados' : 'sin saturar en 36 meses'}</small></div>
+      <div class="meta">
+        <span class="pill ${pill}">${pillTxt}</span><br><br>
+        ${cm!==null ? `Primer límite: <b>${axis==='IA'?'cómputo de IA':'carga de servicio'}</b><br>Recurso que truena: <b>${bind}</b>` : `Le queda holgura de cómputo en este escenario.`}
+      </div>
+      <div class="verdict">${verdicts[key]}</div>`;
+    wrap.appendChild(card);
+  });
+}
+
+/* ── Caveat text depends on AI toggle ── */
+function drawCaveat(){
+  const c = document.getElementById('caveat');
+  if (state.ai){
+    c.innerHTML = `<b>El matiz que decide todo:</b> con la IA a bordo, la NPU de 50 TOPS del HX 370 lo pone
+      en otra liga — Pi 5 y KVM 8 chocan contra el techo de <b>verificación</b> mucho antes que contra el de carga.
+      Pero ojo: un solo mini-servidor en casa/oficina en Edomex o CDMX tiene como verdadero cuello de botella
+      el <b>enlace de subida de internet</b>, la <b>energía</b> y la <b>falta de redundancia</b> (un punto único de falla),
+      no el silicio. Para producción real conviene <b>colocación (colo)</b> o un enlace empresarial.`;
+  } else {
+    c.innerHTML = `<b>IA delegada a una API externa:</b> la ventaja de la NPU del HX 370 prácticamente desaparece —
+      ya solo compite por núcleos y RAM. Aquí el KVM 8, con red de datacenter y SLA de 99.9%, suele ser la
+      opción más sensata para arrancar producción, y escalas con réplicas + base de datos gestionada aparte
+      cuando la curva azul se acerca a su techo.`;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RENDER + WIRING
+   ════════════════════════════════════════════════════════════════ */
+function renderAll(){
+  drawGrowth();
+  drawBottleneck();
+  drawRunways();
+  drawCaveat();
+}
+
+// sliders
+const reach = document.getElementById('reach');
+reach.addEventListener('input', e=>{
+  state.reach = parseFloat(e.target.value) * 1e6;
+  document.getElementById('reach-v').textContent = parseFloat(e.target.value).toFixed(1)+' M';
+  renderAll();
+});
+const frac = document.getElementById('frac');
+frac.addEventListener('input', e=>{
+  state.frac = parseFloat(e.target.value) / 100;
+  document.getElementById('frac-v').textContent = parseFloat(e.target.value).toFixed(1)+' %';
+  renderAll();
+});
+
+// adoption segmented
+document.querySelectorAll('#adopt button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#adopt button').forEach(x=>{x.classList.remove('is-on');x.setAttribute('aria-checked','false');});
+    b.classList.add('is-on'); b.setAttribute('aria-checked','true');
+    state.adopt = b.dataset.a; renderAll();
+  });
+});
+
+// metric segmented
+document.querySelectorAll('#metric button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#metric button').forEach(x=>{x.classList.remove('is-on');x.setAttribute('aria-checked','false');});
+    b.classList.add('is-on'); b.setAttribute('aria-checked','true');
+    state.metric = b.dataset.m; drawBottleneck();
+  });
+});
+
+// AI toggle
+document.getElementById('aiToggle').addEventListener('change', e=>{
+  state.ai = e.target.checked;
+  // if AI is off, force the bottleneck chart back to CAU and disable AI metric
+  const aiBtn = document.querySelector('#metric [data-m="ai"]');
+  aiBtn.disabled = !state.ai;
+  aiBtn.style.opacity = state.ai ? '1' : '.4';
+  aiBtn.style.cursor = state.ai ? 'pointer' : 'not-allowed';
+  if (!state.ai && state.metric === 'ai'){
+    state.metric = 'cau';
+    document.querySelectorAll('#metric button').forEach(x=>{x.classList.remove('is-on');x.setAttribute('aria-checked','false');});
+    document.querySelector('#metric [data-m="cau"]').classList.add('is-on');
+  }
+  renderAll();
+});
+
+renderAll();
+</script>
+</body>
+</html>

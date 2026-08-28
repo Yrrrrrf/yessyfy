@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acuerdo Comercial — Yessyfy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f5f1e8;
+  --paper-deep: #ebe5d4;
+  --ink: #1a1714;
+  --ink-soft: #4a4339;
+  --rule: #c9bfa8;
+  --accent: #8b0000;
+  --accent-soft: #c84545;
+  --note-bg: #fdf2f0;
+  --note-border: #b13030;
+  --gold: #8a6f3a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(180, 160, 120, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(180, 160, 120, 0.04) 0%, transparent 50%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.07 0 0 0 0.04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  color: var(--ink);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.7;
+  min-height: 100vh;
+  padding: 4rem 1.5rem;
+}
+
+.doc {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ====== HEADER ====== */
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.brand-mark {
+  font-family: 'Fraunces', serif;
+  font-weight: 800;
+  font-size: 2.4rem;
+  letter-spacing: -0.04em;
+  font-style: italic;
+  color: var(--ink);
+}
+
+.brand-mark::first-letter {
+  color: var(--accent);
+}
+
+.brand-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding-bottom: 0.5rem;
+}
+
+.doc-meta {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  line-height: 1.9;
+}
+
+.doc-meta strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.thin-rule {
+  height: 1px;
+  background: var(--rule);
+  margin-bottom: 4rem;
+  position: relative;
+}
+
+.thin-rule::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 80px;
+  height: 5px;
+  background: var(--accent);
+}
+
+/* ====== TITLE BLOCK ====== */
+.title-block {
+  margin-bottom: 4rem;
+  text-align: center;
+}
+
+.overline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 1.25rem;
+}
+
+h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+
+h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.subtitle {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+}
+
+/* ====== ANNOTATIONS NOTICE ====== */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(177, 48, 48, 0.04);
+  border-left: 3px solid var(--accent);
+  margin-bottom: 4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 4px rgba(177, 48, 48, 0.15);
+}
+
+/* ====== SECTIONS ====== */
+section.clause {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 2rem;
+  margin-bottom: 3.5rem;
+  position: relative;
+}
+
+.clause-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: 3.5rem;
+  line-height: 1;
+  color: var(--accent);
+  text-align: right;
+  padding-top: 0.25rem;
+}
+
+.clause-body h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+  color: var(--ink);
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.clause-body h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 1px;
+  background: var(--ink);
+}
+
+.clause-body p {
+  margin-bottom: 0.75rem;
+}
+
+.clause-body ul {
+  list-style: none;
+  margin: 0.75rem 0 1rem 0;
+}
+
+.clause-body ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.clause-body ul li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.clause-body strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.emphasis {
+  font-style: italic;
+  font-family: 'Fraunces', serif;
+  color: var(--ink-soft);
+  padding: 0.5rem 0 0.5rem 1rem;
+  border-left: 2px solid var(--gold);
+  margin: 0.75rem 0;
+}
+
+/* ====== RED NOTES ====== */
+.note {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.85rem;
+  margin: 1.25rem 0;
+  padding: 0.85rem 1.1rem;
+  background: var(--note-bg);
+  border-left: 3px solid var(--note-border);
+  border-radius: 0 2px 2px 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #6b1a1a;
+  position: relative;
+}
+
+.note::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(177, 48, 48, 0.02) 100%);
+  pointer-events: none;
+}
+
+.note-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--note-border);
+  white-space: nowrap;
+  padding-top: 0.15rem;
+}
+
+.note-body {
+  color: #5a1818;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+}
+
+.note-body strong {
+  font-style: normal;
+  color: var(--note-border);
+  font-weight: 600;
+}
+
+/* ====== HIGHLIGHT BOX (for penalties etc) ====== */
+.penalty-box {
+  background: rgba(138, 111, 58, 0.06);
+  border: 1px solid rgba(138, 111, 58, 0.25);
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+}
+
+.penalty-box .penalty-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* ====== SIGNATURES ====== */
+.signatures {
+  margin-top: 6rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+}
+
+.sig-block {
+  text-align: center;
+}
+
+.sig-line {
+  height: 1px;
+  background: var(--ink);
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.sig-line::after {
+  content: "✕";
+  position: absolute;
+  top: -10px;
+  left: -8px;
+  color: var(--accent);
+  font-size: 0.9rem;
+  background: var(--paper);
+  padding: 0 4px;
+}
+
+.sig-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.sig-name {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--ink);
+  margin-top: 0.5rem;
+}
+
+/* ====== FOOTER ====== */
+footer {
+  margin-top: 5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+footer .accent {
+  color: var(--accent);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 720px) {
+  body { padding: 2rem 1rem; font-size: 16px; }
+  .header { grid-template-columns: 1fr; gap: 1rem; }
+  .doc-meta { text-align: left; }
+  section.clause { grid-template-columns: 1fr; gap: 0.5rem; }
+  .clause-num { text-align: left; font-size: 2.5rem; }
+  .signatures { grid-template-columns: 1fr; gap: 3rem; }
+  footer { flex-direction: column; gap: 0.5rem; }
+  .note { grid-template-columns: 1fr; }
+}
+
+/* ====== PRINT ====== */
+@media print {
+  body { background: white; padding: 1rem; font-size: 11pt; }
+  .note { break-inside: avoid; }
+  section.clause { break-inside: avoid; }
+  .legend { break-after: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">
+      <span class="brand-mark">Yessyfy</span>
+      <span class="brand-tag">Servicios a Domicilio</span>
+    </div>
+    <div class="doc-meta">
+      Documento <strong>YSF-001</strong><br>
+      Versión <strong>Blindada</strong><br>
+      Vigencia <strong>Indefinida</strong>
+    </div>
+  </header>
+  <div class="thin-rule"></div>
+
+  <!-- TITLE -->
+  <div class="title-block">
+    <div class="overline">Acuerdo Comercial Avanzado</div>
+    <h1>Yessyfy <em>&amp;</em><br>Prestador de Servicios</h1>
+    <p class="subtitle">Términos que rigen la relación comercial entre la plataforma y el prestador independiente.</p>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <span class="legend-dot"></span>
+    <span>Las notas en rojo marcan consideraciones a revisar — no son parte del contrato.</span>
+  </div>
+
+  <!-- ===== SECTION 1 ===== -->
+  <section class="clause">
+    <div class="clause-num">01</div>
+    <div class="clause-body">
+      <h2>Naturaleza del Acuerdo</h2>
+      <p>Relación estrictamente comercial. No existe relación laboral, subordinación ni exclusividad. El prestador actúa como independiente y asume todas sus obligaciones legales.</p>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">La <strong>LFT mexicana</strong> permite reclasificación si en la práctica existen elementos de subordinación (horarios fijos, control directo, dependencia económica). Conviene asegurar que la operación real refleje la independencia declarada.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 2 ===== -->
+  <section class="clause">
+    <div class="clause-num">02</div>
+    <div class="clause-body">
+      <h2>Responsabilidades del Prestador</h2>
+      <p>Incluyen, sin limitarse a:</p>
+      <ul>
+        <li>Uso de herramientas propias</li>
+        <li>Conducta profesional</li>
+        <li>No aceptar pagos directos</li>
+        <li>Evidencia fotográfica</li>
+        <li>Firma del cliente</li>
+        <li>Identificación como Yessyfy</li>
+      </ul>
+      <p class="emphasis">Responsabilidad total por daños derivados de negligencia o mala ejecución.</p>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body"><strong>"Responsabilidad total"</strong> sin tope expone al prestador a montos potencialmente ilimitados. Valorar si conviene definir un límite, exigir seguro de responsabilidad civil, o establecer un proceso de evaluación del daño antes del cobro.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 3 ===== -->
+  <section class="clause">
+    <div class="clause-num">03</div>
+    <div class="clause-body">
+      <h2>Responsabilidades de Yessyfy</h2>
+      <ul>
+        <li>Asignación de servicios</li>
+        <li>Definición de precios</li>
+        <li>Pagos semanales sujetos a validación</li>
+      </ul>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">La asimetría entre <strong>Sección 2</strong> (lista extensa de obligaciones) y esta sección (tres puntos genéricos) puede leerse como desequilibrio contractual. La frase <strong>"sujetos a validación"</strong> sin criterios definidos otorga discrecionalidad amplia a Yessyfy.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 4 ===== -->
+  <section class="clause">
+    <div class="clause-num">04</div>
+    <div class="clause-body">
+      <h2>Pagos y Validación</h2>
+      <p>Yessyfy podrá:</p>
+      <ul>
+        <li>Retener pagos ante inconformidades</li>
+        <li>Ajustar montos</li>
+        <li>Cancelar pagos en caso de incumplimiento</li>
+      </ul>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">No se definen <strong>plazos máximos de retención</strong>, <strong>criterios objetivos de inconformidad</strong>, ni <strong>derecho de réplica</strong> del prestador. Sin estos elementos, la cláusula puede considerarse abusiva ante un juez. Recomendable establecer un proceso claro de disputa.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 5 ===== -->
+  <section class="clause">
+    <div class="clause-num">05</div>
+    <div class="clause-body">
+      <h2>No Competencia y Penalización</h2>
+      <p>El prestador se obliga a no:</p>
+      <ul>
+        <li>Ofrecer servicios por fuera</li>
+        <li>Compartir datos del cliente</li>
+        <li>Establecer relación directa con clientes</li>
+      </ul>
+
+      <div class="penalty-box">
+        <span class="penalty-label">En caso de incumplimiento</span>
+        <p>El prestador deberá pagar a Yessyfy una penalización equivalente a:</p>
+        <ul>
+          <li>5 veces el valor del servicio realizado, <strong>O</strong></li>
+          <li>$5,000 MXN, lo que resulte mayor</li>
+        </ul>
+      </div>
+
+      <p>Además:</p>
+      <ul>
+        <li>Podrá ser dado de baja inmediata</li>
+        <li>Yessyfy podrá reclamar daños adicionales si aplica</li>
+      </ul>
+      <p class="emphasis">Esta obligación tendrá vigencia durante la relación y hasta 6 meses posteriores.</p>
+
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">Las <strong>cláusulas penales</strong> (Art. 1840 CCF) son válidas pero un juez puede reducirlas si las considera <strong>excesivas o desproporcionadas</strong>. La fórmula "lo que resulte mayor" combinada con "daños adicionales" puede leerse como doble sanción por el mismo hecho.</span>
+      </div>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">Las <strong>cláusulas de no competencia post-relación</strong> en México requieren razonabilidad en alcance, tiempo y territorio. Seis meses es defendible, pero conviene precisar geografía y tipo de servicios para reducir riesgo de invalidez.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 6 ===== -->
+  <section class="clause">
+    <div class="clause-num">06</div>
+    <div class="clause-body">
+      <h2>Relación Continua con Clientes</h2>
+      <p>Si el cliente vuelve a solicitar servicios directamente al prestador:</p>
+      <p>El prestador deberá:</p>
+      <ul>
+        <li>Notificar a Yessyfy</li>
+        <li>Cubrir una comisión del 20% sobre cualquier servicio realizado durante 6 meses posteriores</li>
+      </ul>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">La obligación de <strong>auto-reporte</strong> sin mecanismo de verificación es prácticamente inejecutable. Conviene definir cómo se detectan estos casos (¿reportes del cliente?, ¿auditorías?) y qué prueba se acepta.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 7 ===== -->
+  <section class="clause">
+    <div class="clause-num">07</div>
+    <div class="clause-body">
+      <h2>Confidencialidad</h2>
+      <p>Prohibido divulgar información de clientes, direcciones o servicios.</p>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">Los <strong>datos de clientes son datos personales</strong> bajo la LFPDPPP. Yessyfy es el responsable y el prestador opera como encargado. Conviene alinear esta cláusula con las obligaciones del aviso de privacidad y las medidas de seguridad ARCO.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 8 ===== -->
+  <section class="clause">
+    <div class="clause-num">08</div>
+    <div class="clause-body">
+      <h2>Uso de Evidencia</h2>
+      <p>Yessyfy podrá usar evidencia con fines comerciales y operativos.</p>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">Si la evidencia incluye <strong>imágenes del cliente, su domicilio o sus pertenencias</strong>, se requiere consentimiento expreso del cliente (no del prestador) para uso comercial. "Fines comerciales y operativos" es muy amplio y conviene acotarlo.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 9 ===== -->
+  <section class="clause">
+    <div class="clause-num">09</div>
+    <div class="clause-body">
+      <h2>Terminación</h2>
+      <ul>
+        <li>Aviso de 7 días</li>
+        <li>Terminación inmediata por incumplimiento</li>
+      </ul>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">El término <strong>"incumplimiento"</strong> no está definido. Sin un catálogo de causales graves, cualquier disputa menor podría justificar terminación inmediata, lo que debilita la posición de Yessyfy si se impugna.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 10 ===== -->
+  <section class="clause">
+    <div class="clause-num">10</div>
+    <div class="clause-body">
+      <h2>Jurisdicción</h2>
+      <p>Leyes mexicanas.</p>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">Conviene especificar la <strong>ciudad o entidad federativa</strong> de los tribunales competentes. Sin ello, el prestador puede demandar en su propio domicilio, lo que dispersa el riesgo procesal de Yessyfy.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 11 ===== -->
+  <section class="clause">
+    <div class="clause-num">11</div>
+    <div class="clause-body">
+      <h2>Aceptación</h2>
+      <p>Ambas partes aceptan los términos.</p>
+      <div class="note">
+        <span class="note-tag">▲ Considerar</span>
+        <span class="note-body">Una aceptación genérica deja dudas sobre lectura efectiva. Conviene incluir <strong>fecha, lugar, identificación oficial</strong> y, si aplica, firma electrónica conforme al Código de Comercio (Art. 89 bis).</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGNATURES -->
+  <div class="signatures">
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-label">Firma</div>
+      <div class="sig-name">Yessyfy</div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-label">Firma</div>
+      <div class="sig-name">Prestador</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>Yessyfy <span class="accent">·</span> Servicios a Domicilio</span>
+    <span>Documento Confidencial</span>
+    <span>Página <span class="accent">01</span> / 01</span>
+  </footer>
+
+</div>
+</body>
+</html>

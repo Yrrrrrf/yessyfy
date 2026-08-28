@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Yessyfy — Manual de Marca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal-dark:   #0b3d47;
+    --teal-mid:    #0f5a6a;
+    --teal-light:  #17818f;
+    --green:       #00c97a;
+    --green-dark:  #00a862;
+    --green-light: #4ade9f;
+    --blue:        #1ab8cc;
+    --logo-blue:   #0093d9;
+    --logo-green:  #23bd55;
+    --offwhite:    #f4f8f7;
+    --white:       #ffffff;
+    --border:      #e8eff0;
+    --text-dark:   #0b1e22;
+    --text-mid:    #3a5a62;
+    --text-light:  #7a9ea6;
+    --star:        #ffb020;
+    --rose:        #d94f6c;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-dark);
+    background: var(--offwhite);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  ::selection { background: var(--green); color: var(--teal-dark); }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── LAYOUT ── */
+  .doc { max-width: 1100px; margin: 0 auto; }
+  section { padding: 100px 64px; border-bottom: 1px solid var(--border); }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--green-dark);
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  }
+  .eyebrow::before { content: ''; width: 28px; height: 2px; background: var(--green); }
+  .eyebrow .num { color: var(--text-light); font-weight: 500; }
+  h2.sec-title {
+    font-size: clamp(30px, 4vw, 46px); font-weight: 800;
+    letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 18px;
+  }
+  .sec-intro { font-size: 18px; color: var(--text-mid); max-width: 600px; line-height: 1.6; text-wrap: pretty; }
+  .grid { display: grid; gap: 24px; }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh; padding: 64px;
+    background:
+      radial-gradient(720px 520px at 18% 12%, rgba(0,201,122,0.16), transparent 60%),
+      radial-gradient(820px 600px at 88% 92%, rgba(26,184,204,0.18), transparent 55%),
+      linear-gradient(140deg, #08323b 0%, #0b3d47 52%, #0d6e7e 100%);
+    color: #fff; display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden; border-bottom: none;
+  }
+  .cover::before {
+    content: ''; position: absolute; inset: 0; opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300c97a' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .cover-top { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+  .cover-brand { display: flex; align-items: center; gap: 12px; }
+  .cover-brand img { width: 42px; height: 42px; }
+  .cover-brand span { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .cover-meta { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.5px; }
+  .cover-center { position: relative; z-index: 1; }
+  .cover-center img { width: 132px; height: 132px; margin-bottom: 40px; filter: drop-shadow(0 18px 40px rgba(0,0,0,0.3)); }
+  .cover h1 {
+    font-size: clamp(48px, 9vw, 104px); font-weight: 800;
+    letter-spacing: -4px; line-height: 0.92; margin-bottom: 28px;
+  }
+  .cover h1 em { font-style: normal; color: var(--green); }
+  .cover-tag { font-size: clamp(19px, 2.4vw, 26px); font-weight: 400; color: rgba(255,255,255,0.78); max-width: 560px; line-height: 1.4; }
+  .cover-bottom { position: relative; z-index: 1; display: flex; gap: 48px; flex-wrap: wrap; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.14); font-size: 14px; color: rgba(255,255,255,0.55); }
+  .cover-bottom b { color: #fff; font-weight: 700; display: block; font-size: 15px; margin-bottom: 2px; }
+
+  /* ── MANIFESTO ── */
+  .manifesto { background: var(--white); }
+  .manifesto-quote {
+    font-size: clamp(26px, 3.6vw, 42px); font-weight: 500; line-height: 1.32;
+    letter-spacing: -0.8px; max-width: 880px; margin: 8px 0 0; text-wrap: pretty;
+  }
+  .manifesto-quote b { font-weight: 800; color: var(--teal-dark); }
+  .manifesto-quote .hl { color: var(--green-dark); font-weight: 700; }
+  .values { grid-template-columns: repeat(4, 1fr); margin-top: 72px; }
+  .value { padding-top: 22px; border-top: 2px solid var(--teal-dark); }
+  .value .vn { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green-dark); font-weight: 500; }
+  .value h4 { font-size: 19px; font-weight: 800; letter-spacing: -0.4px; margin: 14px 0 8px; }
+  .value p { font-size: 14px; color: var(--text-mid); line-height: 1.55; }
+
+  /* ── LOGO ── */
+  .logo-row { grid-template-columns: 1fr 1fr; margin-top: 56px; }
+  .logo-box {
+    border-radius: 20px; height: 320px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 22px; position: relative; overflow: hidden;
+  }
+  .logo-box.on-light { background: var(--white); border: 1px solid var(--border); }
+  .logo-box.on-dark { background: linear-gradient(140deg, var(--teal-dark), var(--teal-mid)); }
+  .logo-box img { width: 96px; height: 96px; }
+  .logo-box .lockup { display: flex; align-items: center; gap: 14px; }
+  .logo-box .lockup img { width: 44px; height: 44px; }
+  .logo-box .lockup span { font-size: 30px; font-weight: 700; letter-spacing: -0.8px; }
+  .logo-box.on-light .lockup span { color: var(--teal-dark); }
+  .logo-box.on-dark .lockup span { color: #fff; }
+  .logo-cap { position: absolute; bottom: 16px; left: 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.5px; }
+  .logo-box.on-light .logo-cap { color: var(--text-light); }
+  .logo-box.on-dark .logo-cap { color: rgba(255,255,255,0.4); }
+
+  .clearspace { margin-top: 24px; display: grid; grid-template-columns: 360px 1fr; gap: 40px; align-items: center; }
+  .cs-frame { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 40px; display: flex; align-items: center; justify-content: center; }
+  .cs-pad { position: relative; padding: 44px; }
+  .cs-pad::before { content: ''; position: absolute; inset: 0; border: 1.5px dashed var(--green); border-radius: 8px; }
+  .cs-pad img { width: 84px; height: 84px; display: block; position: relative; }
+  .cs-pad .x { position: absolute; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--green-dark); background: var(--white); padding: 0 4px; }
+  .cs-pad .x.top { top: -7px; left: 50%; transform: translateX(-50%); }
+  .cs-pad .x.left { left: -10px; top: 50%; transform: translateY(-50%); }
+
+  .dos { grid-template-columns: 1fr 1fr 1fr 1fr; margin-top: 56px; }
+  .dont { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .dont-vis { height: 120px; display: flex; align-items: center; justify-content: center; background: var(--offwhite); border-bottom: 1px solid var(--border); position: relative; }
+  .dont-vis img { width: 56px; height: 56px; }
+  .dont-tag { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; background: var(--rose); color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .dont p { font-size: 13px; color: var(--text-mid); padding: 14px 16px; line-height: 1.45; }
+
+  /* ── COLOR ── */
+  .color { background: var(--white); }
+  .swatch-grid { grid-template-columns: repeat(4, 1fr); margin-top: 48px; }
+  .swatch { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+  .swatch .chip { height: 132px; display: flex; align-items: flex-end; padding: 14px; }
+  .swatch .meta { padding: 14px 16px 16px; }
+  .swatch .meta .nm { font-size: 14px; font-weight: 700; }
+  .swatch .meta .hex { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-light); margin-top: 3px; text-transform: uppercase; }
+  .swatch .meta .use { font-size: 12px; color: var(--text-mid); margin-top: 8px; line-height: 1.4; }
+  .chip-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 100px; }
+
+  .sub-h { font-size: 14px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-dark); margin: 64px 0 8px; }
+  .sub-p { font-size: 14px; color: var(--text-mid); max-width: 560px; margin-bottom: 24px; }
+
+  .gradient-bar { height: 80px; border-radius: 14px; display: flex; align-items: center; padding: 0 24px; color: #fff; font-weight: 700; letter-spacing: -0.3px; position: relative; overflow: hidden; }
+  .gradient-bar .code { position: absolute; right: 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; opacity: 0.85; }
+
+  .cat-grid { grid-template-columns: repeat(3, 1fr); margin-top: 4px; }
+  .cat { border-radius: 14px; overflow: hidden; border: 1px solid var(--border); background: var(--white); }
+  .cat .cg { height: 76px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+  .cat .ci { padding: 12px 14px; }
+  .cat .ci .cn { font-size: 13.5px; font-weight: 700; }
+  .cat .ci .ch { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-light); margin-top: 3px; }
+
+  .neutrals { display: flex; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); margin-top: 4px; }
+  .neutral { flex: 1; height: 110px; display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; }
+  .neutral .nn { font-size: 11.5px; font-weight: 700; }
+  .neutral .nh { font-family: 'JetBrains Mono', monospace; font-size: 10px; margin-top: 2px; opacity: 0.7; }
+
+  /* ── TYPE ── */
+  .type { background: var(--offwhite); }
+  .type-spec { background: var(--white); border: 1px solid var(--border); border-radius: 20px; padding: 48px 52px; margin-top: 48px; }
+  .type-spec .big { font-size: 96px; font-weight: 800; letter-spacing: -4px; line-height: 1; color: var(--teal-dark); }
+  .type-spec .fam { display: flex; align-items: baseline; gap: 16px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .type-spec .fam .fname { font-size: 22px; font-weight: 700; }
+  .type-spec .fam .fmeta { font-size: 14px; color: var(--text-mid); }
+  .weights { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 20px; }
+  .weights span { font-size: 22px; color: var(--teal-dark); }
+  .scale { margin-top: 28px; display: flex; flex-direction: column; }
+  .scale-row { display: grid; grid-template-columns: 170px 1fr; gap: 24px; align-items: baseline; padding: 18px 0; border-top: 1px solid var(--border); }
+  .scale-row .label { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-light); padding-top: 8px; }
+  .scale-row .label b { display: block; color: var(--text-dark); font-size: 12px; margin-bottom: 3px; }
+  .scale-row .sample { color: var(--teal-dark); letter-spacing: -0.5px; }
+
+  /* ── VOICE ── */
+  .voice { background: var(--white); }
+  .voice-principles { grid-template-columns: repeat(2, 1fr); margin-top: 48px; gap: 20px; }
+  .vp { border: 1px solid var(--border); border-radius: 16px; padding: 28px 30px; }
+  .vp .vp-i { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, rgba(0,201,122,0.14), rgba(26,184,204,0.12)); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+  .vp h4 { font-size: 18px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 6px; }
+  .vp p { font-size: 14px; color: var(--text-mid); line-height: 1.55; }
+  .say { grid-template-columns: 1fr 1fr; margin-top: 24px; gap: 20px; }
+  .say-col { border-radius: 16px; padding: 28px 30px; }
+  .say-col.yes { background: rgba(0,201,122,0.07); border: 1px solid rgba(0,201,122,0.25); }
+  .say-col.no { background: rgba(217,79,108,0.05); border: 1px solid rgba(217,79,108,0.2); }
+  .say-col .sh { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 18px; }
+  .say-col.yes .sh { color: var(--green-dark); }
+  .say-col.no .sh { color: var(--rose); }
+  .say-col .badge { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 800; }
+  .say-col.yes .badge { background: var(--green-dark); }
+  .say-col.no .badge { background: var(--rose); }
+  .say-col ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .say-col li { font-size: 16px; font-weight: 500; line-height: 1.4; }
+  .say-col.no li { color: var(--text-mid); }
+
+  /* ── APPLICATIONS ── */
+  .apps { background: var(--offwhite); }
+  .app-grid { grid-template-columns: 1fr 1fr; margin-top: 48px; gap: 24px; }
+  .app-card { background: var(--white); border: 1px solid var(--border); border-radius: 18px; padding: 30px 32px; }
+  .app-card .ac-h { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-light); margin-bottom: 22px; }
+  .ui-btns { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn { border: none; cursor: default; font-family: 'Outfit', sans-serif; font-weight: 700; border-radius: 10px; padding: 14px 24px; font-size: 15px; }
+  .btn-primary { background: var(--green); color: var(--teal-dark); box-shadow: 0 8px 24px rgba(0,201,122,0.32); }
+  .btn-dark { background: var(--teal-dark); color: #fff; }
+  .btn-soft { background: rgba(0,201,122,0.14); color: var(--green-dark); }
+  .btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--text-mid); }
+  .ui-badges { display: flex; flex-wrap: wrap; gap: 10px; }
+  .bdg { font-size: 11px; font-weight: 800; padding: 5px 11px; border-radius: 8px; letter-spacing: 0.3px; }
+  .bdg.top { color: var(--green-dark); background: rgba(0,201,122,0.12); }
+  .bdg.online { color: var(--green-dark); background: rgba(0,201,122,0.12); }
+  .bdg.conf { color: var(--green-dark); background: rgba(0,168,98,0.11); }
+  .bdg.cancel { color: var(--rose); background: rgba(217,79,108,0.11); }
+  .bdg.star { color: #9a6b00; background: rgba(255,176,32,0.16); }
+  .pro-card { display: flex; align-items: center; gap: 14px; background: var(--white); border: 1px solid var(--border); border-radius: 18px; padding: 16px; box-shadow: 0 6px 20px rgba(11,61,71,0.06); }
+  .avatar { width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--green), var(--blue)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 19px; flex-shrink: 0; box-shadow: 0 6px 16px rgba(26,184,204,0.3); }
+  .pro-card .pc-body { flex: 1; }
+  .pro-card .pc-name { font-weight: 700; font-size: 15.5px; }
+  .pro-card .pc-svc { font-size: 12.5px; color: var(--text-mid); margin: 2px 0 5px; }
+  .pro-card .pc-meta { font-size: 12px; color: var(--text-mid); }
+  .pro-card .pc-star { color: var(--star); }
+  .pro-card .pc-price { text-align: right; }
+  .pro-card .pc-price .lbl { font-size: 10.5px; color: var(--text-light); }
+  .pro-card .pc-price .amt { font-size: 18px; font-weight: 800; }
+  .pill-tabs { display: inline-flex; gap: 6px; background: var(--offwhite); border-radius: 14px; padding: 6px; border: 1px solid var(--border); }
+  .pill-tab { font-size: 13px; font-weight: 600; color: var(--text-mid); padding: 8px 16px; border-radius: 10px; }
+  .pill-tab.active { background: var(--white); color: var(--green-dark); font-weight: 700; box-shadow: 0 2px 8px rgba(11,61,71,0.08); }
+
+  /* ── DAISYUI ── */
+  .daisy { background: var(--white); }
+  .map-table { margin-top: 48px; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+  .map-head, .map-row { display: grid; grid-template-columns: 200px 1fr 170px; gap: 20px; align-items: center; padding: 14px 24px; }
+  .map-head { background: var(--teal-dark); color: rgba(255,255,255,0.7); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+  .map-row { border-top: 1px solid var(--border); }
+  .map-row:nth-child(even) { background: var(--offwhite); }
+  .map-token { display: flex; align-items: center; gap: 11px; }
+  .map-token .dot { width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0; border: 1px solid rgba(11,30,34,0.08); }
+  .map-token .nm { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: var(--text-dark); }
+  .map-row .desc { font-size: 13.5px; color: var(--text-mid); line-height: 1.45; }
+  .map-row .src { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-light); }
+  .map-row .src b { color: var(--green-dark); font-weight: 600; }
+
+  .code-block { margin-top: 24px; background: #08323b; border-radius: 18px; overflow: hidden; border: 1px solid rgba(0,201,122,0.18); }
+  .code-bar { display: flex; align-items: center; gap: 8px; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .code-bar .d { width: 11px; height: 11px; border-radius: 50%; }
+  .code-bar .fn { margin-left: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.5); }
+  .code-block pre { padding: 22px 24px; overflow-x: auto; margin: 0; }
+  .code-block code { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.7; color: #cfe9e4; white-space: pre; }
+  .code-block .c-key { color: #4ade9f; }
+  .code-block .c-var { color: #67d4e8; }
+  .code-block .c-val { color: #ffd479; }
+  .code-block .c-com { color: #5a8a86; font-style: italic; }
+  .code-block .c-at { color: #ff9b6b; }
+  .daisy-note { display: flex; gap: 14px; margin-top: 24px; padding: 20px 24px; background: rgba(0,201,122,0.07); border: 1px solid rgba(0,201,122,0.25); border-radius: 16px; }
+  .daisy-note .ico { font-size: 20px; }
+  .daisy-note p { font-size: 14px; color: var(--text-mid); line-height: 1.55; }
+  .daisy-note code { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; background: rgba(0,201,122,0.14); color: var(--green-dark); padding: 2px 6px; border-radius: 5px; }
+  .preview-strip { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 26px; background: var(--offwhite); border: 1px solid var(--border); border-radius: 18px; }
+  .preview-strip .pl { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
+  .ds-btn { border: none; font-family: 'Outfit', sans-serif; font-weight: 600; border-radius: 0.7rem; padding: 12px 22px; font-size: 14px; }
+
+  /* ── FOOTER ── */
+  .foot { background: var(--text-dark); color: #fff; padding: 64px; text-align: center; border-bottom: none; }
+  .foot img { width: 52px; height: 52px; margin-bottom: 20px; }
+  .foot .ft-tag { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .foot .ft-sub { font-size: 14px; color: rgba(255,255,255,0.45); }
+  .foot .ft-meta { margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; color: rgba(255,255,255,0.3); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+
+  @media (max-width: 880px) {
+    section { padding: 64px 28px; }
+    .cover { padding: 36px 28px; }
+    .values, .dos, .swatch-grid { grid-template-columns: 1fr 1fr; }
+    .logo-row, .say, .voice-principles, .app-grid, .cat-grid { grid-template-columns: 1fr; }
+    .clearspace { grid-template-columns: 1fr; }
+    .neutrals { flex-wrap: wrap; }
+    .neutral { flex: 1 1 33%; }
+    .scale-row { grid-template-columns: 1fr; gap: 6px; }
+    .type-spec { padding: 32px 28px; }
+    .type-spec .big { font-size: 64px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ COVER ════ -->
+<section class="cover" data-screen-label="Portada">
+  <div class="cover-top">
+    <div class="cover-brand">
+      <img src="brand/yessyfy-mark.png" alt="Yessyfy" />
+      <span>yessyfy</span>
+    </div>
+    <div class="cover-meta">MANUAL DE MARCA · v1.0 · 2026</div>
+  </div>
+
+  <div class="cover-center">
+    <img src="brand/yessyfy-mark.png" alt="Yessyfy logo" />
+    <h1>Confianza,<br/>hecha <em>marca.</em></h1>
+    <p class="cover-tag">Las reglas que mantienen a Yessyfy reconocible, consistente y confiable en cada punto de contacto.</p>
+  </div>
+
+  <div class="cover-bottom">
+    <div><b>Logotipo</b>Construcción y usos</div>
+    <div><b>Color</b>Paleta y sistema</div>
+    <div><b>Tipografía</b>Escala Outfit</div>
+    <div><b>Voz</b>Tono y mensaje</div>
+    <div><b>Aplicación</b>Componentes UI</div>
+    <div><b>daisyUI</b>Tema en código</div>
+  </div>
+</section>
+
+<!-- ════ MANIFIESTO ════ -->
+<section class="manifesto" data-screen-label="Manifiesto">
+  <div class="doc">
+    <div class="eyebrow"><span class="num">01</span> Manifiesto</div>
+    <p class="manifesto-quote">
+      Cuando algo se rompe en casa, lo que más se rompe es la <span class="hl">tranquilidad</span>.
+      Yessyfy existe para devolverla: conectamos hogares con <b>técnicos verificados</b>,
+      presupuestos claros y garantía real — para que pedir ayuda deje de dar miedo y
+      <b>resolver vuelva a sentirse fácil.</b>
+    </p>
+
+    <div class="grid values">
+      <div class="value">
+        <div class="vn">01</div>
+        <h4>Confianza primero</h4>
+        <p>Personal verificado y transparente. Sabes quién entra a tu hogar, siempre.</p>
+      </div>
+      <div class="value">
+        <div class="vn">02</div>
+        <h4>Claridad total</h4>
+        <p>Precios y tiempos por adelantado. Sin letra chica, sin sorpresas.</p>
+      </div>
+      <div class="value">
+        <div class="vn">03</div>
+        <h4>Rapidez humana</h4>
+        <p>Respuesta ágil, atención cálida. Llegamos cuando dijimos que llegaríamos.</p>
+      </div>
+      <div class="value">
+        <div class="vn">04</div>
+        <h4>Quedar bien</h4>
+        <p>Garantía en cada servicio. Si algo no quedó, regresamos sin costo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ LOGOTIPO ════ -->
+<section data-screen-label="Logotipo">
+  <div class="doc">
+    <div class="eyebrow"><span class="num">02</span> Logotipo</div>
+    <h2 class="sec-title">La marca de la “y”</h2>
+    <p class="sec-intro">Una “y” construida con dos trazos: el arco azul que sostiene y la cola verde que crece. Es afirmación y movimiento — el “sí” que da nombre a Yessyfy.</p>
+
+    <div class="grid logo-row">
+      <div class="logo-box on-light">
+        <img src="brand/yessyfy-mark.png" alt="Marca sobre claro" />
+        <div class="lockup"><img src="brand/yessyfy-mark.png" alt="" /><span>yessyfy</span></div>
+        <div class="logo-cap">Sobre fondo claro</div>
+      </div>
+      <div class="logo-box on-dark">
+        <img src="brand/yessyfy-mark.png" alt="Marca sobre oscuro" />
+        <div class="lockup"><img src="brand/yessyfy-mark.png" alt="" /><span>yessyfy</span></div>
+        <div class="logo-cap">Sobre Teal Profundo</div>
+      </div>
+    </div>
+
+    <div class="sub-h">Espacio de protección</div>
+    <p class="sub-p">Reserva un margen libre alrededor de la marca igual a la mitad de su altura (½&nbsp;x). Ningún otro elemento debe invadir esa zona.</p>
+    <div class="clearspace">
+      <div class="cs-frame">
+        <div class="cs-pad">
+          <span class="x top">½ x</span>
+          <span class="x left">½ x</span>
+          <img src="brand/yessyfy-mark.png" alt="Espacio de protección" />
+        </div>
+      </div>
+      <div>
+        <p class="sec-intro" style="font-size:16px;">El nombre se escribe siempre en minúsculas — <b style="color:var(--teal-dark);">yessyfy</b> — en Outfit Bold. La marca puede usarse sola como ícono de app, avatar o favicon. Tamaño mínimo del símbolo: 24&nbsp;px en digital, 10&nbsp;mm impreso.</p>
+      </div>
+    </div>
+
+    <div class="sub-h">Usos incorrectos</div>
+    <p class="sub-p">La marca es un activo fijo. Estas alteraciones la debilitan y nunca están permitidas.</p>
+    <div class="grid dos">
+      <div class="dont">
+        <div class="dont-vis"><span class="dont-tag">✕</span><img src="brand/yessyfy-mark.png" style="filter:grayscale(1) brightness(0.7);" alt="" /></div>
+        <p>No la recolorees ni la pongas en escala de grises.</p>
+      </div>
+      <div class="dont">
+        <div class="dont-vis"><span class="dont-tag">✕</span><img src="brand/yessyfy-mark.png" style="transform:scaleX(1.7);" alt="" /></div>
+        <p>No la deformes, estires ni comprimas.</p>
+      </div>
+      <div class="dont">
+        <div class="dont-vis" style="background:linear-gradient(135deg,#ff7a45,#d94f6c);"><span class="dont-tag">✕</span><img src="brand/yessyfy-mark.png" alt="" /></div>
+        <p>No la pongas sobre fondos de bajo contraste o estridentes.</p>
+      </div>
+      <div class="dont">
+        <div class="dont-vis"><span class="dont-tag">✕</span><img src="brand/yessyfy-mark.png" style="transform:rotate(22deg);" alt="" /></div>
+        <p>No la rotes ni le agregues sombras o efectos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ COLOR ════ -->
+<section class="color" data-screen-label="Color">
+  <div class="doc">
+    <div class="eyebrow"><span class="num">03</span> Color</div>
+    <h2 class="sec-title">Profundo, vivo, confiable</h2>
+    <p class="sec-intro">El teal aporta la base de confianza y profesionalismo; el verde es la energía que activa, confirma y dice “sí”. El azul acento completa el puente del logotipo.</p>
+
+    <div class="grid swatch-grid">
+      <div class="swatch">
+        <div class="chip" style="background:#0b3d47;"><span class="chip-tag" style="background:rgba(255,255,255,0.15);color:#fff;">PRIMARIO</span></div>
+        <div class="meta"><div class="nm">Teal Profundo</div><div class="hex">#0B3D47</div><div class="use">Base de marca, fondos, encabezados, texto sobre claro.</div></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#00c97a;"><span class="chip-tag" style="background:rgba(11,61,71,0.18);color:#0b3d47;">ACENTO</span></div>
+        <div class="meta"><div class="nm">Verde Yessyfy</div><div class="hex">#00C97A</div><div class="use">Color de acción: botones, confirmaciones, destacados.</div></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#1ab8cc;"></div>
+        <div class="meta"><div class="nm">Azul Acento</div><div class="hex">#1AB8CC</div><div class="use">Puente del logo, gradientes y avatares.</div></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#0f5a6a;"></div>
+        <div class="meta"><div class="nm">Teal Medio</div><div class="hex">#0F5A6A</div><div class="use">Gradientes de fondo y superficies oscuras secundarias.</div></div>
+      </div>
+    </div>
+
+    <div class="sub-h">Gradiente de marca</div>
+    <p class="sub-p">El gradiente del logotipo va de azul a verde en diagonal (↗). Es la firma visual y solo se usa en la marca, avatares e íconos destacados.</p>
+    <div class="gradient-bar" style="background:linear-gradient(105deg,#0093d9,#00aba7 50%,#23bd55);">
+      Azul → Verde
+      <span class="code">#0093D9 → #23BD55</span>
+    </div>
+
+    <div class="sub-h">Neutros</div>
+    <p class="sub-p">Blancos y grises ligeramente fríos, afinados al teal. Sostienen la interfaz sin competir con los acentos.</p>
+    <div class="neutrals">
+      <div class="neutral" style="background:#ffffff;border-right:1px solid var(--border);"><div class="nn" style="color:var(--text-dark);">Blanco</div><div class="nh" style="color:var(--text-light);">#FFFFFF</div></div>
+      <div class="neutral" style="background:#f4f8f7;"><div class="nn" style="color:var(--text-dark);">Off-white</div><div class="nh" style="color:var(--text-light);">#F4F8F7</div></div>
+      <div class="neutral" style="background:#e8eff0;"><div class="nn" style="color:var(--text-dark);">Borde</div><div class="nh" style="color:var(--text-mid);">#E8EFF0</div></div>
+      <div class="neutral" style="background:#7a9ea6;"><div class="nn" style="color:#fff;">Texto Claro</div><div class="nh" style="color:rgba(255,255,255,0.85);">#7A9EA6</div></div>
+      <div class="neutral" style="background:#3a5a62;"><div class="nn" style="color:#fff;">Texto Medio</div><div class="nh" style="color:rgba(255,255,255,0.85);">#3A5A62</div></div>
+      <div class="neutral" style="background:#0b1e22;"><div class="nn" style="color:#fff;">Texto Oscuro</div><div class="nh" style="color:rgba(255,255,255,0.7);">#0B1E22</div></div>
+    </div>
+
+    <div class="sub-h">Sistema de categorías</div>
+    <p class="sub-p">Cada servicio tiene su gradiente para orientar de un vistazo. Se usan en íconos y avatares — nunca en bloques grandes de texto.</p>
+    <div class="grid cat-grid">
+      <div class="cat"><div class="cg" style="background:linear-gradient(135deg,#00c97a,#1ab8cc);">🔧</div><div class="ci"><div class="cn">Plomería</div><div class="ch">#00C97A → #1AB8CC</div></div></div>
+      <div class="cat"><div class="cg" style="background:linear-gradient(135deg,#ffb020,#ff7a45);">⚡</div><div class="ci"><div class="cn">Electricidad</div><div class="ch">#FFB020 → #FF7A45</div></div></div>
+      <div class="cat"><div class="cg" style="background:linear-gradient(135deg,#1ab8cc,#0f5a6a);">🔑</div><div class="ci"><div class="cn">Cerrajería</div><div class="ch">#1AB8CC → #0F5A6A</div></div></div>
+      <div class="cat"><div class="cg" style="background:linear-gradient(135deg,#ff7a6b,#d94f6c);">🧱</div><div class="ci"><div class="cn">Albañilería</div><div class="ch">#FF7A6B → #D94F6C</div></div></div>
+      <div class="cat"><div class="cg" style="background:linear-gradient(135deg,#7c6bff,#4f7cd9);">🏠</div><div class="ci"><div class="cn">Mantenimiento</div><div class="ch">#7C6BFF → #4F7CD9</div></div></div>
+      <div class="cat"><div class="cg" style="background:linear-gradient(135deg,#3fbf5f,#00c97a);">🌿</div><div class="ci"><div class="cn">Jardinería</div><div class="ch">#3FBF5F → #00C97A</div></div></div>
+    </div>
+
+    <div class="sub-h">Color funcional</div>
+    <p class="sub-p">Señales de estado, reservadas exclusivamente para feedback en producto.</p>
+    <div class="grid cat-grid" style="grid-template-columns:repeat(2,1fr);">
+      <div class="cat"><div class="cg" style="background:#ffb020;color:#fff;">★</div><div class="ci"><div class="cn">Estrella / Rating</div><div class="ch">#FFB020</div></div></div>
+      <div class="cat"><div class="cg" style="background:#d94f6c;color:#fff;font-size:22px;">✕</div><div class="ci"><div class="cn">Error / Cancelado</div><div class="ch">#D94F6C</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ TIPOGRAFÍA ════ -->
+<section class="type" data-screen-label="Tipografía">
+  <div class="doc">
+    <div class="eyebrow"><span class="num">04</span> Tipografía</div>
+    <h2 class="sec-title">Una sola voz: Outfit</h2>
+    <p class="sec-intro">Outfit es geométrica, clara y moderna. Una única familia cubre todo — de los titulares más contundentes al texto más pequeño — manteniendo la interfaz limpia y unificada.</p>
+
+    <div class="type-spec">
+      <div class="big">Aa Yy 0–9</div>
+      <div class="fam">
+        <span class="fname">Outfit</span>
+        <span class="fmeta">Sans-serif geométrica · Google Fonts · Latin extended</span>
+      </div>
+      <div class="weights">
+        <span style="font-weight:300;">Light 300</span>
+        <span style="font-weight:400;">Regular 400</span>
+        <span style="font-weight:500;">Medium 500</span>
+        <span style="font-weight:600;">SemiBold 600</span>
+        <span style="font-weight:700;">Bold 700</span>
+        <span style="font-weight:800;">ExtraBold 800</span>
+      </div>
+
+      <div class="scale">
+        <div class="scale-row">
+          <div class="label"><b>Display</b>800 · -1.5px</div>
+          <div class="sample" style="font-size:46px;font-weight:800;line-height:1.05;">Confianza que construye</div>
+        </div>
+        <div class="scale-row">
+          <div class="label"><b>Título</b>800 · -1px</div>
+          <div class="sample" style="font-size:32px;font-weight:800;">Nuestros servicios</div>
+        </div>
+        <div class="scale-row">
+          <div class="label"><b>Subtítulo</b>700 · -0.4px</div>
+          <div class="sample" style="font-size:22px;font-weight:700;">Profesionales destacados</div>
+        </div>
+        <div class="scale-row">
+          <div class="label"><b>Cuerpo</b>400 · 1.6 line</div>
+          <div class="sample" style="font-size:17px;font-weight:400;color:var(--text-mid);line-height:1.6;">Técnicos verificados, presupuestos claros y garantía en cada servicio. Resolvemos tu problema hoy.</div>
+        </div>
+        <div class="scale-row">
+          <div class="label"><b>Etiqueta</b>700 · 2px · UPPER</div>
+          <div class="sample" style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green-dark);">Oferta de bienvenida</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ VOZ Y TONO ════ -->
+<section class="voice" data-screen-label="Voz y tono">
+  <div class="doc">
+    <div class="eyebrow"><span class="num">05</span> Voz y tono</div>
+    <h2 class="sec-title">Hablamos como un vecino experto</h2>
+    <p class="sec-intro">Cercano pero profesional. Tranquilizamos sin minimizar el problema, explicamos sin tecnicismos y siempre dejamos claro el siguiente paso.</p>
+
+    <div class="grid voice-principles">
+      <div class="vp"><div class="vp-i">🤝</div><h4>Cálido</h4><p>Tuteamos, saludamos por nombre y mostramos empatía. La persona detrás del problema importa.</p></div>
+      <div class="vp"><div class="vp-i">🔍</div><h4>Claro</h4><p>Frases cortas, sin jerga técnica. Si hay un costo o un tiempo, se dice de frente.</p></div>
+      <div class="vp"><div class="vp-i">🛡️</div><h4>Confiable</h4><p>Prometemos solo lo que cumplimos. La garantía y la verificación se mencionan con orgullo.</p></div>
+      <div class="vp"><div class="vp-i">⚡</div><h4>Resolutivo</h4><p>Orientado a la acción. Cada mensaje termina invitando a dar el siguiente paso.</p></div>
+    </div>
+
+    <div class="grid say">
+      <div class="say-col yes">
+        <div class="sh"><span class="badge">✓</span> Sí decimos</div>
+        <ul>
+          <li>“Hola, Andrea 👋 ¿Qué necesitas hoy?”</li>
+          <li>“Sabrás exactamente cuánto pagarás antes de comenzar.”</li>
+          <li>“Si algo no quedó bien, regresamos sin costo.”</li>
+          <li>“Llegamos rápido y en el horario acordado.”</li>
+        </ul>
+      </div>
+      <div class="say-col no">
+        <div class="sh"><span class="badge">✕</span> No decimos</div>
+        <ul>
+          <li>“Estimado usuario, su solicitud ha sido recibida.”</li>
+          <li>“Sujeto a disponibilidad y términos aplicables.”</li>
+          <li>“No nos hacemos responsables por daños.”</li>
+          <li>“El técnico llegará en algún momento del día.”</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ APLICACIÓN ════ -->
+<section class="apps" data-screen-label="Aplicación">
+  <div class="doc">
+    <div class="eyebrow"><span class="num">06</span> Aplicación</div>
+    <h2 class="sec-title">La marca, en producto</h2>
+    <p class="sec-intro">Cómo se combinan color, tipografía y forma en los componentes reales de la app. Esquinas suaves, sombras tenues y verde solo donde hay acción.</p>
+
+    <div class="grid app-grid">
+      <div class="app-card">
+        <div class="ac-h">Botones</div>
+        <div class="ui-btns">
+          <button class="btn btn-primary">Reservar →</button>
+          <button class="btn btn-dark">Agendar</button>
+          <button class="btn btn-soft">Reservar</button>
+          <button class="btn btn-ghost">Ver más</button>
+        </div>
+      </div>
+
+      <div class="app-card">
+        <div class="ac-h">Insignias y estados</div>
+        <div class="ui-badges">
+          <span class="bdg top">★ TOP PRO</span>
+          <span class="bdg online">● En línea</span>
+          <span class="bdg conf">Confirmada</span>
+          <span class="bdg cancel">Cancelada</span>
+          <span class="bdg star">★ 4.9</span>
+        </div>
+      </div>
+
+      <div class="app-card" style="grid-column:1 / -1;">
+        <div class="ac-h">Tarjeta de profesional</div>
+        <div class="pro-card">
+          <div class="avatar">CM</div>
+          <div class="pc-body">
+            <div class="pc-name">Carlos Méndez</div>
+            <div class="pc-svc">Plomería</div>
+            <div class="pc-meta"><span class="pc-star">★★★★★</span> <b style="color:var(--text-dark);">4.9</b> · 📍 1.2 km · <span style="color:var(--green-dark);font-weight:600;">● En línea</span></div>
+          </div>
+          <div class="pc-price">
+            <div class="lbl">desde</div>
+            <div class="amt">$380</div>
+            <button class="btn btn-soft" style="padding:7px 12px;font-size:12px;margin-top:6px;">Reservar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-card">
+        <div class="ac-h">Navegación por pestañas</div>
+        <div class="pill-tabs">
+          <span class="pill-tab active">Inicio</span>
+          <span class="pill-tab">Buscar</span>
+          <span class="pill-tab">Reservas</span>
+          <span class="pill-tab">Perfil</span>
+        </div>
+      </div>
+
+      <div class="app-card">
+        <div class="ac-h">Avatar de marca</div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="avatar" style="background:linear-gradient(135deg,#0093d9,#23bd55);border-radius:18px;">A</div>
+          <div class="avatar" style="background:linear-gradient(135deg,#ffb020,#ff7a45);">AS</div>
+          <div class="avatar" style="background:linear-gradient(135deg,#7c6bff,#4f7cd9);">DT</div>
+          <div class="avatar" style="background:linear-gradient(135deg,#ff7a6b,#d94f6c);">JC</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ DAISYUI ════ -->
+<section class="daisy" data-screen-label="daisyUI">
+  <div class="doc">
+    <div class="eyebrow"><span class="num">07</span> daisyUI · Tema en código</div>
+    <h2 class="sec-title">Una marca, un archivo CSS</h2>
+    <p class="sec-intro">Toda la paleta vive como un tema de daisyUI llamado <b style="color:var(--teal-dark);">yessyfy</b>. Importas un solo archivo, agregas <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;background:var(--offwhite);padding:2px 6px;border-radius:5px;">data-theme="yessyfy"</code> y obtienes <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;background:var(--offwhite);padding:2px 6px;border-radius:5px;">bg-primary</code>, <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;background:var(--offwhite);padding:2px 6px;border-radius:5px;">btn-secondary</code> y todo el sistema semántico — siempre consistente con la marca.</p>
+
+    <div class="map-table">
+      <div class="map-head">
+        <div>Token daisyUI</div>
+        <div>Uso</div>
+        <div>Color de marca</div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#00c97a;"></span><span class="nm">primary</span></div>
+        <div class="desc">Color de acción principal — botones, enlaces, lo que confirma.</div>
+        <div class="src">Verde · <b>#00C97A</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#0b3d47;"></span><span class="nm">secondary</span></div>
+        <div class="desc">Base de marca — encabezados, superficies oscuras.</div>
+        <div class="src">Teal Profundo · <b>#0B3D47</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#1ab8cc;"></span><span class="nm">accent</span></div>
+        <div class="desc">Acento — destacados, gradientes, avatares.</div>
+        <div class="src">Azul · <b>#1AB8CC</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#0b1e22;"></span><span class="nm">neutral</span></div>
+        <div class="desc">Partes no saturadas de la UI, texto fuerte.</div>
+        <div class="src">Texto Oscuro · <b>#0B1E22</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#ffffff;"></span><span class="nm">base-100</span></div>
+        <div class="desc">Fondo base de la página.</div>
+        <div class="src">Blanco · <b>#FFFFFF</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#f4f8f7;"></span><span class="nm">base-200</span></div>
+        <div class="desc">Elevación suave sobre el fondo.</div>
+        <div class="src">Off-white · <b>#F4F8F7</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#e8eff0;"></span><span class="nm">base-300</span></div>
+        <div class="desc">Bordes y divisores.</div>
+        <div class="src">Borde · <b>#E8EFF0</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#1ab8cc;"></span><span class="nm">info</span></div>
+        <div class="desc">Mensajes informativos.</div>
+        <div class="src">Azul · <b>#1AB8CC</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#00a862;"></span><span class="nm">success</span></div>
+        <div class="desc">Confirmaciones y estados positivos.</div>
+        <div class="src">Verde Oscuro · <b>#00A862</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#ffb020;"></span><span class="nm">warning</span></div>
+        <div class="desc">Avisos, ratings, precaución.</div>
+        <div class="src">Estrella · <b>#FFB020</b></div>
+      </div>
+      <div class="map-row">
+        <div class="map-token"><span class="dot" style="background:#d94f6c;"></span><span class="nm">error</span></div>
+        <div class="desc">Errores, cancelaciones, destructivo.</div>
+        <div class="src">Rosa · <b>#D94F6C</b></div>
+      </div>
+    </div>
+
+    <div class="preview-strip">
+      <div class="pl">Vista previa · botones daisyUI con el tema yessyfy</div>
+      <button class="ds-btn" style="background:#00c97a;color:#0b3d47;">btn-primary</button>
+      <button class="ds-btn" style="background:#0b3d47;color:#f4f8f7;">btn-secondary</button>
+      <button class="ds-btn" style="background:#1ab8cc;color:#0b1e22;">btn-accent</button>
+      <button class="ds-btn" style="background:#00a862;color:#fff;">btn-success</button>
+      <button class="ds-btn" style="background:#ffb020;color:#0b1e22;">btn-warning</button>
+      <button class="ds-btn" style="background:#d94f6c;color:#fff;">btn-error</button>
+    </div>
+
+    <div class="code-block">
+      <div class="code-bar">
+        <span class="d" style="background:#ff5f57;"></span><span class="d" style="background:#febc2e;"></span><span class="d" style="background:#28c840;"></span>
+        <span class="fn">yessyfy-theme.css</span>
+      </div>
+      <pre><code><span class="c-com">/* 1 · Registra el tema (Tailwind + daisyUI v5) */</span>
+<span class="c-at">@plugin</span> <span class="c-val">"daisyui/theme"</span> {
+  <span class="c-var">name</span>: <span class="c-val">"yessyfy"</span>;
+  <span class="c-var">default</span>: <span class="c-val">true</span>;
+  <span class="c-var">color-scheme</span>: <span class="c-val">light</span>;
+
+  <span class="c-key">--color-primary</span>:           <span class="c-val">oklch(73.54% 0.1762 156.67)</span>; <span class="c-com">/* #00C97A */</span>
+  <span class="c-key">--color-primary-content</span>:   <span class="c-val">oklch(33.33% 0.0530 214.49)</span>; <span class="c-com">/* #0B3D47 */</span>
+  <span class="c-key">--color-secondary</span>:         <span class="c-val">oklch(33.33% 0.0530 214.49)</span>;
+  <span class="c-key">--color-accent</span>:            <span class="c-val">oklch(71.79% 0.1200 208.93)</span>; <span class="c-com">/* #1AB8CC */</span>
+  <span class="c-key">--color-neutral</span>:           <span class="c-val">oklch(22.10% 0.0260 213.01)</span>;
+  <span class="c-key">--color-base-100</span>:          <span class="c-val">oklch(100% 0 89.88)</span>;
+  <span class="c-key">--color-base-200</span>:          <span class="c-val">oklch(97.58% 0.0044 179.74)</span>;
+  <span class="c-key">--color-base-300</span>:          <span class="c-val">oklch(94.71% 0.0076 207.14)</span>;
+  <span class="c-key">--color-base-content</span>:      <span class="c-val">oklch(22.10% 0.0260 213.01)</span>;
+  <span class="c-key">--color-info</span>:    <span class="c-val">oklch(71.79% 0.1200 208.93)</span>;
+  <span class="c-key">--color-success</span>: <span class="c-val">oklch(64.30% 0.1570 155.63)</span>;
+  <span class="c-key">--color-warning</span>: <span class="c-val">oklch(81.31% 0.1650 75.04)</span>;
+  <span class="c-key">--color-error</span>:   <span class="c-val">oklch(62.04% 0.1733 11.05)</span>;
+
+  <span class="c-key">--radius-field</span>: <span class="c-val">0.7rem</span>;
+  <span class="c-key">--radius-box</span>:   <span class="c-val">1.15rem</span>;
+}
+
+<span class="c-com">/* 2 · Úsalo */</span>
+<span class="c-com">// &lt;html data-theme="yessyfy"&gt;</span>
+<span class="c-com">// &lt;button class="btn btn-primary"&gt;Reservar&lt;/button&gt;</span></code></pre>
+    </div>
+
+    <div class="daisy-note">
+      <span class="ico">📦</span>
+      <p>El archivo <code>brand/yessyfy-theme.css</code> incluido en este proyecto es completo: trae el bloque <code>@plugin</code> para Tailwind + daisyUI v5, una copia en <code>[data-theme="yessyfy"]</code> que funciona también con el CDN o sin build, y los tokens de marca crudos (<code>--yf-*</code>) para el gradiente firma y los colores por categoría que no forman parte del sistema semántico.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ FOOTER ════ -->
+<footer class="foot" data-screen-label="Cierre">
+  <img src="brand/yessyfy-mark.png" alt="Yessyfy" />
+  <div class="ft-tag">Confianza que construye soluciones para tu hogar.</div>
+  <div class="ft-sub">Este manual mantiene a Yessyfy reconocible en cada punto de contacto.</div>
+  <div class="ft-meta">YESSYFY · MANUAL DE MARCA · v1.0 · 2026</div>
+</footer>
+
+</body>
+</html>
