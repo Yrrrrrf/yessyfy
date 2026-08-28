@@ -223,8 +223,8 @@ function handleBookService(details: {
 
 <div class="min-h-screen bg-base-100 text-base-content flex flex-col pb-24 md:pb-8">
   <!-- Brand Navigation Header with Role Switcher -->
-  <header class="navbar bg-base-100/95 backdrop-blur-md border-b border-base-300 sticky top-0 z-40 px-4 md:px-8">
-    <div class="navbar-start flex items-center gap-3">
+  <header class="flex items-center justify-between bg-base-100/95 backdrop-blur-md border-b border-base-300 sticky top-0 z-40 px-4 md:px-8 py-3 gap-3">
+    <div class="flex items-center gap-3 shrink-0">
       <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white font-black text-xl shadow-md">
         Y
       </div>
@@ -235,7 +235,7 @@ function handleBookService(details: {
     </div>
 
     <!-- Center: Role Switcher Pill -->
-    <div class="navbar-center">
+    <div class="flex items-center justify-center">
       <div class="join bg-base-200 p-1 rounded-2xl border border-base-300 shadow-inner">
         <button
           type="button"
@@ -258,12 +258,12 @@ function handleBookService(details: {
     </div>
 
     <!-- End: User Status & Booking CTA -->
-    <div class="navbar-end flex items-center gap-2">
+    <div class="flex items-center gap-2 shrink-0">
       {#if roleMode === 'cliente'}
         {#if authenticatedUser}
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-xl text-xs font-bold hidden sm:inline-flex"
+            class="btn btn-ghost btn-sm rounded-xl text-xs font-bold hidden lg:inline-flex"
             onclick={() => currentClientTab = 'perfil'}
           >
             Mariana G. (Polanco)

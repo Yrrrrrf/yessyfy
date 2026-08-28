@@ -89,7 +89,7 @@ function sendMessage(textToSend?: string) {
       <div class="p-4 border-b border-base-300 flex items-center justify-between bg-base-200/60">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-primary text-white font-bold flex items-center justify-center text-sm shadow">
-            {peerName[0]}
+            {peerName?.[0] || '?'}
           </div>
           <div>
             <h4 class="font-bold text-sm text-base-content flex items-center gap-1.5">
