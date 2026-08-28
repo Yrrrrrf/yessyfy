@@ -1,23 +1,19 @@
-export type UserRole = "user" | "manager" | "admin" | null;
+import type { User, UserRole } from "@sdk";
 
-export interface User {
-	id: string;
-	email: string;
-	role: UserRole;
-}
+export type AuthRole = UserRole | null;
 
 export interface AuthStore {
-	readonly role: UserRole;
+	readonly role: AuthRole;
 	readonly user: User | null;
 	readonly isAuthenticated: boolean;
-	setRole(newRole: UserRole): void;
+	setRole(newRole: AuthRole): void;
 	setUser(newUser: User | null): void;
 	logout(): void;
 }
 
 // READY(db): DB user table with role validation. JWT from API.
 export function createAuthStore(): AuthStore {
-	let role = $state<UserRole>(null);
+	let role = $state<AuthRole>(null);
 	let user = $state<User | null>(null);
 
 	return {
@@ -30,7 +26,7 @@ export function createAuthStore(): AuthStore {
 		get isAuthenticated() {
 			return !!user;
 		},
-		setRole(newRole: UserRole) {
+		setRole(newRole: AuthRole) {
 			role = newRole;
 		},
 		setUser(newUser: User | null) {

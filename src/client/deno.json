@@ -11,6 +11,7 @@
   "imports": {
     "@sdk": "./sdk/mod.ts",
     "@sdk/*": "./sdk/*",
+    "up-fetch": "npm:up-fetch@^2.6.0",
     "vite-plus": "npm:vite-plus",
     "svelte": "npm:svelte",
     "@sveltejs/kit": "npm:@sveltejs/kit@next",
@@ -24,6 +25,7 @@
     "daisyui": "npm:daisyui",
     "rune-lab": "npm:rune-lab@0.5.2-rc.2",
     "esm-env": "npm:esm-env",
-    "arktype": "npm:arktype"
+    "arktype": "npm:arktype",
+    "xstate": "npm:xstate@^5.32.6"
   }
 }
