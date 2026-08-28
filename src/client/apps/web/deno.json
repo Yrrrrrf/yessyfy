@@ -1,0 +1,8 @@
+{
+	"name": "@yessyfy/web",
+	"version": "0.1.0",
+	"description": "Main yessyfy platform",
+	"license": "MIT",
+	"authors": ["Yrrrrrf <fer.rezac@outlook.com>"],
+	"exports": "./src/lib/mod.ts"
+}
