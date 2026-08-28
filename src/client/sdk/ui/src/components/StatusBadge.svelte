@@ -52,23 +52,26 @@ const config = $derived(() => {
       case 'pending_triage':
         return { label: 'Triage Pendiente', badgeClass: 'badge-warning', pulse: true };
       case 'dispatched':
-        return { label: 'Buscando Técnico', badgeClass: 'badge-info', pulse: true };
+        return { label: 'Buscando Profesional', badgeClass: 'badge-info', pulse: true };
       case 'accepted':
-        return { label: 'Técnico Asignado', badgeClass: 'badge-info', pulse: false };
+        return { label: 'Profesional Asignado', badgeClass: 'badge-info', pulse: false };
+      case 'in_transit':
       case 'en_camino':
-        return { label: 'Técnico En Camino', badgeClass: 'badge-accent', pulse: true };
+        return { label: 'En Camino', badgeClass: 'badge-accent', pulse: true };
       case 'in_progress':
-        return { label: 'Trabajo En Progreso', badgeClass: 'badge-primary', pulse: true };
+        return { label: 'Trabajo en Proceso', badgeClass: 'badge-primary', pulse: true };
+      case 'pending_quote_approval':
+        return { label: 'Cotización en Revisión', badgeClass: 'badge-warning', pulse: true };
       case 'winding_down':
-        return { label: 'Por Terminar (Pruebas)', badgeClass: 'badge-info', pulse: true };
+        return { label: 'Pruebas Finales / Limpieza', badgeClass: 'badge-info', pulse: true };
       case 'pending_validation':
         return { label: 'QA Pendiente de Firma', badgeClass: 'badge-warning', pulse: true };
       case 'validated':
         return { label: 'Servicio Validado', badgeClass: 'badge-success', pulse: false };
       case 'completed':
-        return { label: 'Concluido & Facturado', badgeClass: 'badge-success', pulse: false };
+        return { label: 'Concluido & Garantizado', badgeClass: 'badge-success', pulse: false };
       case 'disputed':
-        return { label: 'En Reclamación', badgeClass: 'badge-error', pulse: true };
+        return { label: 'En Revisión de Garantía', badgeClass: 'badge-error', pulse: true };
       case 'cancelled':
         return { label: 'Cancelado', badgeClass: 'badge-ghost', pulse: false };
     }

@@ -4,11 +4,9 @@ import { RuneProvider } from "rune-lab";
 import pkg from "../../deno.json" with { type: "json" };
 import { i18n } from "rune-lab/i18n";
 import { layout } from "rune-lab/layout";
-import { observer } from "rune-lab/observer";
 import { palettes } from "rune-lab/palettes";
 import type { Snippet } from "svelte";
 import faviconUrl from "#lib/assets/img/rune.png";
-import AppLayout from "./AppLayout.svelte";
 
 let { children }: { children: Snippet } = $props();
 </script>
@@ -18,7 +16,6 @@ let { children }: { children: Snippet } = $props();
     layout,
     palettes,
     i18n,
-    // observer
   ]}
   config={{
     app: {
@@ -30,7 +27,5 @@ let { children }: { children: Snippet } = $props();
     },
   }}
 >
-  <AppLayout>
-    {@render children()}
-  </AppLayout>
+  {@render children()}
 </RuneProvider>

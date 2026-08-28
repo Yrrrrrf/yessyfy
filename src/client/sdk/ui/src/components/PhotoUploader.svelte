@@ -4,14 +4,24 @@ import type { PhotoQAPhase } from '@sdk';
 interface Props {
   phase: PhotoQAPhase;
   jobCode?: string;
+  latitude?: number;
+  longitude?: number;
   onPhotoCaptured?: (data: {
     dataUrl: string;
     sha256: string;
     phase: PhotoQAPhase;
+    latitude?: number;
+    longitude?: number;
   }) => void;
 }
 
-let { phase, jobCode = 'YSF-JOB-001', onPhotoCaptured }: Props = $props();
+let {
+  phase,
+  jobCode = 'YSF-JOB-001',
+  latitude = 19.4326,
+  longitude = -99.1332,
+  onPhotoCaptured,
+}: Props = $props();
 
 let isProcessing = $state(false);
 let previewUrl = $state<string | null>(null);
@@ -66,15 +76,18 @@ async function handleFileInput(e: Event) {
         ctx.drawImage(img, 0, 0, width, height);
 
         // Watermark banner
-        const bannerHeight = Math.max(36, Math.round(height * 0.06));
-        ctx.fillStyle = 'rgba(11, 61, 71, 0.85)'; // Dark brand teal
+        const bannerHeight = Math.max(38, Math.round(height * 0.065));
+        ctx.fillStyle = 'rgba(11, 61, 71, 0.90)'; // Dark brand teal
         ctx.fillRect(0, height - bannerHeight, width, bannerHeight);
 
         // Text
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = `bold ${Math.round(bannerHeight * 0.42)}px sans-serif`;
+        ctx.font = `bold ${Math.round(bannerHeight * 0.40)}px monospace, sans-serif`;
         const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-        const text = `YESSYFY QA • ${jobCode} • ${timestamp}`;
+        const geoText = (latitude && longitude)
+          ? ` • GPS: ${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°`
+          : ' • CDMX';
+        const text = `YESSYFY QA • ${jobCode} • ${timestamp}${geoText}`;
         ctx.fillText(text, 16, height - Math.round(bannerHeight * 0.35));
 
         // Export WebP / JPEG
@@ -89,7 +102,7 @@ async function handleFileInput(e: Event) {
         hashPreview = sha256.slice(0, 16);
 
         isProcessing = false;
-        onPhotoCaptured?.({ dataUrl, sha256, phase });
+        onPhotoCaptured?.({ dataUrl, sha256, phase, latitude, longitude });
       };
       img.src = reader.result as string;
     };
@@ -115,7 +128,7 @@ async function handleFileInput(e: Event) {
 
   {#if previewUrl}
     <div class="relative rounded-2xl overflow-hidden border border-base-300 shadow-inner group">
-      <img src={previewUrl} alt="QA Evidence Preview" class="w-full h-48 object-cover" />
+      <img src={previewUrl} alt="Evidencia QA con marca de agua" class="w-full h-48 object-cover" />
       <button
         type="button"
         class="btn btn-sm btn-circle btn-neutral absolute top-2 right-2 opacity-80 hover:opacity-100"
@@ -136,11 +149,13 @@ async function handleFileInput(e: Event) {
       />
       {#if isProcessing}
         <span class="loading loading-spinner loading-md text-primary"></span>
-        <span class="text-xs font-semibold mt-2 text-base-content/70">Estampando marca de agua QA...</span>
+        <span class="text-xs font-semibold mt-2 text-base-content/70">Estampando marca de agua con GPS y fecha...</span>
       {:else}
         <span class="text-3xl mb-1">📸</span>
         <span class="text-xs font-bold text-base-content">Tomar Foto o Subir Evidencia</span>
-        <span class="text-[10px] text-base-content/50 mt-0.5">Se sella con GPS y fecha automáticamente</span>
+        <span class="text-[10px] text-base-content/50 mt-0.5 font-mono">
+          Estampa automática: GPS {latitude.toFixed(4)}°, {longitude.toFixed(4)}°
+        </span>
       {/if}
     </label>
   {/if}

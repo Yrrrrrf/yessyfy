@@ -10,6 +10,8 @@ export interface ServiceOrderPhoto {
 	phase: PhotoQAPhase;
 	imageUrl: string;
 	sha256: string;
+	latitude?: number;
+	longitude?: number;
 }
 
 export interface ServiceOrderContext {
@@ -21,8 +23,11 @@ export interface ServiceOrderContext {
 	locationType: LocationType;
 	urgency: UrgencyLevel;
 	baseBudgetCents: number;
+	supplementalCents: number;
+	supplementalReason: string | null;
 	totalCustomerCents: number;
 	collaboratorNetCents: number;
+	cancellationFeeCents: number;
 	photos: ServiceOrderPhoto[];
 	rating: number | null;
 	disputeReason: string | null;
@@ -41,7 +46,14 @@ export type ServiceOrderEvent =
 	| { type: "DISPATCH" }
 	| { type: "ACCEPT_JOB"; collaboratorId: string }
 	| { type: "START_TRANSIT"; etaMinutes?: number }
-	| { type: "ARRIVE_ON_SITE" }
+	| { type: "ARRIVE_ON_SITE"; distanceMeters?: number }
+	| {
+			type: "PROPOSE_SUPPLEMENTAL_QUOTE";
+			supplementalCents: number;
+			reason: string;
+	  }
+	| { type: "APPROVE_SUPPLEMENTAL_QUOTE" }
+	| { type: "REJECT_SUPPLEMENTAL_QUOTE" }
 	| { type: "START_WIND_DOWN" }
 	| {
 			type: "ADD_PHOTO";
@@ -52,7 +64,9 @@ export type ServiceOrderEvent =
 	| { type: "REPORT_ISSUE"; reason: string }
 	| { type: "RESOLVE_DISPUTE" }
 	| { type: "SETTLE_PAYOUT"; warrantyCertificateId: string }
-	| { type: "CANCEL"; reason?: string };
+	| { type: "CANCEL"; reason?: string }
+	| { type: "CANCEL_IN_TRANSIT" }
+	| { type: "CUSTOMER_NO_SHOW" };
 
 export const serviceOrderMachine = setup({
 	types: {
@@ -90,6 +104,22 @@ export const serviceOrderMachine = setup({
 			collaboratorId: ({ event }) =>
 				event.type === "ACCEPT_JOB" ? event.collaboratorId : null,
 		}),
+		setSupplementalProposal: assign({
+			supplementalCents: ({ event }) =>
+				event.type === "PROPOSE_SUPPLEMENTAL_QUOTE"
+					? event.supplementalCents
+					: 0,
+			supplementalReason: ({ event }) =>
+				event.type === "PROPOSE_SUPPLEMENTAL_QUOTE" ? event.reason : null,
+		}),
+		approveSupplemental: assign({
+			totalCustomerCents: ({ context }) =>
+				context.totalCustomerCents + context.supplementalCents,
+		}),
+		rejectSupplemental: assign({
+			supplementalCents: 0,
+			supplementalReason: null,
+		}),
 		appendPhoto: assign({
 			photos: ({ context, event }) =>
 				event.type === "ADD_PHOTO"
@@ -108,6 +138,12 @@ export const serviceOrderMachine = setup({
 			warrantyCertificateId: ({ event }) =>
 				event.type === "SETTLE_PAYOUT" ? event.warrantyCertificateId : null,
 		}),
+		setTransitCancelPenalty: assign({
+			cancellationFeeCents: 15000, // $150.00 MXN displacement compensation
+		}),
+		setNoShowPenalty: assign({
+			cancellationFeeCents: 25000, // $250.00 MXN customer no-show penalty
+		}),
 	},
 }).createMachine({
 	id: "serviceOrder",
@@ -121,8 +157,11 @@ export const serviceOrderMachine = setup({
 		locationType: "residencial",
 		urgency: "normal",
 		baseBudgetCents: 45000,
+		supplementalCents: 0,
+		supplementalReason: null,
 		totalCustomerCents: 45000,
 		collaboratorNetCents: 34335,
+		cancellationFeeCents: 0,
 		photos: [],
 		rating: null,
 		disputeReason: null,
@@ -154,23 +193,47 @@ export const serviceOrderMachine = setup({
 		},
 		accepted: {
 			on: {
-				START_TRANSIT: { target: "en_camino" },
+				START_TRANSIT: { target: "in_transit" },
 				CANCEL: { target: "cancelled" },
 			},
 		},
-		en_camino: {
+		in_transit: {
 			on: {
 				ARRIVE_ON_SITE: { target: "in_progress" },
+				CANCEL_IN_TRANSIT: {
+					target: "cancelled",
+					actions: "setTransitCancelPenalty",
+				},
+				CUSTOMER_NO_SHOW: {
+					target: "cancelled",
+					actions: "setNoShowPenalty",
+				},
 				CANCEL: { target: "cancelled" },
 			},
 		},
 		in_progress: {
 			on: {
 				ADD_PHOTO: { actions: "appendPhoto" },
+				PROPOSE_SUPPLEMENTAL_QUOTE: {
+					target: "pending_quote_approval",
+					actions: "setSupplementalProposal",
+				},
 				START_WIND_DOWN: { target: "winding_down" },
 				REPORT_ISSUE: {
 					target: "disputed",
 					actions: "setDispute",
+				},
+			},
+		},
+		pending_quote_approval: {
+			on: {
+				APPROVE_SUPPLEMENTAL_QUOTE: {
+					target: "in_progress",
+					actions: "approveSupplemental",
+				},
+				REJECT_SUPPLEMENTAL_QUOTE: {
+					target: "in_progress",
+					actions: "rejectSupplemental",
 				},
 			},
 		},
