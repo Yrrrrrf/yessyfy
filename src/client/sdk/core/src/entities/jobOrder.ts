@@ -38,6 +38,12 @@ export interface JobOrder {
 	postalCode: string;
 	description: string;
 
+	// Scheduling and Access
+	scheduleDate?: string;
+	scheduleTimeSlot?: string;
+	gateSecurityInstructions?: string;
+	clientSignatureUrl?: string;
+
 	// Financial values in integer centavos (MXN)
 	baseBudgetCents: number;
 	supplementalCents: number;
@@ -47,6 +53,21 @@ export interface JobOrder {
 	isrWithheldCents: number;
 	ivaWithheldCents: number;
 	collaboratorNetCents: number;
+	tipCents?: number;
+
+	// Review & Rating
+	rating?: number;
+	reviewText?: string;
+
+	// SAT CFDI 4.0 Invoicing Details
+	cfdiFolio?: string;
+	cfdiXmlUrl?: string;
+	cfdiPdfUrl?: string;
+	cfdiRfc?: string;
+	cfdiRazonSocial?: string;
+	cfdiPostalCode?: string;
+	cfdiRegimen?: string;
+	cfdiUso?: string;
 
 	createdAt: string;
 	scheduledFor?: string;

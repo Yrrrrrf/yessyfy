@@ -1,7 +1,6 @@
 <script lang="ts">
 import {
   BeforeAfterSlider,
-  DetailSheet,
   EscrowStatusCard,
   PriceBreakdown,
   StatusBadge,
@@ -21,148 +20,29 @@ import {
   type TechnicianRecord,
   type WarrantyCertificate,
 } from '@sdk';
+import { visionStore } from '../lib/visionStore.svelte.ts';
 
-// Active Tab in Vision CRM
-type VisionTab = 'dispatch' | 'qa_audits' | 'escrow_cfdi' | 'triage_tree';
-let currentTab = $state<VisionTab>('dispatch');
+// 8-Column Canonical Kanban Lifecycle Stages (from Dashboard.html)
+interface KanbanColumn {
+  id: string;
+  name: string;
+  shortcut: string;
+  colorClass: string;
+  statusMatch: JobOrderStatus[];
+}
 
-// Mock Active Orders in Operations
-let orders = $state<JobOrder[]>([
-  {
-    id: 'ord_101',
-    code: 'YSF-2026-0101',
-    customerId: 'usr_c1',
-    customer: {
-      id: 'usr_c1',
-      fullName: 'Mariana Garza Lozano',
-      phone: '+525541009988',
-      role: 'customer',
-      status: 'active',
-      locale: 'es-MX',
-    },
-    collaboratorId: 'usr_t1',
-    collaborator: {
-      id: 'usr_t1',
-      fullName: 'Roberto Morales Ramírez',
-      phone: '+525541982301',
-      role: 'collaborator',
-      status: 'active',
-      locale: 'es-MX',
-    },
-    category: 'plomeria',
-    locationType: 'residencial',
-    urgency: 'emergencia_24_7',
-    status: 'in_transit',
-    coordinates: { lat: 19.4326, lng: -99.1332, latitude: 19.4326, longitude: -99.1332 },
-    addressText: 'Av. Horacio 1420, Polanco, CDMX',
-    postalCode: '11550',
-    description: 'Fuga severa de agua bajo la tarja de cocina, requiere cambio de trampa y llave angular.',
-    baseBudgetCents: 45000,
-    supplementalCents: 0,
-    totalCustomerCents: 81000, // 450 * 1.8 = 810 MXN
-    platformFeeCents: 12150,
-    collaboratorGrossCents: 68850,
-    isrWithheldCents: 1466,
-    ivaWithheldCents: 5586,
-    collaboratorNetCents: 61798,
-    createdAt: new Date(Date.now() - 35 * 60 * 1000).toISOString(),
-    dispatchedAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'ord_102',
-    code: 'YSF-2026-0102',
-    customerId: 'usr_c2',
-    customer: {
-      id: 'usr_c2',
-      fullName: 'Carlos Slim Helú Jr.',
-      phone: '+525521998877',
-      role: 'customer',
-      status: 'active',
-      locale: 'es-MX',
-    },
-    collaboratorId: 'usr_t2',
-    collaborator: {
-      id: 'usr_t2',
-      fullName: 'Ignacio Fuentes Silva',
-      phone: '+525533112244',
-      role: 'collaborator',
-      status: 'active',
-      locale: 'es-MX',
-    },
-    category: 'electricidad',
-    locationType: 'premium',
-    urgency: 'mismo_dia',
-    status: 'pending_validation',
-    coordinates: { lat: 19.3621, lng: -99.1687, latitude: 19.3621, longitude: -99.1687 },
-    addressText: 'Coyoacán Centro, CDMX',
-    postalCode: '04000',
-    description: 'Cortocircuito en tablero general e instalación de 4 pastillas termomagnéticas.',
-    baseBudgetCents: 50000,
-    supplementalCents: 20000,
-    totalCustomerCents: 97500, // (500 * 1.5 * 1.3) = 975 MXN
-    platformFeeCents: 14625,
-    collaboratorGrossCents: 82875,
-    isrWithheldCents: 1765,
-    ivaWithheldCents: 6724,
-    collaboratorNetCents: 74386,
-    createdAt: new Date(Date.now() - 95 * 60 * 1000).toISOString(),
-    arrivedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'ord_103',
-    code: 'YSF-2026-0103',
-    customerId: 'usr_c3',
-    customer: {
-      id: 'usr_c3',
-      fullName: 'Fernanda Montes',
-      phone: '+525599881122',
-      role: 'customer',
-      status: 'active',
-      locale: 'es-MX',
-    },
-    collaboratorId: 'usr_t3',
-    collaborator: {
-      id: 'usr_t3',
-      fullName: 'Miguel Ángel Domínguez',
-      phone: '+525566778899',
-      role: 'collaborator',
-      status: 'active',
-      locale: 'es-MX',
-    },
-    category: 'cerrajeria',
-    locationType: 'residencial',
-    urgency: 'normal',
-    status: 'disputed',
-    coordinates: { lat: 19.4121, lng: -99.1722, latitude: 19.4121, longitude: -99.1722 },
-    addressText: 'Colonia Condesa, CDMX',
-    postalCode: '06140',
-    description: 'Apertura de chapa de alta seguridad y cambio de cilindro Yale.',
-    baseBudgetCents: 40000,
-    supplementalCents: 0,
-    totalCustomerCents: 40000,
-    platformFeeCents: 6000,
-    collaboratorGrossCents: 34000,
-    isrWithheldCents: 724,
-    ivaWithheldCents: 2758,
-    collaboratorNetCents: 30518,
-    createdAt: new Date(Date.now() - 180 * 60 * 1000).toISOString(),
-  },
-]);
+const KANBAN_COLUMNS: KanbanColumn[] = [
+  { id: 'saludo', name: '01: Saludo', shortcut: '/hi', colorClass: 'border-t-info', statusMatch: ['draft'] },
+  { id: 'triage', name: '02: Triage', shortcut: '/route', colorClass: 'border-t-base-content/40', statusMatch: ['pending_triage'] },
+  { id: 'discovery', name: '03: Discovery', shortcut: '/urgencia', colorClass: 'border-t-accent', statusMatch: ['dispatched'] },
+  { id: 'cotizacion', name: '04: Cotización', shortcut: '/confirmacion_ok', colorClass: 'border-t-warning', statusMatch: ['accepted'] },
+  { id: 'ejecucion', name: '05: Ejecución', shortcut: '/en_camino', colorClass: 'border-t-primary', statusMatch: ['in_transit', 'en_camino', 'in_progress', 'pending_quote_approval', 'winding_down'] },
+  { id: 'validacion', name: '06: Validación', shortcut: '/validacion_ok', colorClass: 'border-t-warning', statusMatch: ['pending_validation', 'validated'] },
+  { id: 'pago', name: '07: Pago Escrow', shortcut: '/pago', colorClass: 'border-t-secondary', statusMatch: ['completed'] },
+  { id: 'cierre', name: '08: Facturación', shortcut: '/factura_digital', colorClass: 'border-t-success', statusMatch: ['completed'] },
+];
 
-// Selected Job for Inspector Sheet
-let selectedJob = $state<JobOrder | null>(null);
-
-// Pricing Breakdown for Selected Job
-const selectedBreakdown = $derived(
-  selectedJob
-    ? calculateJobPricing(selectedJob.baseBudgetCents, {
-        locationType: selectedJob.locationType,
-        urgency: selectedJob.urgency,
-      }, { supplementalCents: selectedJob.supplementalCents })
-    : null,
-);
-
-// 14-Node Conversational Shortcut Map with WhatsApp Template Copy
+// 14-Node WhatsApp Automation
 interface ShortcutNode {
   token: string;
   name: string;
@@ -282,376 +162,346 @@ const CONVERSATIONAL_NODES: ShortcutNode[] = [
 let selectedShortcut = $state<ShortcutNode | null>(null);
 let copiedToast = $state(false);
 
+// Batch CFDI selection
+let selectedBatchOrders = $state<string[]>(['ord_101', 'ord_102']);
+let batchStampingSuccess = $state(false);
+
 function copyTemplate(text: string) {
   navigator.clipboard?.writeText(text);
   copiedToast = true;
   setTimeout(() => copiedToast = false, 2500);
 }
 
-function approveQaAndRelease(order: JobOrder) {
-  order.status = 'completed';
-  selectedJob = null;
-}
-
-function flagDispute(order: JobOrder) {
-  order.status = 'disputed';
-  selectedJob = null;
+function handleBatchStamp() {
+  batchStampingSuccess = true;
+  setTimeout(() => batchStampingSuccess = false, 4000);
 }
 </script>
 
-<div class="min-h-screen bg-base-100 text-base-content flex flex-col" data-theme="vision-dark">
-  <!-- Vision Operational Bar -->
-  <header class="bg-base-200 border-b border-base-300 px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-40">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-primary text-primary-content font-black text-lg flex items-center justify-center shadow">
-        V
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="font-extrabold text-lg text-base-content tracking-tight">Vision CRM</h1>
-          <span class="badge badge-accent badge-sm font-mono font-bold">OPS-LIVE</span>
+<div class="p-6 space-y-6">
+  <!-- CONSOLE 1: 8-COLUMN KANBAN BOARD (DASHBOARD.HTML CANONICAL) -->
+  {#if visionStore.activeConsole === 'kanban'}
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-black text-base-content tracking-tight">Tablero Kanban de Ciclo de Vida (8 Fases)</h2>
+          <p class="text-xs text-base-content/60">Monitoreo del flujo cerrado: Pedido ➔ Match ➔ Ejecución ➔ Validación ➔ Pago ➔ CFDI</p>
         </div>
-        <p class="text-[11px] text-base-content/60">Yessyfy Centro de Control y Despacho</p>
+        <span class="badge badge-accent badge-sm font-mono font-bold">FLUID-DISPATCH</span>
       </div>
-    </div>
 
-    <!-- Navigation Tabs -->
-    <div class="flex items-center gap-1.5 bg-base-300/60 p-1 rounded-2xl">
-      <button
-        type="button"
-        class="btn btn-sm text-xs {currentTab === 'dispatch' ? 'btn-primary' : 'btn-ghost'}"
-        onclick={() => currentTab = 'dispatch'}
-      >
-        🗺️ Despacho & Flota
-      </button>
-      <button
-        type="button"
-        class="btn btn-sm text-xs {currentTab === 'qa_audits' ? 'btn-primary' : 'btn-ghost'}"
-        onclick={() => currentTab = 'qa_audits'}
-      >
-        📸 Auditoría QA
-        <span class="badge badge-xs badge-warning ml-1">1</span>
-      </button>
-      <button
-        type="button"
-        class="btn btn-sm text-xs {currentTab === 'escrow_cfdi' ? 'btn-primary' : 'btn-ghost'}"
-        onclick={() => currentTab = 'escrow_cfdi'}
-      >
-        💼 Escrow & SAT CFDI
-      </button>
-      <button
-        type="button"
-        class="btn btn-sm text-xs {currentTab === 'triage_tree' ? 'btn-primary' : 'btn-ghost'}"
-        onclick={() => currentTab = 'triage_tree'}
-      >
-        🌲 Árbol Conversacional (14 Atajos)
-      </button>
-    </div>
+      <!-- Horizontal scrolling 8-column pipeline -->
+      <div class="flex gap-4 overflow-x-auto pb-4 pt-1 items-start min-h-[580px]">
+        {#each KANBAN_COLUMNS as col}
+          {@const columnOrders = visionStore.orders.filter((o) => col.statusMatch.includes(o.status))}
+          <div class="w-72 shrink-0 bg-base-200/70 border border-base-300 rounded-2xl flex flex-col max-h-[580px] shadow-sm border-t-4 {col.colorClass}">
+            <!-- Column Header -->
+            <div class="p-3 border-b border-base-300 flex items-center justify-between">
+              <div>
+                <span class="font-mono text-[10px] font-bold text-base-content/60">{col.shortcut}</span>
+                <h4 class="font-extrabold text-xs text-base-content">{col.name}</h4>
+              </div>
+              <span class="badge badge-neutral badge-xs font-mono font-bold">{columnOrders.length}</span>
+            </div>
 
-    <!-- Quick Stats -->
-    <div class="flex items-center gap-4 text-xs font-mono">
-      <div class="text-right">
-        <span class="text-base-content/60 block text-[10px]">Custodia Escrow</span>
-        <span class="font-bold text-primary">$218,500 MXN</span>
-      </div>
-      <div class="text-right">
-        <span class="text-base-content/60 block text-[10px]">Profesionales Activos</span>
-        <span class="font-bold text-accent">18 en ruta</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- Content Workspace -->
-  <main class="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
-    {#if currentTab === 'dispatch'}
-      <!-- DISPATCH & ACTIVE ORDERS VIEW -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Live Map Column -->
-        <div class="lg:col-span-7 space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="font-black text-lg text-base-content">Telemetría y Geocercas (150m)</h2>
-            <span class="text-xs text-base-content/60 font-mono">Actualizado: hace 4s</span>
-          </div>
-          <SvgGpsTracker
-            etaMinutes={11}
-            collaboratorName="Roberto Morales"
-            vehicleMode="moto"
-            progressPercent={70}
-          />
-        </div>
-
-        <!-- Orders Queue Column -->
-        <div class="lg:col-span-5 space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="font-black text-lg text-base-content">Órdenes en Monitoreo</h2>
-            <span class="badge badge-neutral text-xs font-mono">{orders.length} pedidos</span>
-          </div>
-
-          <div class="space-y-3">
-            {#each orders as order}
-              <!-- svelte-ignore a11y_click_events_have_key_events -->
-              <!-- svelte-ignore a11y_no_static_element_interactions -->
-              <div
-                class="card bg-base-200 border border-base-300 rounded-2xl p-4 hover:border-primary cursor-pointer transition-all shadow-sm {selectedJob?.id === order.id ? 'border-primary ring-1 ring-primary' : ''}"
-                onclick={() => selectedJob = order}
-              >
-                <div class="flex items-start justify-between">
-                  <div>
-                    <span class="font-mono text-xs font-bold text-primary">{order.code}</span>
-                    <h4 class="font-bold text-sm text-base-content mt-0.5">{order.customer?.fullName}</h4>
-                    <p class="text-xs text-base-content/60 truncate max-w-[240px]">{order.addressText}</p>
+            <!-- Orders in Column -->
+            <div class="p-2 space-y-2.5 overflow-y-auto flex-1">
+              {#each columnOrders as order}
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div
+                  class="card bg-base-100 border border-base-300 rounded-xl p-3.5 hover:border-primary cursor-pointer transition-all shadow-xs space-y-2 {visionStore.selectedTicketId === order.id ? 'ring-2 ring-primary border-primary' : ''}"
+                  onclick={() => visionStore.selectTicket(order.id)}
+                >
+                  <div class="flex items-start justify-between">
+                    <span class="font-mono text-[11px] font-bold text-primary">{order.code}</span>
+                    <StatusBadge status={order.status} size="xs" />
                   </div>
-                  <StatusBadge status={order.status} size="sm" />
+
+                  <div>
+                    <div class="font-bold text-xs text-base-content">{order.customer?.fullName}</div>
+                    <div class="text-[10px] text-base-content/60 truncate">{order.addressText}</div>
+                  </div>
+
+                  <div class="pt-2 border-t border-base-300/60 flex items-center justify-between text-[11px] font-mono">
+                    <span class="text-base-content/70">{formatMxn(order.totalCustomerCents)}</span>
+                    <span class="text-accent font-semibold text-[10px]">{order.collaborator?.fullName ? order.collaborator.fullName.split(' ')[0] : 'Colaborador'}</span>
+                  </div>
                 </div>
-
-                <div class="mt-3 pt-3 border-t border-base-300/80 flex items-center justify-between text-xs font-mono">
-                  <span class="text-base-content/70">Monto: {formatMxn(order.totalCustomerCents)}</span>
-                  <span class="text-accent font-semibold">{order.collaborator?.fullName}</span>
+              {:else}
+                <div class="h-24 flex items-center justify-center text-xs text-base-content/30 italic">
+                  Sin tickets en esta fase
                 </div>
-              </div>
-            {/each}
-          </div>
-        </div>
-      </div>
-
-    {:else if currentTab === 'qa_audits'}
-      <!-- QA AUDIT SPLIT SCREEN -->
-      <div class="space-y-6">
-        <div>
-          <h2 class="text-xl font-black text-base-content">Auditoría Fotográfica de Garantía (QA)</h2>
-          <p class="text-xs text-base-content/70">
-            Comparativa obligatoria del Antes vs. Después. Verificación de sellado y evidencia con marca de agua y hash criptográfico.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <div class="space-y-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-base-content/60">Inspección Deslizante en Sitio</span>
-            <BeforeAfterSlider
-              beforeUrl="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800"
-              afterUrl="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800"
-              beforeLabel="Diagnóstico Inicial"
-              afterLabel="Reparación Finalizada"
-            />
-          </div>
-
-          <div class="card bg-base-200 border border-base-300 rounded-3xl p-6 space-y-6">
-            <div>
-              <span class="badge badge-warning badge-sm font-mono">YSF-2026-0102</span>
-              <h3 class="text-lg font-black text-base-content mt-1">Dictamen de Calidad</h3>
-              <p class="text-xs text-base-content/70 mt-0.5">
-                Profesional Independiente: Ignacio Fuentes Silva • Coyoacán Centro
-              </p>
-            </div>
-
-            <div class="space-y-2 text-xs">
-              <div class="flex justify-between p-2.5 rounded-xl bg-base-100 border border-base-300">
-                <span class="text-base-content/70">Marca de Agua GPS:</span>
-                <span class="font-mono font-semibold text-success">19.3621° N, -99.1687° W (Coincide con geocerca)</span>
-              </div>
-              <div class="flex justify-between p-2.5 rounded-xl bg-base-100 border border-base-300">
-                <span class="text-base-content/70">Integridad Hash SHA-256:</span>
-                <span class="font-mono text-accent">e89b...33fa [Verificado]</span>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 pt-2">
-              <button
-                type="button"
-                class="btn btn-error btn-outline btn-sm font-bold min-h-[48px]"
-                onclick={() => flagDispute(orders[1])}
-              >
-                Rechazar QA & Congelar
-              </button>
-              <button
-                type="button"
-                class="btn btn-success btn-sm font-bold min-h-[48px]"
-                onclick={() => approveQaAndRelease(orders[1])}
-              >
-                Aprobar QA & Liberar Escrow
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    {:else if currentTab === 'escrow_cfdi'}
-      <!-- ESCROW & SAT CFDI 4.0 LEDGER -->
-      <div class="space-y-6">
-        <div>
-          <h2 class="text-xl font-black text-base-content">Gestión Fiscal y Custodia de Fondos</h2>
-          <p class="text-xs text-base-content/70">
-            Libro mayor de doble partida, retenciones automáticas del SAT (LISR 113-A / LIVA 18-J) y timbrado PAC.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <EscrowStatusCard amountCents={21850000} status="retained" />
-          <EscrowStatusCard amountCents={7438600} status="released" />
-          <EscrowStatusCard amountCents={4000000} status="disputed" />
-        </div>
-
-        <div class="card bg-base-200 border border-base-300 rounded-3xl p-6 overflow-x-auto">
-          <table class="table table-sm">
-            <thead>
-              <tr class="text-base-content/60 text-xs">
-                <th>Folio</th>
-                <th>Cliente</th>
-                <th>Total Cliente</th>
-                <th>Comisión YSF (15%)</th>
-                <th>Retención SAT (ISR+IVA)</th>
-                <th>Neto SPEI Profesional</th>
-                <th>Estado Escrow</th>
-                <th>CFDI 4.0</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each orders as order}
-                <tr class="font-mono text-xs hover:bg-base-300/40">
-                  <td class="font-bold text-primary">{order.code}</td>
-                  <td class="font-sans font-medium">{order.customer?.fullName}</td>
-                  <td>{formatMxn(order.totalCustomerCents)}</td>
-                  <td>{formatMxn(order.platformFeeCents)}</td>
-                  <td class="text-error">-{formatMxn(order.isrWithheldCents + order.ivaWithheldCents)}</td>
-                  <td class="text-success font-bold">{formatMxn(order.collaboratorNetCents)}</td>
-                  <td><StatusBadge status={order.status} size="xs" /></td>
-                  <td>
-                    <span class="badge badge-ghost badge-xs font-sans">Generar PDF/XML</span>
-                  </td>
-                </tr>
               {/each}
-            </tbody>
-          </table>
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+
+  <!-- CONSOLE 2: MULTIVEHICLE DISPATCH & FLEET MAP -->
+  {:else if visionStore.activeConsole === 'dispatch'}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div class="lg:col-span-8 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-black text-base-content tracking-tight">Telemetría Multivehículo CDMX (Geocercas 150m)</h2>
+            <p class="text-xs text-base-content/60">Polanco, Condesa, Coyoacán, Benito Juárez</p>
+          </div>
+          <span class="badge badge-success badge-sm font-mono font-bold">18 TÉCNICOS EN RUTA</span>
         </div>
+
+        <SvgGpsTracker
+          etaMinutes={11}
+          collaboratorName="Roberto Morales Ramírez"
+          vehicleMode="moto"
+          progressPercent={70}
+        />
       </div>
 
-    {:else if currentTab === 'triage_tree'}
-      <!-- 14-NODE INTERACTIVE CONVERSATIONAL SHORTCUT TREE -->
-      <div class="space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-black text-base-content">Árbol Conversacional y Comandos Rápidos</h2>
-            <p class="text-xs text-base-content/70">
-              Haz clic en cualquier atajo para previsualizar y copiar la plantilla oficial de WhatsApp Business API.
-            </p>
-          </div>
-          {#if copiedToast}
-            <div class="badge badge-success font-bold text-xs p-3">
-              ✓ Mensaje copiado al portapapeles
-            </div>
-          {/if}
+      <div class="lg:col-span-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-black text-sm text-base-content uppercase tracking-wider">Órdenes con SLA Activo</h3>
+          <span class="badge badge-neutral badge-xs font-mono">{visionStore.orders.length}</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {#each CONVERSATIONAL_NODES as node}
+        <div class="space-y-3">
+          {#each visionStore.orders as order}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
-              class="p-4 rounded-2xl bg-base-200 border border-base-300 hover:border-primary cursor-pointer transition-all shadow-sm {selectedShortcut?.token === node.token ? 'border-primary ring-1 ring-primary' : ''}"
-              onclick={() => selectedShortcut = node}
+              class="card bg-base-200 border border-base-300 rounded-2xl p-4 hover:border-primary cursor-pointer transition-all shadow-sm {visionStore.selectedTicketId === order.id ? 'ring-2 ring-primary border-primary' : ''}"
+              onclick={() => visionStore.selectTicket(order.id)}
             >
               <div class="flex items-start justify-between">
                 <div>
-                  <span class="badge badge-accent badge-xs font-mono font-bold">{node.token}</span>
-                  <h4 class="font-bold text-sm text-base-content mt-1">{node.name}</h4>
-                  <div class="flex items-center gap-2 mt-0.5">
-                    <span class="text-[10px] text-base-content/60 uppercase">{node.category}</span>
-                    <span class="text-[10px] badge badge-ghost badge-xs">Para: {node.recipient}</span>
-                  </div>
+                  <span class="font-mono text-xs font-bold text-primary">{order.code}</span>
+                  <h4 class="font-bold text-sm text-base-content mt-0.5">{order.customer?.fullName}</h4>
+                  <p class="text-xs text-base-content/60 truncate max-w-[220px]">{order.addressText}</p>
                 </div>
-                <span class="text-2xl font-black font-mono text-primary">{node.count}</span>
+                <StatusBadge status={order.status} size="sm" />
+              </div>
+              <div class="mt-3 pt-3 border-t border-base-300/80 flex items-center justify-between text-xs font-mono">
+                <span class="text-base-content/70">{formatMxn(order.totalCustomerCents)}</span>
+                <span class="text-accent font-semibold">{order.collaborator?.fullName}</span>
               </div>
             </div>
           {/each}
         </div>
-
-        {#if selectedShortcut}
-          <div class="card bg-base-200 border-2 border-primary rounded-3xl p-6 space-y-4 shadow-xl">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="badge badge-primary font-mono text-sm font-bold">{selectedShortcut.token}</span>
-                <h3 class="font-bold text-base text-base-content">{selectedShortcut.name}</h3>
-              </div>
-              <span class="text-xs text-base-content/60">Destinatario: <strong>{selectedShortcut.recipient}</strong></span>
-            </div>
-
-            <div class="p-4 rounded-2xl bg-base-100 border border-base-300 font-sans text-sm leading-relaxed text-base-content/90">
-              "{selectedShortcut.templateText}"
-            </div>
-
-            <div class="flex justify-end gap-3">
-              <button
-                type="button"
-                class="btn btn-outline btn-sm rounded-xl font-bold min-h-[44px]"
-                onclick={() => selectedShortcut = null}
-              >
-                Cerrar
-              </button>
-              <button
-                type="button"
-                class="btn btn-primary btn-sm rounded-xl font-bold min-h-[44px]"
-                onclick={() => selectedShortcut && copyTemplate(selectedShortcut.templateText)}
-              >
-                📋 Copiar Mensaje para WhatsApp
-              </button>
-            </div>
-          </div>
-        {/if}
       </div>
-    {/if}
-  </main>
+    </div>
 
-  <!-- Job Detail Slide-over Inspector Sheet -->
-  {#if selectedJob}
-    <DetailSheet
-      open={true}
-      title={selectedJob.code}
-      subtitle={selectedJob.addressText}
-      onClose={() => selectedJob = null}
-    >
-      <div class="space-y-4">
-        <StatusBadge status={selectedJob.status} />
-
-        <div class="space-y-1">
-          <span class="text-[10px] uppercase font-bold text-base-content/60">Descripción del Trabajo</span>
-          <p class="text-xs text-base-content/80 leading-relaxed">{selectedJob.description}</p>
+  <!-- CONSOLE 3: 14-NODE WHATSAPP CLOUD API AUTOMATION -->
+  {:else if visionStore.activeConsole === 'tree'}
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-black text-base-content tracking-tight">Árbol Conversacional & Cloud API WhatsApp</h2>
+          <p class="text-xs text-base-content/70">
+            Haz clic en cualquier atajo para previsualizar y disparar la plantilla oficial HSM ante Meta.
+          </p>
         </div>
-
-        {#if selectedBreakdown}
-          <PriceBreakdown breakdown={selectedBreakdown} showInternalMargins={true} />
-        {/if}
-
-        {#if selectedJob.collaborator}
-          <div class="space-y-1">
-            <span class="text-[10px] uppercase font-bold text-base-content/60">Profesional Asignado</span>
-            <div class="p-3 rounded-2xl bg-base-200 border border-base-300 flex items-center justify-between">
-              <span class="text-xs font-bold">{selectedJob.collaborator.fullName}</span>
-              <span class="font-mono text-xs text-primary">{selectedJob.collaborator.phone}</span>
-            </div>
+        {#if copiedToast}
+          <div class="badge badge-success font-bold text-xs p-3">
+            ✓ Plantilla copiada al portapapeles
           </div>
         {/if}
       </div>
 
-      {#snippet actions()}
-        <div class="flex gap-2">
-          {#if selectedJob?.status === 'pending_validation'}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {#each CONVERSATIONAL_NODES as node}
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div
+            class="p-4 rounded-2xl bg-base-200 border border-base-300 hover:border-primary cursor-pointer transition-all shadow-sm {selectedShortcut?.token === node.token ? 'border-primary ring-2 ring-primary' : ''}"
+            onclick={() => selectedShortcut = node}
+          >
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="badge badge-accent badge-xs font-mono font-bold">{node.token}</span>
+                <h4 class="font-bold text-sm text-base-content mt-1">{node.name}</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-[10px] text-base-content/60 uppercase">{node.category}</span>
+                  <span class="text-[10px] badge badge-ghost badge-xs">Para: {node.recipient}</span>
+                </div>
+              </div>
+              <span class="text-2xl font-black font-mono text-primary">{node.count}</span>
+            </div>
+          </div>
+        {/each}
+      </div>
+
+      {#if selectedShortcut}
+        <div class="card bg-base-200 border-2 border-primary rounded-3xl p-6 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="badge badge-primary font-mono text-sm font-bold">{selectedShortcut.token}</span>
+              <h3 class="font-bold text-base text-base-content">{selectedShortcut.name}</h3>
+            </div>
+            <span class="text-xs text-base-content/60">Destinatario: <strong>{selectedShortcut.recipient}</strong></span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-base-100 border border-base-300 font-sans text-sm leading-relaxed text-base-content/90">
+            "{selectedShortcut.templateText}"
+          </div>
+
+          <div class="flex justify-end gap-3">
             <button
               type="button"
-              class="btn btn-sm btn-success flex-1 min-h-[48px]"
-              onclick={() => selectedJob && approveQaAndRelease(selectedJob)}
+              class="btn btn-outline btn-sm rounded-xl font-bold min-h-[44px]"
+              onclick={() => selectedShortcut = null}
             >
-              Aprobar & Liberar
+              Cerrar
             </button>
-          {/if}
-          <button
-            type="button"
-            class="btn btn-sm btn-error btn-outline flex-1 min-h-[48px]"
-            onclick={() => selectedJob && flagDispute(selectedJob)}
-          >
-            Abrir Disputa
-          </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm rounded-xl font-bold min-h-[44px]"
+              onclick={() => selectedShortcut && copyTemplate(selectedShortcut.templateText)}
+            >
+              📋 Disparar / Copiar para WhatsApp
+            </button>
+          </div>
         </div>
-      {/snippet}
-    </DetailSheet>
+      {/if}
+    </div>
+
+  <!-- CONSOLE 4: QA FORENSIC AUDIT -->
+  {:else if visionStore.activeConsole === 'qa'}
+    <div class="space-y-6">
+      <div>
+        <h2 class="text-xl font-black text-base-content tracking-tight">Auditoría Fotográfica de Garantía (QA Pericial)</h2>
+        <p class="text-xs text-base-content/70">
+          Comparativa obligatoria Antes vs. Después. Verificación de sellado y evidencia con marca de agua y hash criptográfico SHA-256.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div class="space-y-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-base-content/60">Inspección Deslizante en Sitio</span>
+          <BeforeAfterSlider
+            beforeUrl="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800"
+            afterUrl="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800"
+            beforeLabel="Diagnóstico Inicial"
+            afterLabel="Reparación Finalizada"
+          />
+        </div>
+
+        <div class="card bg-base-200 border border-base-300 rounded-3xl p-6 space-y-6">
+          <div>
+            <span class="badge badge-warning badge-sm font-mono">YSF-2026-0102</span>
+            <h3 class="text-lg font-black text-base-content mt-1">Dictamen Pericial de Calidad</h3>
+            <p class="text-xs text-base-content/70 mt-0.5">
+              Profesional Independiente: Ignacio Fuentes Silva • Coyoacán Centro
+            </p>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between p-2.5 rounded-xl bg-base-100 border border-base-300">
+              <span class="text-base-content/70">Marca de Agua GPS:</span>
+              <span class="font-mono font-semibold text-success">19.3621° N, -99.1687° W (Geocerca OK)</span>
+            </div>
+            <div class="flex justify-between p-2.5 rounded-xl bg-base-100 border border-base-300">
+              <span class="text-base-content/70">Integridad Criptográfica:</span>
+              <span class="font-mono text-accent">SHA-256: e89b...33fa [Válido]</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button
+              type="button"
+              class="btn btn-error btn-outline btn-sm font-bold min-h-[48px]"
+              onclick={() => visionStore.freezeEscrow('ord_102')}
+            >
+              Rechazar QA & Congelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-success btn-sm font-bold min-h-[48px]"
+              onclick={() => visionStore.approveTicket('ord_102')}
+            >
+              Aprobar QA & Liberar Escrow
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- CONSOLE 5: ESCROW & SAT CFDI 4.0 BATCH STAMPING -->
+  {:else if visionStore.activeConsole === 'escrow'}
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-black text-base-content tracking-tight">Libro Mayor de Escrow & Timbrado Masivo SAT CFDI 4.0</h2>
+          <p class="text-xs text-base-content/70">
+            Retenciones fiscales (LISR 113-A e LIVA 18-J) y emisión masiva de comprobantes fiscales digitales.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-primary btn-sm rounded-xl font-bold min-h-[44px] shadow"
+          onclick={handleBatchStamp}
+        >
+          💼 Timbrar Lote Seleccionado ({selectedBatchOrders.length})
+        </button>
+      </div>
+
+      {#if batchStampingSuccess}
+        <div class="alert alert-success text-xs font-bold p-3 rounded-2xl">
+          ✓ Lote timbrado exitosamente ante el PAC SAT. Se han emitido los archivos XML y PDF oficiales.
+        </div>
+      {/if}
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <EscrowStatusCard amountCents={21850000} status="retained" />
+        <EscrowStatusCard amountCents={7438600} status="released" />
+        <EscrowStatusCard amountCents={4000000} status="disputed" />
+      </div>
+
+      <div class="card bg-base-200 border border-base-300 rounded-3xl p-6 overflow-x-auto">
+        <table class="table table-sm">
+          <thead>
+            <tr class="text-base-content/60 text-xs">
+              <th>Sel</th>
+              <th>Folio</th>
+              <th>Cliente</th>
+              <th>Total Cliente</th>
+              <th>Comisión (15%)</th>
+              <th>Retención SAT</th>
+              <th>Neto Colaborador</th>
+              <th>Estado Escrow</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each visionStore.orders as order}
+              <tr class="font-mono text-xs hover:bg-base-300/40">
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedBatchOrders.includes(order.id)}
+                    class="checkbox checkbox-primary checkbox-xs"
+                    onchange={(e) => {
+                      const checked = (e.target as HTMLInputElement).checked;
+                      if (checked) {
+                        selectedBatchOrders = [...selectedBatchOrders, order.id];
+                      } else {
+                        selectedBatchOrders = selectedBatchOrders.filter((id) => id !== order.id);
+                      }
+                    }}
+                  />
+                </td>
+                <td class="font-bold text-primary">{order.code}</td>
+                <td class="font-sans font-medium">{order.customer?.fullName}</td>
+                <td>{formatMxn(order.totalCustomerCents)}</td>
+                <td>{formatMxn(order.platformFeeCents)}</td>
+                <td class="text-error">-{formatMxn(order.isrWithheldCents + order.ivaWithheldCents)}</td>
+                <td class="text-success font-bold">{formatMxn(order.collaboratorNetCents)}</td>
+                <td><StatusBadge status={order.status} size="xs" /></td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    </div>
   {/if}
 </div>
