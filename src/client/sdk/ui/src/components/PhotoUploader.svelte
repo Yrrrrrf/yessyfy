@@ -1,5 +1,7 @@
 <script lang="ts">
-import type { PhotoQAPhase } from '@sdk';
+import type { PhotoQAPhase } from '@sdk/core';
+import { watermarkAndHashImage } from './photo/CanvasWatermarker.ts';
+import PhotoPreviewCard from './photo/PhotoPreviewCard.svelte';
 
 interface Props {
   phase: PhotoQAPhase;
@@ -27,16 +29,13 @@ let isProcessing = $state(false);
 let previewUrl = $state<string | null>(null);
 let hashPreview = $state<string | null>(null);
 
-const phaseLabel = $derived(() => {
-  switch (phase) {
-    case 'diagnostic_before':
-      return 'Foto Diagnóstico (Antes)';
-    case 'work_progress':
-      return 'Foto Avance (Durante)';
-    case 'proof_finished':
-      return 'Foto Resultado Final (Después)';
-  }
-});
+const PHASE_LABELS: Record<PhotoQAPhase, string> = {
+  diagnostic_before: 'Foto Diagnóstico (Antes)',
+  work_progress: 'Foto Avance (Durante)',
+  proof_finished: 'Foto Resultado Final (Después)',
+};
+
+const phaseLabel = $derived(PHASE_LABELS[phase] || 'Foto Evidencia');
 
 async function handleFileInput(e: Event) {
   const target = e.target as HTMLInputElement;
@@ -44,71 +43,20 @@ async function handleFileInput(e: Event) {
   if (!file) return;
 
   isProcessing = true;
-
   try {
-    const img = new Image();
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      img.onload = async () => {
-        // Create canvas with watermarking
-        const canvas = document.createElement('canvas');
-        const maxDim = 1200;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          } else {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        // Draw image
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Watermark banner
-        const bannerHeight = Math.max(38, Math.round(height * 0.065));
-        ctx.fillStyle = 'rgba(11, 61, 71, 0.90)'; // Dark brand teal
-        ctx.fillRect(0, height - bannerHeight, width, bannerHeight);
-
-        // Text
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = `bold ${Math.round(bannerHeight * 0.40)}px monospace, sans-serif`;
-        const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-        const geoText = (latitude && longitude)
-          ? ` • GPS: ${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°`
-          : ' • CDMX';
-        const text = `YESSYFY QA • ${jobCode} • ${timestamp}${geoText}`;
-        ctx.fillText(text, 16, height - Math.round(bannerHeight * 0.35));
-
-        // Export WebP / JPEG
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-        previewUrl = dataUrl;
-
-        // Calculate SHA-256 hash
-        const rawBuffer = new TextEncoder().encode(dataUrl);
-        const digest = await crypto.subtle.digest('SHA-256', rawBuffer);
-        const hashArray = Array.from(new Uint8Array(digest));
-        const sha256 = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-        hashPreview = sha256.slice(0, 16);
-
-        isProcessing = false;
-        onPhotoCaptured?.({ dataUrl, sha256, phase, latitude, longitude });
-      };
-      img.src = reader.result as string;
-    };
-    reader.readAsDataURL(file);
+    const result = await watermarkAndHashImage(file, { jobCode, latitude, longitude });
+    previewUrl = result.dataUrl;
+    hashPreview = result.sha256.slice(0, 16);
+    onPhotoCaptured?.({
+      dataUrl: result.dataUrl,
+      sha256: result.sha256,
+      phase,
+      latitude,
+      longitude,
+    });
   } catch (err) {
     console.error('Error processing photo QA:', err);
+  } finally {
     isProcessing = false;
   }
 }
@@ -117,7 +65,7 @@ async function handleFileInput(e: Event) {
 <div class="card bg-base-100 border border-base-300 rounded-3xl p-5 shadow-sm space-y-4">
   <div class="flex items-center justify-between">
     <span class="text-xs font-extrabold uppercase tracking-wider text-base-content/70">
-      {phaseLabel()}
+      {phaseLabel}
     </span>
     {#if hashPreview}
       <span class="badge badge-success badge-sm font-mono text-[10px]">
@@ -127,16 +75,10 @@ async function handleFileInput(e: Event) {
   </div>
 
   {#if previewUrl}
-    <div class="relative rounded-2xl overflow-hidden border border-base-300 shadow-inner group">
-      <img src={previewUrl} alt="Evidencia QA con marca de agua" class="w-full h-48 object-cover" />
-      <button
-        type="button"
-        class="btn btn-sm btn-circle btn-neutral absolute top-2 right-2 opacity-80 hover:opacity-100"
-        onclick={() => { previewUrl = null; hashPreview = null; }}
-      >
-        ✕
-      </button>
-    </div>
+    <PhotoPreviewCard
+      previewUrl={previewUrl}
+      onClear={() => { previewUrl = null; hashPreview = null; }}
+    />
   {:else}
     <label class="flex flex-col items-center justify-center border-2 border-dashed border-base-300 hover:border-primary rounded-2xl p-6 cursor-pointer bg-base-200/40 hover:bg-base-200/80 transition-all min-h-[140px]">
       <input

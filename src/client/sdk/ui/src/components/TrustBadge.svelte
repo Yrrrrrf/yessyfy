@@ -8,7 +8,7 @@ interface Props {
 
 let { kind, variant = 'compact' }: Props = $props();
 
-const data = $derived(() => {
+const data = $derived.by(() => {
   switch (kind) {
     case 'kyc_verified':
       return {
@@ -36,16 +36,16 @@ const data = $derived(() => {
 </script>
 
 {#if variant === 'compact'}
-  <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold {data().colorClass}">
-    <span>{data().icon}</span>
-    <span>{data().title}</span>
+  <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold {data.colorClass}">
+    <span>{data.icon}</span>
+    <span>{data.title}</span>
   </div>
 {:else}
-  <div class="flex items-start gap-3 p-3.5 rounded-2xl border {data().colorClass}">
-    <span class="text-2xl mt-0.5">{data().icon}</span>
+  <div class="flex items-start gap-3 p-3.5 rounded-2xl border {data.colorClass}">
+    <span class="text-2xl mt-0.5">{data.icon}</span>
     <div>
-      <h4 class="font-bold text-sm leading-tight">{data().title}</h4>
-      <p class="text-xs opacity-80 mt-0.5">{data().subtitle}</p>
+      <h4 class="font-bold text-sm leading-tight">{data.title}</h4>
+      <p class="text-xs opacity-80 mt-0.5">{data.subtitle}</p>
     </div>
   </div>
 {/if}

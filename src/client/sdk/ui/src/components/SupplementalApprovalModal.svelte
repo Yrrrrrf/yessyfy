@@ -1,5 +1,5 @@
 <script lang="ts">
-import { formatMxn } from '@sdk';
+import { formatMxn } from '@sdk/core';
 
 interface Props {
   open: boolean;
@@ -17,8 +17,8 @@ let {
   reason,
   supplementalCents,
   evidencePhotoUrl = 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800',
-  partsCostCents = 12000, // $120 MXN
-  laborCostCents = 8000,  // $80 MXN
+  partsCostCents = 20000, // $200 MXN
+  laborCostCents = 15000, // $150 MXN
   onApprove,
   onReject,
 }: Props = $props();

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { formatMxn, type JobFinancialBreakdown } from '@sdk';
+import { formatMxn, type JobFinancialBreakdown } from '@sdk/core';
 
 interface Props {
   breakdown: JobFinancialBreakdown;
@@ -38,7 +38,7 @@ let { breakdown, showInternalMargins = false }: Props = $props();
         <span class="font-mono">{formatMxn(breakdown.gatewayFeeCents)}</span>
       </div>
       <div class="flex justify-between text-error/80">
-        <span>Retención SAT ISR (2.1%):</span>
+        <span>Retención SAT ISR (1.0%):</span>
         <span class="font-mono">-{formatMxn(breakdown.isrWithheldCents)}</span>
       </div>
       <div class="flex justify-between text-error/80">

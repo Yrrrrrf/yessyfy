@@ -1,5 +1,5 @@
 <script lang="ts">
-import { formatMxn } from '@sdk';
+import { formatMxn } from '@sdk/core';
 import StatusBadge from './StatusBadge.svelte';
 
 interface Props {

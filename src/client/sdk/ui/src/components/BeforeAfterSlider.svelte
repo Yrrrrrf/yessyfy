@@ -15,6 +15,7 @@ let {
 
 let sliderPosition = $state(50); // percentage 0 to 100
 let isDragging = $state(false);
+let containerWidth = $state(0);
 
 function handleMove(e: MouseEvent | TouchEvent) {
   if (!isDragging && e.type !== 'touchmove') return;
@@ -30,6 +31,7 @@ function handleMove(e: MouseEvent | TouchEvent) {
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="relative w-full h-64 md:h-80 rounded-3xl overflow-hidden select-none border border-base-300 shadow-md touch-none cursor-ew-resize"
+  bind:clientWidth={containerWidth}
   onmousedown={() => isDragging = true}
   onmouseup={() => isDragging = false}
   onmouseleave={() => isDragging = false}
@@ -54,8 +56,8 @@ function handleMove(e: MouseEvent | TouchEvent) {
     <img
       src={beforeUrl}
       alt="Trabajo Inicial"
-      class="absolute inset-0 w-full h-full object-cover max-w-none"
-      style="width: 100vw; max-width: 1000px;"
+      class="absolute inset-0 h-full object-cover max-w-none"
+      style="width: {containerWidth ? `${containerWidth}px` : '100%'};"
     />
     <span class="absolute top-3 left-3 badge badge-neutral badge-sm font-bold shadow">
       {beforeLabel}

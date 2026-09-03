@@ -13,7 +13,7 @@ let {
   progressPercent = 65,
 }: Props = $props();
 
-const pinPosition = $derived(() => {
+const pinPosition = $derived.by(() => {
   // Trace curved path coordinates from start (60, 200) to customer (340, 70)
   const t = Math.max(0, Math.min(1, progressPercent / 100));
   // Quadratic bezier interpolation: P0=(60, 200), P1=(180, 220), P2=(340, 70)
@@ -66,7 +66,7 @@ const pinPosition = $derived(() => {
     </g>
 
     <!-- Moving Collaborator Pin -->
-    <g transform="translate({pinPosition().x}, {pinPosition().y})">
+    <g transform="translate({pinPosition.x}, {pinPosition.y})">
       <circle r="14" class="fill-secondary shadow-lg" />
       <text y="4" text-anchor="middle" class="fill-white font-bold text-xs">
         {vehicleMode === 'moto' ? '🛵' : '🚗'}

@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { WarrantyCertificate } from '@sdk';
+import type { WarrantyCertificate } from '@sdk/core';
 import TrustBadge from './TrustBadge.svelte';
 
 interface Props {

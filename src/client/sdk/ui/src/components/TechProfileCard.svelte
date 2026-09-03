@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { TechnicianRecord } from '@sdk';
+import type { TechnicianRecord } from '@sdk/core';
 import { TRADE_META_REGISTRY } from '../types.ts';
 import TrustBadge from './TrustBadge.svelte';
 
@@ -10,7 +10,7 @@ interface Props {
 
 let { technician, compact = false }: Props = $props();
 
-const initials = $derived(() => {
+const initials = $derived.by(() => {
   const name = technician.user?.fullName || 'Colaborador';
   const parts = name.trim().split(' ');
   return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
@@ -26,7 +26,7 @@ const primaryTrade = $derived(
     <!-- Avatar -->
     <div class="avatar placeholder">
       <div class="bg-gradient-to-tr {primaryTrade?.gradientClass || 'from-primary to-accent'} text-white rounded-2xl w-14 h-14 font-black text-lg shadow-md flex items-center justify-center">
-        <span>{initials()}</span>
+        <span>{initials}</span>
       </div>
     </div>
 

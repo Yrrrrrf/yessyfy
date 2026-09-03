@@ -1,4 +1,4 @@
-import type { ServiceCategory } from "@sdk";
+import type { ServiceCategory } from "@sdk/core";
 
 export interface TradeVisualMeta {
 	id: ServiceCategory;
