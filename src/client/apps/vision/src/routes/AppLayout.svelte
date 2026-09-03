@@ -8,7 +8,7 @@ import {
   useShortcuts,
 } from 'rune-lab/palettes';
 import { onMount, type Snippet } from 'svelte';
-import { formatMxn } from '@sdk';
+import { formatMxn } from '@sdk/core';
 import { StatusBadge, PriceBreakdown } from '@sdk/ui';
 import { visionStore, type VisionConsole } from '../lib/visionStore.svelte.ts';
 
@@ -166,7 +166,7 @@ const TACTICAL_CONSOLES: { id: VisionConsole; label: string; icon: string; badge
         <select
           id="alcaldia-filter"
           bind:value={visionStore.selectedAlcaldia}
-          class="select select-bordered select-xs w-full text-xs"
+          class="select select-xs w-full text-xs"
         >
           <option value="todos">Todas las Zonas</option>
           <option value="Miguel Hidalgo">Miguel Hidalgo (Polanco)</option>
@@ -182,7 +182,7 @@ const TACTICAL_CONSOLES: { id: VisionConsole; label: string; icon: string; badge
         <select
           id="urgency-filter"
           bind:value={visionStore.selectedUrgency}
-          class="select select-bordered select-xs w-full text-xs"
+          class="select select-xs w-full text-xs"
         >
           <option value="todos">Todos los Niveles</option>
           <option value="emergencia_24_7">🚨 Emergencia 24/7 (SLA &lt; 30m)</option>

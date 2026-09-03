@@ -1,4 +1,4 @@
-import type { JobOrder } from "@sdk";
+import type { JobOrder } from "@sdk/core";
 
 export type VisionConsole = "kanban" | "dispatch" | "tree" | "qa" | "escrow";
 
