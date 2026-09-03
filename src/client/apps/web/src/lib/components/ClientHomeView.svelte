@@ -1,5 +1,5 @@
 <script lang="ts">
-import { CotizadorWidget, TrustBadge, TRADE_META_REGISTRY } from '@sdk/ui';
+import { CotizadorWidget, LeafletInteractiveMap, TrustBadge, TRADE_META_REGISTRY, type TechnicianPin } from '@sdk/ui';
 import type { ServiceCategory } from '@sdk/core';
 
 export interface BookingDetails {
@@ -27,9 +27,84 @@ let {
   onSelectTrade,
   onGoToCockpit,
 }: Props = $props();
+
+const AVAILABLE_CDMX_TECHS: TechnicianPin[] = [
+  {
+    id: 'tech_01',
+    name: 'Roberto Morales',
+    trade: 'plomeria',
+    coords: [19.4358, -99.1852],
+    status: 'in_transit',
+    etaMin: 14,
+    vehicle: 'moto',
+    rating: 4.95,
+  },
+  {
+    id: 'tech_02',
+    name: 'Ignacio Fuentes',
+    trade: 'electricidad',
+    coords: [19.4187, -99.1638],
+    status: 'available',
+    etaMin: 18,
+    vehicle: 'auto',
+    rating: 4.88,
+  },
+  {
+    id: 'tech_03',
+    name: 'Salvador Vega',
+    trade: 'cerrajeria',
+    coords: [19.3548, -99.1627],
+    status: 'available',
+    etaMin: 22,
+    vehicle: 'moto',
+    rating: 4.92,
+  },
+  {
+    id: 'tech_04',
+    name: 'Carlos Mendoza',
+    trade: 'albanileria',
+    coords: [19.3854, -99.1728],
+    status: 'available',
+    etaMin: 25,
+    vehicle: 'auto',
+    rating: 4.85,
+  },
+  {
+    id: 'tech_05',
+    name: 'Mariano Ríos',
+    trade: 'jardineria',
+    coords: [19.3628, -99.2592],
+    status: 'in_transit',
+    etaMin: 20,
+    vehicle: 'moto',
+    rating: 4.90,
+  },
+];
 </script>
 
 <div class="w-full space-y-16 pb-20">
+  <!-- ACTIVE ORDER FLOATING BANNER (If user has an active order) -->
+  {#if hasActiveOrder}
+    <div class="sticky top-20 z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="card bg-primary text-primary-content p-4 rounded-3xl shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-2 border-primary-content/20 animate-pulse">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🚗</span>
+          <div>
+            <h4 class="font-black text-sm">Tienes un Servicio Activo en Progreso</h4>
+            <p class="text-xs text-primary-content/80">El técnico Roberto Morales está en camino a tu domicilio.</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-neutral btn-sm rounded-2xl font-bold shadow-md self-start sm:self-auto"
+          onclick={onGoToCockpit}
+        >
+          Ver Telemetría en Vivo & Mapa →
+        </button>
+      </div>
+    </div>
+  {/if}
+
   <!-- HERO SECTION -->
   <section class="w-full bg-gradient-to-b from-primary/10 via-base-100 to-base-100 border-b border-base-300 py-12 md:py-20 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
@@ -272,6 +347,43 @@ let {
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- LIVE CDMX COVERAGE MAP SECTION -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase mb-2">
+          <span>📍</span> Cobertura Metropolitana CDMX
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-base-content tracking-tight">
+          Red de Técnicos Certificados en Tiempo Real
+        </h2>
+        <p class="text-sm text-base-content/70 mt-1 max-w-2xl">
+          Monitoreo geolocalizado de técnicos con antecedentes penales verificados, seguro civil y herramientas periciales en Polanco, Condesa, Del Valle, Roma, Coyoacán y Santa Fe.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="badge badge-success badge-sm font-mono font-bold text-white flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+          5 TÉCNICOS DISPONIBLES
+        </span>
+      </div>
+    </div>
+
+    <LeafletInteractiveMap
+      heightClass="h-[420px]"
+      center={[19.4147, -99.1678]}
+      zoom={13}
+      technicians={AVAILABLE_CDMX_TECHS}
+      clientDestination={{
+        name: 'Mi Zona (CDMX)',
+        address: 'Zona Metropolitana de la Ciudad de México',
+        coords: [19.4326, -99.1912],
+        geofenceRadiusMeters: 200,
+      }}
+    />
   </section>
 
   <!-- FOOTER -->

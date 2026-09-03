@@ -1,5 +1,6 @@
 <script lang="ts">
 import { formatMxn } from '@sdk/core';
+import { LeafletInteractiveMap, type ClientDestination, type TechnicianPin } from '@sdk/ui';
 
 interface IncomingJob {
   id: string;
@@ -12,6 +13,7 @@ interface IncomingJob {
   estDurationMinutes: number;
   payoutNetCents: number;
   clientRating: number;
+  clientCoords: [number, number];
 }
 
 interface Props {
@@ -41,25 +43,48 @@ const activeJobOffer: IncomingJob = {
   estDurationMinutes: 45,
   payoutNetCents: 34200, // $342.00 MXN net payout after fee & SAT retentions
   clientRating: 4.9,
+  clientCoords: [19.4326, -99.1932],
 };
+
+const collabLocation: [number, number] = [19.4358, -99.1852]; // Polanco Base
+
+const radarTechnicians = $derived<TechnicianPin[]>([
+  {
+    id: 'my_collab_pin',
+    name: isCollabOnDuty ? 'Mi Ubicación (En Guardia)' : 'Mi Ubicación (Pausado)',
+    trade: 'plomeria',
+    coords: collabLocation,
+    status: isCollabOnDuty ? 'available' : 'offline',
+    etaMin: 0,
+    vehicle: 'moto',
+    rating: 4.95,
+  },
+]);
+
+const incomingClientDestination = $derived<ClientDestination>({
+  name: 'Destino Solicitud: Mariana Garza',
+  address: activeJobOffer.address,
+  coords: activeJobOffer.clientCoords,
+  geofenceRadiusMeters: 150,
+});
 </script>
 
-<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-  <!-- Status Banner -->
-  <div class="card bg-base-200 border border-base-300 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+  <!-- Status & Duty Control Banner -->
+  <div class="card bg-base-200 border border-base-300 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
     <div class="flex items-center gap-4">
-      <div class="w-14 h-14 rounded-2xl {isCollabOnDuty ? 'bg-success text-white' : 'bg-base-300 text-base-content/50'} font-black text-2xl flex items-center justify-center shadow-md">
+      <div class="w-14 h-14 rounded-2xl {isCollabOnDuty ? 'bg-success text-white animate-pulse' : 'bg-base-300 text-base-content/50'} font-black text-2xl flex items-center justify-center shadow-md">
         📡
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <h2 class="text-lg font-black text-base-content">Radar de Servicios Activo</h2>
-          <span class="badge {isCollabOnDuty ? 'badge-success' : 'badge-neutral'} badge-xs font-bold uppercase">
-            {isCollabOnDuty ? 'En Guardia' : 'Pausado'}
+          <h2 class="text-lg font-black text-base-content">Radar de Chamba CDMX</h2>
+          <span class="badge {isCollabOnDuty ? 'badge-success text-white' : 'badge-neutral'} badge-xs font-bold uppercase">
+            {isCollabOnDuty ? 'En Guardia • GPS Activo' : 'Desconectado'}
           </span>
         </div>
         <p class="text-xs text-base-content/70 mt-0.5">
-          {isCollabOnDuty ? 'Escaneando solicitudes en tiempo real en Polanco, Condesa y Roma Norte.' : 'Activa el modo guardia para recibir ofertas de trabajo.'}
+          {isCollabOnDuty ? 'Escaneando solicitudes en tiempo real en Polanco, Condesa, Roma y Del Valle.' : 'Activa el modo guardia para recibir ofertas de trabajo.'}
         </p>
       </div>
     </div>
@@ -67,17 +92,18 @@ const activeJobOffer: IncomingJob = {
     {#if isCollabOnDuty && radarTimerSeconds === 0}
       <button
         type="button"
-        class="btn btn-outline btn-sm rounded-xl font-bold"
+        class="btn btn-primary btn-sm rounded-xl font-bold shadow-md flex items-center gap-2 text-primary-content"
         onclick={onTriggerSimulatedJob}
       >
-        Simular Solicitud Entrante 🚨
+        <span>🚨</span>
+        <span>Simular Solicitud Entrante</span>
       </button>
     {/if}
   </div>
 
-  <!-- INCOMING JOB ALERT (When timer is active) -->
+  <!-- INCOMING JOB ALERT (When timer is active: Full Map + 45s Countdown) -->
   {#if radarTimerSeconds > 0}
-    <div class="card bg-gradient-to-br from-error/20 via-base-100 to-base-200 border-2 border-error rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl animate-pulse">
+    <div class="card bg-gradient-to-br from-error/15 via-base-100 to-base-200 border-2 border-error rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl animate-pulse">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <span class="text-3xl animate-bounce">🚨</span>
@@ -87,27 +113,43 @@ const activeJobOffer: IncomingJob = {
           </div>
         </div>
 
-        <div class="w-14 h-14 rounded-2xl bg-error text-white font-mono font-black text-xl flex items-center justify-center shadow-lg">
+        <div class="w-14 h-14 rounded-2xl bg-error text-white font-mono font-black text-xl flex items-center justify-center shadow-lg ring-4 ring-error/30">
           {radarTimerSeconds}s
         </div>
       </div>
 
-      <!-- Job Card Details -->
+      <!-- Real Leaflet Route & Destination Map -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs font-bold text-base-content/70">
+          <span>Ruta Estimada a Domicilio del Cliente:</span>
+          <span class="text-primary font-mono">1.2 km • ~5 min en moto</span>
+        </div>
+        <LeafletInteractiveMap
+          heightClass="h-[280px]"
+          center={collabLocation}
+          zoom={15}
+          technicians={radarTechnicians}
+          clientDestination={incomingClientDestination}
+          selectedTechnicianId="my_collab_pin"
+        />
+      </div>
+
+      <!-- Job Card Details Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-base-100 border border-base-300 text-xs">
         <div>
           <span class="text-[10px] text-base-content/60 block uppercase font-bold">Ubicación</span>
           <span class="font-semibold text-base-content">📍 {activeJobOffer.address}</span>
-          <span class="text-[10px] text-base-content/50 block font-mono">~{activeJobOffer.distanceKm} km (5 min en moto)</span>
+          <span class="text-[10px] text-base-content/50 block font-mono">Polanco V Sección, CDMX</span>
         </div>
         <div>
           <span class="text-[10px] text-base-content/60 block uppercase font-bold">Tiempo Estimado</span>
-          <span class="font-semibold text-base-content">⏱️ ~{activeJobOffer.estDurationMinutes} minutos</span>
-          <span class="text-[10px] text-base-content/50 block">Cliente: 4.9 ★ verificado</span>
+          <span class="font-semibold text-base-content">⏱️ ~{activeJobOffer.estDurationMinutes} minutos de trabajo</span>
+          <span class="text-[10px] text-base-content/50 block">Cliente Verificado (4.9 ★)</span>
         </div>
         <div>
           <span class="text-[10px] text-base-content/60 block uppercase font-bold">Ganancia Neta SPEI</span>
           <span class="font-mono font-black text-success text-base">{formatMxn(activeJobOffer.payoutNetCents)}</span>
-          <span class="text-[10px] text-base-content/50 block font-mono">Retenciones SAT ya calculadas</span>
+          <span class="text-[10px] text-base-content/50 block font-mono">Retenciones SAT 1% ISR calculadas</span>
         </div>
       </div>
 
@@ -129,21 +171,37 @@ const activeJobOffer: IncomingJob = {
         </button>
       </div>
     </div>
-  {:else if isCollabOnDuty}
-    <!-- Radar Scanning Animation -->
-    <div class="text-center py-16 space-y-4">
-      <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
-        <div class="absolute inset-0 rounded-full bg-accent/20 animate-ping"></div>
-        <div class="w-16 h-16 rounded-full bg-accent text-accent-content font-black text-2xl flex items-center justify-center shadow-lg">
-          📡
+  {:else}
+    <!-- LIVE TACTICAL RADAR MAP (Technician's Standby View) -->
+    <div class="card bg-base-100 border border-base-300 rounded-3xl p-5 shadow-sm space-y-4">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h3 class="font-black text-base text-base-content flex items-center gap-2">
+            <span>🗺️</span> Telemetría de Cobertura & Demanda Activa
+          </h3>
+          <p class="text-xs text-base-content/60">
+            {isCollabOnDuty
+              ? 'Tu señal GPS está activa y transmitiendo a la central de despacho.'
+              : 'Conéctate para activar tu transmisión de posición.'}
+          </p>
         </div>
+
+        {#if isCollabOnDuty}
+          <span class="badge badge-success badge-sm font-mono font-bold text-white flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+            RADAR ONLINE
+          </span>
+        {/if}
       </div>
-      <div>
-        <h3 class="font-black text-base text-base-content">Buscando solicitudes en tu zona...</h3>
-        <p class="text-xs text-base-content/60 mt-1 max-w-sm mx-auto">
-          Mantén la aplicación abierta. Cuando un cliente solicite un servicio cerca de ti, sonará la alerta y tendrás 45 segundos para aceptar.
-        </p>
-      </div>
+
+      <!-- Interactive Standby Map -->
+      <LeafletInteractiveMap
+        heightClass="h-[440px]"
+        center={collabLocation}
+        zoom={14}
+        technicians={radarTechnicians}
+        selectedTechnicianId="my_collab_pin"
+      />
     </div>
   {/if}
 </div>
