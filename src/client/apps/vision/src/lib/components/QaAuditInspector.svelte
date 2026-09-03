@@ -1,9 +1,10 @@
 <script lang="ts">
-import { BeforeAfterSlider } from '@sdk/ui';
+import { BeforeAfterSlider, InAppChatDrawer } from '@sdk/ui';
 import { visionStore } from '../visionStore.svelte.ts';
 
 let isApproved = $state(false);
 let isFrozen = $state(false);
+let isChatOpen = $state(false);
 </script>
 
 <div class="space-y-6">
@@ -79,6 +80,26 @@ let isFrozen = $state(false);
           Aprobar QA & Liberar Escrow
         </button>
       </div>
+
+      <div class="pt-2 border-t border-base-300">
+        <button
+          type="button"
+          class="btn btn-outline btn-sm w-full font-bold rounded-2xl flex items-center justify-center gap-2"
+          onclick={() => (isChatOpen = true)}
+        >
+          <span>💬</span>
+          <span>Auditar Historial de Chat Seguro</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
+
+<InAppChatDrawer
+  open={isChatOpen}
+  jobCode="YSF-2026-0102"
+  peerName="Ignacio Fuentes (Técnico) & Carlos Slim (Cliente)"
+  peerRole="operations"
+  currentUserRole="operations"
+  onClose={() => (isChatOpen = false)}
+/>

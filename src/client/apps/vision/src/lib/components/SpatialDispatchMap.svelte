@@ -1,9 +1,10 @@
 <script lang="ts">
-import { LeafletInteractiveMap, StatusBadge, SvgGpsTracker, type TechnicianPin } from '@sdk/ui';
+import { InAppChatDrawer, LeafletInteractiveMap, StatusBadge, SvgGpsTracker, type TechnicianPin } from '@sdk/ui';
 import { formatMxn } from '@sdk/core';
 import { visionStore } from '../visionStore.svelte.ts';
 
 let mapMode = $state<'leaflet' | 'svg'>('leaflet');
+let isChatOpen = $state(false);
 
 const FLEET_TECHNICIANS: TechnicianPin[] = [
   {
@@ -155,8 +156,33 @@ const clientDestination = $derived(
             <span class="text-base-content/70">{formatMxn(order.totalCustomerCents)}</span>
             <span class="text-accent font-semibold">{order.collaborator?.fullName}</span>
           </div>
+          {#if visionStore.selectedTicketId === order.id}
+            <div class="mt-2 pt-2 border-t border-primary/20">
+              <button
+                type="button"
+                class="btn btn-primary btn-xs w-full rounded-xl font-bold text-primary-content"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  isChatOpen = true;
+                }}
+              >
+                💬 Auditar Chat de la Orden
+              </button>
+            </div>
+          {/if}
         </div>
       {/each}
     </div>
   </div>
 </div>
+
+{#if selectedOrder}
+  <InAppChatDrawer
+    open={isChatOpen}
+    jobCode={selectedOrder.code}
+    peerName={`${selectedOrder.collaborator?.fullName ?? 'Técnico'} & ${selectedOrder.customer?.fullName ?? 'Cliente'}`}
+    peerRole="operations"
+    currentUserRole="operations"
+    onClose={() => (isChatOpen = false)}
+  />
+{/if}

@@ -1,3 +1,4 @@
+export * from "./entities/chat.ts";
 export * from "./entities/comment.ts";
 export * from "./entities/escrow.ts";
 export * from "./entities/invoice.ts";
