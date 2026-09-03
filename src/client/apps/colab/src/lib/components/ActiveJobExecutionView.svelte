@@ -1,5 +1,5 @@
 <script lang="ts">
-import { PhotoUploader, StatusBadge } from '@sdk/ui';
+import { LeafletInteractiveMap, PhotoUploader, StatusBadge } from '@sdk/ui';
 import type { PhotoQAPhase } from '@sdk/core';
 import type { serviceOrderMachine, ServiceOrderEvent } from '@sdk/state';
 import type { SnapshotFrom } from 'xstate';
@@ -49,27 +49,53 @@ let activeUploadPhase = $state<PhotoQAPhase>('diagnostic_before');
       </div>
     </div>
 
-    <!-- Navigation Deep Links (Waze / Google Maps) -->
+    <!-- Navigation Deep Links & Interactive Map (Waze / Google Maps / Leaflet) -->
     {#if fsmState.value === 'in_transit' || fsmState.value === 'accepted' || fsmState.value === 'dispatched'}
-      <div class="grid grid-cols-2 gap-3 pt-1">
-        <a
-          href="https://waze.com/ul?ll=19.4326,-99.1932&navigate=yes"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-outline btn-primary rounded-2xl font-bold min-h-[56px] flex items-center justify-center gap-2"
-        >
-          <span class="text-xl">🚗</span>
-          <span>Abrir en Waze</span>
-        </a>
-        <a
-          href="https://maps.google.com/?q=19.4326,-99.1932"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-outline btn-neutral rounded-2xl font-bold min-h-[56px] flex items-center justify-center gap-2"
-        >
-          <span class="text-xl">🗺️</span>
-          <span>Google Maps</span>
-        </a>
+      <div class="space-y-3 pt-1">
+        <LeafletInteractiveMap
+          heightClass="h-[260px]"
+          center={[19.4326, -99.1932]}
+          zoom={15}
+          technicians={[
+            {
+              id: 'my_pos',
+              name: 'Mi Ubicación',
+              trade: 'plomeria',
+              coords: [19.4358, -99.1852],
+              status: 'in_transit',
+              etaMin: 8,
+              vehicle: 'moto',
+            },
+          ]}
+          clientDestination={{
+            name: 'Destino: Mariana Garza',
+            address: 'Av. Horacio 1420, Polanco V Sección',
+            coords: [19.4326, -99.1932],
+            geofenceRadiusMeters: 150,
+          }}
+          selectedTechnicianId="my_pos"
+        />
+
+        <div class="grid grid-cols-2 gap-3">
+          <a
+            href="https://waze.com/ul?ll=19.4326,-99.1932&navigate=yes"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-outline btn-primary rounded-2xl font-bold min-h-[56px] flex items-center justify-center gap-2"
+          >
+            <span class="text-xl">🚗</span>
+            <span>Abrir en Waze</span>
+          </a>
+          <a
+            href="https://maps.google.com/?q=19.4326,-99.1932"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-outline btn-neutral rounded-2xl font-bold min-h-[56px] flex items-center justify-center gap-2"
+          >
+            <span class="text-xl">🗺️</span>
+            <span>Google Maps</span>
+          </a>
+        </div>
       </div>
     {/if}
 

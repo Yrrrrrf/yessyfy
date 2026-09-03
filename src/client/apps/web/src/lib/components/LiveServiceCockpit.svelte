@@ -2,6 +2,7 @@
 import {
   BeforeAfterSlider,
   EscrowStatusCard,
+  LeafletInteractiveMap,
   PriceBreakdown,
   StatusBadge,
   SvgGpsTracker,
@@ -43,6 +44,7 @@ const status = $derived<JobOrderStatus>(
 
 const isCompleted = $derived(status === 'completed' || status === 'validated');
 const isDisputed = $derived(status === 'disputed');
+let mapMode = $state<'leaflet' | 'svg'>('leaflet');
 </script>
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
@@ -90,14 +92,63 @@ const isDisputed = $derived(status === 'disputed');
     </div>
   </div>
 
-  <!-- Live Vector Map Tracker -->
+  <!-- Live Vector & Leaflet Map Tracker -->
   {#if status === 'in_transit' || status === 'en_camino' || status === 'accepted'}
-    <SvgGpsTracker
-      etaMinutes={14}
-      collaboratorName="Roberto Morales"
-      vehicleMode="moto"
-      progressPercent={65}
-    />
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-base-content/70">Telemetría de Llegada</span>
+        <div class="join bg-base-200 p-1 rounded-2xl border border-base-300">
+          <button
+            type="button"
+            class="btn btn-xs join-item rounded-xl font-bold {mapMode === 'leaflet' ? 'btn-primary text-primary-content shadow' : 'btn-ghost'}"
+            onclick={() => (mapMode = 'leaflet')}
+          >
+            🗺️ Mapa Leaflet
+          </button>
+          <button
+            type="button"
+            class="btn btn-xs join-item rounded-xl font-bold {mapMode === 'svg' ? 'btn-primary text-primary-content shadow' : 'btn-ghost'}"
+            onclick={() => (mapMode = 'svg')}
+          >
+            📐 HUD
+          </button>
+        </div>
+      </div>
+
+      {#if mapMode === 'leaflet'}
+        <LeafletInteractiveMap
+          heightClass="h-[340px]"
+          center={[19.4348, -99.1872]}
+          zoom={14}
+          technicians={[
+            {
+              id: 'tech_01',
+              name: 'Roberto Morales',
+              trade: 'plomeria',
+              coords: [19.4358, -99.1852],
+              status: 'in_transit',
+              etaMin: 14,
+              vehicle: 'moto',
+              rating: 4.95,
+            },
+          ]}
+          clientDestination={{
+            name: 'Mi Domicilio',
+            address: 'Av. Horacio 1420, Polanco V Sección',
+            coords: [19.4326, -99.1912],
+            geofenceRadiusMeters: 150,
+          }}
+          selectedTechnicianId="tech_01"
+        />
+      {:else}
+        <SvgGpsTracker
+          etaMinutes={14}
+          collaboratorName="Roberto Morales"
+          vehicleMode="moto"
+          progressPercent={65}
+        />
+      {/if}
+    </div>
   {/if}
 
   <!-- Security Pass & WhatsApp Share Card -->

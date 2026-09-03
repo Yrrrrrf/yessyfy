@@ -26,6 +26,8 @@
     "rune-lab": "npm:rune-lab@0.5.2-rc.2",
     "esm-env": "npm:esm-env",
     "arktype": "npm:arktype",
-    "xstate": "npm:xstate@^5.32.6"
+    "xstate": "npm:xstate@^5.32.6",
+    "leaflet": "npm:leaflet@1.9.4",
+    "@types/leaflet": "npm:@types/leaflet@1.9.4"
   }
 }

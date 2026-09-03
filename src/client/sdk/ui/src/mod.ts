@@ -17,6 +17,11 @@ export { default as TechProfileCard } from "./components/TechProfileCard.svelte"
 export { default as TrustBadge } from "./components/TrustBadge.svelte";
 export { default as VehiclePlateCard } from "./components/VehiclePlateCard.svelte";
 export { default as WarrantyCard } from "./components/WarrantyCard.svelte";
+export { default as LeafletInteractiveMap } from "./components/LeafletInteractiveMap.svelte";
+export type {
+	ClientDestination,
+	TechnicianPin,
+} from "./components/map/mapTypes.ts";
 
 export { default as SdkBadge } from "./sdk-badge.svelte";
 export { default as Showcase } from "./showcase.svelte";
