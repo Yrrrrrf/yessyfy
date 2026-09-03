@@ -12,10 +12,10 @@ Deno.test("SAT Tax Engine: baseline $800.00 MXN standard job", () => {
 	assertEquals(result.platformFeeCents, 12000); // 15% take-rate ($120.00 MXN)
 	assertEquals(result.gatewayFeeCents, 3132); // 3% + $3.00 MXN + 16% IVA = $31.32 MXN
 	assertEquals(result.collaboratorGrossCents, 68000); // $680.00 MXN
-	assertEquals(result.isrWithheldCents, 1448); // 2.1% on subtotal = $14.48 MXN
+	assertEquals(result.isrWithheldCents, 690); // 1.0% on subtotal = $6.90 MXN
 	assertEquals(result.ivaWithheldCents, 5517); // 50% of IVA in ticket = $55.17 MXN
-	assertEquals(result.totalWithholdingsCents, 6965); // $69.65 MXN
-	assertEquals(result.collaboratorNetCents, 61035); // $610.35 MXN
+	assertEquals(result.totalWithholdingsCents, 6207); // $62.07 MXN
+	assertEquals(result.collaboratorNetCents, 61793); // $617.93 MXN
 	assertEquals(result.platformContributionCents, 8868); // $88.68 MXN
 });
 

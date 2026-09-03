@@ -78,7 +78,7 @@ export function calculateJobPricing(
 
 	// SAT Withholdings (LISR 113-A and LIVA 18-J)
 	const hasRfc = options?.hasRfc ?? true;
-	const isrPercent = hasRfc ? 2.1 : 20.0;
+	const isrPercent = hasRfc ? 1.0 : 20.0;
 	const ivaRetentionRate = hasRfc ? 0.5 : 1.0; // 50% of IVA or 100% of IVA
 
 	const isrWithheldCents = percentageCentavos(subtotalCents, isrPercent);

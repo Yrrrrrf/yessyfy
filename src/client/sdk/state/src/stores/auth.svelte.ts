@@ -1,4 +1,4 @@
-import type { User, UserRole } from "@sdk";
+import type { User, UserRole } from "@sdk/core";
 
 export type AuthRole = UserRole | null;
 

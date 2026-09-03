@@ -36,7 +36,7 @@ export const urgencyLevelSchema = type(
 );
 
 export const jobOrderStatusSchema = type(
-	"'draft' | 'pending_triage' | 'dispatched' | 'accepted' | 'en_camino' | 'in_progress' | 'winding_down' | 'pending_validation' | 'validated' | 'completed' | 'disputed' | 'cancelled'",
+	"'draft' | 'pending_triage' | 'dispatched' | 'accepted' | 'in_transit' | 'en_camino' | 'in_progress' | 'pending_quote_approval' | 'winding_down' | 'pending_validation' | 'validated' | 'completed' | 'disputed' | 'cancelled'",
 );
 
 export const coordinatesSchema = type({

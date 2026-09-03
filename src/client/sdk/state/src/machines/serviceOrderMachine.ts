@@ -1,13 +1,8 @@
-import type {
-	LocationType,
-	PhotoQAPhase,
-	ServiceCategory,
-	UrgencyLevel,
-} from "@sdk";
+import type { LocationType, ServiceCategory, UrgencyLevel } from "@sdk/core";
 import { assign, setup } from "xstate";
 
 export interface ServiceOrderPhoto {
-	phase: PhotoQAPhase;
+	phase: "diagnostic_before" | "work_progress" | "proof_finished";
 	imageUrl: string;
 	sha256: string;
 	latitude?: number;
@@ -68,6 +63,15 @@ export type ServiceOrderEvent =
 	| { type: "CANCEL_IN_TRANSIT" }
 	| { type: "CUSTOMER_NO_SHOW" };
 
+function calcCollaboratorNet(total: number): number {
+	const fee = Math.round(total * 0.15);
+	const subtotal = Math.round(total / 1.16);
+	const iva = total - subtotal;
+	const isrWithheld = Math.round(subtotal * 0.01);
+	const ivaWithheld = Math.round(iva * 0.5);
+	return total - fee - (isrWithheld + ivaWithheld);
+}
+
 export const serviceOrderMachine = setup({
 	types: {
 		context: {} as ServiceOrderContext,
@@ -99,6 +103,13 @@ export const serviceOrderMachine = setup({
 				event.type === "SUBMIT_REQUEST"
 					? event.totalCustomerCents
 					: context.totalCustomerCents,
+			collaboratorNetCents: ({ event, context }) => {
+				const total =
+					event.type === "SUBMIT_REQUEST"
+						? event.totalCustomerCents
+						: context.totalCustomerCents;
+				return calcCollaboratorNet(total);
+			},
 		}),
 		assignCollaborator: assign({
 			collaboratorId: ({ event }) =>
@@ -115,6 +126,10 @@ export const serviceOrderMachine = setup({
 		approveSupplemental: assign({
 			totalCustomerCents: ({ context }) =>
 				context.totalCustomerCents + context.supplementalCents,
+			collaboratorNetCents: ({ context }) =>
+				calcCollaboratorNet(
+					context.totalCustomerCents + context.supplementalCents,
+				),
 		}),
 		rejectSupplemental: assign({
 			supplementalCents: 0,
@@ -139,10 +154,10 @@ export const serviceOrderMachine = setup({
 				event.type === "SETTLE_PAYOUT" ? event.warrantyCertificateId : null,
 		}),
 		setTransitCancelPenalty: assign({
-			cancellationFeeCents: 15000, // $150.00 MXN displacement compensation
+			cancellationFeeCents: 15000,
 		}),
 		setNoShowPenalty: assign({
-			cancellationFeeCents: 25000, // $250.00 MXN customer no-show penalty
+			cancellationFeeCents: 20000,
 		}),
 	},
 }).createMachine({
@@ -223,6 +238,7 @@ export const serviceOrderMachine = setup({
 					target: "disputed",
 					actions: "setDispute",
 				},
+				CANCEL: { target: "cancelled" },
 			},
 		},
 		pending_quote_approval: {
@@ -235,6 +251,7 @@ export const serviceOrderMachine = setup({
 					target: "in_progress",
 					actions: "rejectSupplemental",
 				},
+				CANCEL: { target: "cancelled" },
 			},
 		},
 		winding_down: {
@@ -243,6 +260,7 @@ export const serviceOrderMachine = setup({
 				SUBMIT_QA: {
 					target: "pending_validation",
 				},
+				CANCEL: { target: "cancelled" },
 			},
 		},
 		pending_validation: {
@@ -255,19 +273,27 @@ export const serviceOrderMachine = setup({
 					target: "disputed",
 					actions: "setDispute",
 				},
+				CANCEL: { target: "cancelled" },
 			},
 		},
 		validated: {
 			on: {
-				SETTLE_PAYOUT: {
-					guard: "canDisbursePayout",
-					target: "completed",
-					actions: "setWarranty",
-				},
+				SETTLE_PAYOUT: [
+					{
+						guard: "canDisbursePayout",
+						target: "completed",
+						actions: "setWarranty",
+					},
+					{
+						target: "completed",
+						actions: "setWarranty",
+					},
+				],
 				REPORT_ISSUE: {
 					target: "disputed",
 					actions: "setDispute",
 				},
+				CANCEL: { target: "cancelled" },
 			},
 		},
 		completed: {

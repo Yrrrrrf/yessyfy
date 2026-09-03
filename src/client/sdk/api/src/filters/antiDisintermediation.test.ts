@@ -34,3 +34,27 @@ Deno.test("AntiDisintermediation: preserves legitimate trade part numbers and di
 	assertEquals(result.sanitizedText, technicalText);
 	assertEquals(result.violations.length, 0);
 });
+
+Deno.test("AntiDisintermediation: reliably intercepts 10 consecutive circumvention executions without lastIndex drift", () => {
+	const attempts = [
+		"Hablamos por fuera para evitar la comisión",
+		"Pásame tu cel 5512345678",
+		"Te hago transferencia directa",
+		"Depósito directo a mi cuenta",
+		"Sin app es más rápido",
+		"Mi whats es 5599887766",
+		"Hablamos por fuera",
+		"Pásame tu cel 5512345678",
+		"Te hago transferencia directa",
+		"Depósito directo a mi cuenta",
+	];
+
+	for (let i = 0; i < attempts.length; i++) {
+		const res = filterAntiDisintermediation(attempts[i]);
+		assertEquals(
+			res.intercepted,
+			true,
+			`Failed on iteration ${i}: ${attempts[i]}`,
+		);
+	}
+});
