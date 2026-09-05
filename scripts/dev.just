@@ -1,11 +1,20 @@
 # Server stack components are started individually in development mode (e.g. `just server::db::run`, `just server::engine::run`, etc.).
-[doc('Run development environment')]
+[doc('Run development environment (pass -A or --all to run all apps)')]
 [group('dev')]
-run: client::run
+run *flags:
+    just client::run {{ flags }}
 
-[doc('Build all namespaces')]
+[doc('Run development environment (alias for run)')]
 [group('dev')]
-build: client::build server::build cli::build
+dev *flags:
+    just client::dev {{ flags }}
+
+[doc('Build all namespaces (pass -A or --all for all apps)')]
+[group('dev')]
+build *flags:
+    just client::build {{ flags }}
+    just server::build
+    just cli::build
 
 [doc('Clear cache. Remove and reinstall dependencies')]
 [group('dev')]

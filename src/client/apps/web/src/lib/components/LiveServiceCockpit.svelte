@@ -1,4 +1,5 @@
 <script lang="ts">
+import { onDestroy, onMount } from 'svelte';
 import {
   BeforeAfterSlider,
   EscrowStatusCard,
@@ -9,9 +10,13 @@ import {
   TechProfileCard,
   VehiclePlateCard,
   WarrantyCard,
+  WarrantyCertificatePdfModal,
 } from '@sdk/ui';
 import { formatMxn, type JobOrderStatus, type WarrantyCertificate } from '@sdk/core';
-import type { serviceOrderMachine } from '@sdk/state';
+import {
+  TELEMETRY_BROADCAST_CHANNEL,
+  type serviceOrderMachine,
+} from '@sdk/state';
 import type { SnapshotFrom } from 'xstate';
 
 interface Props {
@@ -45,6 +50,31 @@ const status = $derived<JobOrderStatus>(
 const isCompleted = $derived(status === 'completed' || status === 'validated');
 const isDisputed = $derived(status === 'disputed');
 let mapMode = $state<'leaflet' | 'svg'>('leaflet');
+let isWarrantyModalOpen = $state(false);
+let arrivalAlert = $state<string | null>(null);
+
+let broadcastChannel: BroadcastChannel | null = null;
+
+onMount(() => {
+  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+    try {
+      broadcastChannel = new BroadcastChannel(TELEMETRY_BROADCAST_CHANNEL);
+      broadcastChannel.onmessage = (event) => {
+        if (event.data?.type === 'GEOFENCE_BREACH_ARRIVAL') {
+          arrivalAlert =
+            '🚨 ¡Roberto Morales ha llegado a la caseta! Se encuentra en Caseta Torre B. Muestra o comparte el Pase Digital.';
+        }
+      };
+    } catch {
+      // Ignored if BroadcastChannel unsupported
+    }
+  }
+});
+
+onDestroy(() => {
+  broadcastChannel?.close();
+  broadcastChannel = null;
+});
 </script>
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
@@ -138,6 +168,7 @@ let mapMode = $state<'leaflet' | 'svg'>('leaflet');
             coords: [19.4326, -99.1912],
             geofenceRadiusMeters: 150,
           }}
+          isInsideGeofence={Boolean(arrivalAlert)}
           selectedTechnicianId="tech_01"
         />
       {:else}
@@ -148,6 +179,36 @@ let mapMode = $state<'leaflet' | 'svg'>('leaflet');
           progressPercent={65}
         />
       {/if}
+    </div>
+  {/if}
+
+  <!-- Animated Arrival Geofence Breach Banner -->
+  {#if arrivalAlert}
+    <div class="alert alert-success bg-emerald-500 text-white rounded-3xl p-4 shadow-xl border-2 border-white flex items-center justify-between animate-bounce duration-1000">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🚨</span>
+        <div>
+          <h4 class="font-black text-sm uppercase tracking-wide">¡Técnico en Caseta Residencial!</h4>
+          <p class="text-xs font-semibold mt-0.5">{arrivalAlert}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="btn btn-xs bg-white text-emerald-800 hover:bg-white/90 font-black rounded-xl border-0 shadow"
+          onclick={onOpenGatePass}
+        >
+          Mostrar Pase
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs btn-circle text-white hover:bg-white/20"
+          aria-label="Cerrar alerta"
+          onclick={() => (arrivalAlert = null)}
+        >
+          ✕
+        </button>
+      </div>
     </div>
   {/if}
 
@@ -230,13 +291,29 @@ let mapMode = $state<'leaflet' | 'svg'>('leaflet');
         ✓ Firmar Conformidad & Liberar Pago Escrow
       </button>
     {:else}
-      <button
-        type="button"
-        class="btn btn-neutral btn-block rounded-2xl font-bold min-h-[52px] text-sm"
-        onclick={onOpenInvoice}
-      >
-        📄 Solicitar Factura SAT CFDI 4.0
-      </button>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button
+          type="button"
+          class="btn btn-neutral btn-block rounded-2xl font-bold min-h-[52px] text-sm"
+          onclick={onOpenInvoice}
+        >
+          📄 Factura SAT CFDI 4.0
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-outline btn-block rounded-2xl font-bold min-h-[52px] text-sm gap-2"
+          onclick={() => isWarrantyModalOpen = true}
+        >
+          📜 Póliza de Garantía PDF
+        </button>
+      </div>
     {/if}
   </div>
 </div>
+
+<WarrantyCertificatePdfModal
+  open={isWarrantyModalOpen}
+  certificate={activeWarranty}
+  jobCode={fsmState.context.code || 'YSF-2026-0881'}
+  onClose={() => isWarrantyModalOpen = false}
+/>

@@ -28,6 +28,25 @@ let usoCfdi = $state('G03');
 let isStamping = $state(false);
 let stampedUuid = $state<string | null>(null);
 
+let dialogEl = $state<HTMLDialogElement | null>(null);
+
+$effect(() => {
+  if (open) {
+    if (dialogEl && !dialogEl.open) {
+      dialogEl.showModal();
+    }
+  } else {
+    if (dialogEl?.open) {
+      dialogEl.close();
+    }
+  }
+});
+
+function handleCancel(e: Event) {
+  e.preventDefault();
+  onClose();
+}
+
 function handleGenerateInvoice() {
   if (!rfc || rfc.length < 12) return;
 
@@ -46,47 +65,51 @@ function handleGenerateInvoice() {
 }
 </script>
 
-{#if open}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end" onclick={onClose}>
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-      class="bg-base-100 border-l border-base-300 w-full sm:max-w-md h-full flex flex-col shadow-2xl p-6 space-y-6 overflow-y-auto"
-      onclick={(e) => e.stopPropagation()}
-    >
-      <div class="flex items-center justify-between border-b border-base-300 pb-4">
-        <div class="flex items-center gap-2">
-          <div class="w-9 h-9 rounded-xl bg-accent text-accent-content font-black flex items-center justify-center text-sm shadow">
-            SAT
-          </div>
-          <div>
-            <h3 class="font-black text-base text-base-content">Facturación Electrónica (CFDI 4.0)</h3>
-            <p class="text-[11px] text-base-content/60 font-mono">Orden #{jobCode} • {formatMxn(totalCents)}</p>
-          </div>
+<dialog
+  bind:this={dialogEl}
+  class="modal modal-end"
+  oncancel={handleCancel}
+  onclose={() => {
+    if (open) onClose();
+  }}
+>
+  <div
+    class="modal-box bg-base-100 border-l border-base-300 w-full sm:max-w-md h-full flex flex-col shadow-2xl p-6 space-y-6 overflow-y-auto"
+  >
+    <div class="flex items-center justify-between border-b border-base-300 pb-4">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-accent text-accent-content font-black flex items-center justify-center text-sm shadow">
+          SAT
         </div>
-        <button type="button" class="btn btn-ghost btn-circle btn-sm" onclick={onClose}>✕</button>
+        <div>
+          <h3 class="font-black text-base text-base-content">Facturación Electrónica (CFDI 4.0)</h3>
+          <p class="text-[11px] text-base-content/60 font-mono">Orden #{jobCode} • {formatMxn(totalCents)}</p>
+        </div>
       </div>
-
-      {#if stampedUuid}
-        <SatPacStampingPreview
-          jobCode={jobCode}
-          stampedUuid={stampedUuid}
-          rfc={rfc}
-          totalCents={totalCents}
-        />
-      {:else}
-        <FiscalDataForm
-          bind:rfc
-          bind:razonSocial
-          bind:postalCode
-          bind:regimenFiscal
-          bind:usoCfdi
-          isStamping={isStamping}
-          onGenerate={handleGenerateInvoice}
-        />
-      {/if}
+      <button type="button" class="btn btn-ghost btn-circle btn-sm" onclick={onClose}>✕</button>
     </div>
+
+    {#if stampedUuid}
+      <SatPacStampingPreview
+        jobCode={jobCode}
+        stampedUuid={stampedUuid}
+        rfc={rfc}
+        totalCents={totalCents}
+        customerName={razonSocial}
+      />
+    {:else}
+      <FiscalDataForm
+        bind:rfc
+        bind:razonSocial
+        bind:postalCode
+        bind:regimenFiscal
+        bind:usoCfdi
+        isStamping={isStamping}
+        onGenerate={handleGenerateInvoice}
+      />
+    {/if}
   </div>
-{/if}
+  <form method="dialog" class="modal-backdrop">
+    <button type="button" onclick={onClose}>close</button>
+  </form>
+</dialog>

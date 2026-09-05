@@ -90,7 +90,7 @@ export function getWorkspaceCategories(): TargetCategory<ClientPackage>[] {
 
 export function getAppTargets(appFilter?: string): ClientPackage[] {
   const apps = discoverPackages("apps");
-  if (!appFilter) return apps;
+  if (!appFilter || appFilter === "all") return apps;
 
   const clean = appFilter.replaceAll("\\", "").replace(/^apps\//, "");
   const match = apps.find((a) => a.name === clean);

@@ -9,6 +9,7 @@ export function renderGeofenceLayer(
 	leaflet: typeof LeafletType,
 	layerGroup: LeafletType.LayerGroup,
 	dest: ClientDestination | null,
+	isBreached = false,
 ) {
 	layerGroup.clearLayers();
 	if (!dest) return;
@@ -16,17 +17,54 @@ export function renderGeofenceLayer(
 	const radiusMeters = dest.geofenceRadiusMeters ?? 150;
 	const circle = leaflet.circle(dest.coords, {
 		radius: radiusMeters,
-		color: "#00C97A",
-		fillColor: "#00C97A",
-		fillOpacity: 0.12,
-		weight: 2,
-		dashArray: "6, 6",
+		color: isBreached ? "#00C97A" : "#1AB8CC",
+		fillColor: isBreached ? "#00C97A" : "#1AB8CC",
+		fillOpacity: isBreached ? 0.28 : 0.12,
+		weight: isBreached ? 3 : 2,
+		dashArray: isBreached ? undefined : "6, 6",
 	});
-	circle.bindTooltip(`Geocerca de Arribo (${radiusMeters}m)`, {
-		permanent: false,
-		direction: "top",
-	});
+	circle.bindTooltip(
+		isBreached
+			? "🚨 ¡Geocerca Cruzada! En Caseta"
+			: `Geocerca de Arribo (${radiusMeters}m)`,
+		{
+			permanent: isBreached,
+			direction: "top",
+		},
+	);
 	layerGroup.addLayer(circle);
+}
+
+export function renderTrimmedRoutePolylines(
+	leaflet: typeof LeafletType,
+	layerGroup: LeafletType.LayerGroup,
+	traveledPath: Array<[number, number]>,
+	remainingPath: Array<[number, number]>,
+) {
+	layerGroup.clearLayers();
+
+	if (traveledPath && traveledPath.length > 1) {
+		const traveledLine = leaflet.polyline(traveledPath, {
+			color: "#94A3B8",
+			weight: 4,
+			dashArray: "5, 6",
+			lineCap: "round",
+			lineJoin: "round",
+			opacity: 0.6,
+		});
+		layerGroup.addLayer(traveledLine);
+	}
+
+	if (remainingPath && remainingPath.length > 1) {
+		const remainingLine = leaflet.polyline(remainingPath, {
+			color: "#00C97A",
+			weight: 5,
+			lineCap: "round",
+			lineJoin: "round",
+			opacity: 0.95,
+		});
+		layerGroup.addLayer(remainingLine);
+	}
 }
 
 export function renderRoutePolyline(

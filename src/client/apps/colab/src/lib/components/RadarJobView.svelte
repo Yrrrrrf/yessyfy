@@ -47,6 +47,16 @@ const activeJobOffer: IncomingJob = {
 };
 
 const collabLocation: [number, number] = [19.4358, -99.1852]; // Polanco Base
+const radarCenterCoords: [number, number] = [19.4342, -99.1892]; // Midpoint Polanco Base <-> Client
+
+const routeToJob: Array<[number, number]> = [
+  collabLocation,
+  [19.4352, -99.1872],
+  [19.4345, -99.1895],
+  [19.4338, -99.1912],
+  [19.4330, -99.1925],
+  activeJobOffer.clientCoords,
+];
 
 const radarTechnicians = $derived<TechnicianPin[]>([
   {
@@ -70,37 +80,6 @@ const incomingClientDestination = $derived<ClientDestination>({
 </script>
 
 <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-  <!-- Status & Duty Control Banner -->
-  <div class="card bg-base-200 border border-base-300 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
-    <div class="flex items-center gap-4">
-      <div class="w-14 h-14 rounded-2xl {isCollabOnDuty ? 'bg-success text-white animate-pulse' : 'bg-base-300 text-base-content/50'} font-black text-2xl flex items-center justify-center shadow-md">
-        📡
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <h2 class="text-lg font-black text-base-content">Radar de Chamba CDMX</h2>
-          <span class="badge {isCollabOnDuty ? 'badge-success text-white' : 'badge-neutral'} badge-xs font-bold uppercase">
-            {isCollabOnDuty ? 'En Guardia • GPS Activo' : 'Desconectado'}
-          </span>
-        </div>
-        <p class="text-xs text-base-content/70 mt-0.5">
-          {isCollabOnDuty ? 'Escaneando solicitudes en tiempo real en Polanco, Condesa, Roma y Del Valle.' : 'Activa el modo guardia para recibir ofertas de trabajo.'}
-        </p>
-      </div>
-    </div>
-
-    {#if isCollabOnDuty && radarTimerSeconds === 0}
-      <button
-        type="button"
-        class="btn btn-primary btn-sm rounded-xl font-bold shadow-md flex items-center gap-2 text-primary-content"
-        onclick={onTriggerSimulatedJob}
-      >
-        <span>🚨</span>
-        <span>Simular Solicitud Entrante</span>
-      </button>
-    {/if}
-  </div>
-
   <!-- INCOMING JOB ALERT (When timer is active: Full Map + 45s Countdown) -->
   {#if radarTimerSeconds > 0}
     <div class="card bg-gradient-to-br from-error/15 via-base-100 to-base-200 border-2 border-error rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl animate-pulse">
@@ -126,10 +105,11 @@ const incomingClientDestination = $derived<ClientDestination>({
         </div>
         <LeafletInteractiveMap
           heightClass="h-[280px]"
-          center={collabLocation}
+          center={radarCenterCoords}
           zoom={15}
           technicians={radarTechnicians}
           clientDestination={incomingClientDestination}
+          activeRoute={routeToJob}
           selectedTechnicianId="my_collab_pin"
         />
       </div>
@@ -194,14 +174,73 @@ const incomingClientDestination = $derived<ClientDestination>({
         {/if}
       </div>
 
-      <!-- Interactive Standby Map -->
+      <!-- Interactive Standby Map with Client Pin, Geofence, and Route -->
       <LeafletInteractiveMap
         heightClass="h-[440px]"
-        center={collabLocation}
-        zoom={14}
+        center={radarCenterCoords}
+        zoom={15}
         technicians={radarTechnicians}
+        clientDestination={incomingClientDestination}
+        activeRoute={isCollabOnDuty ? routeToJob : null}
         selectedTechnicianId="my_collab_pin"
       />
+
+      <!-- Active Job Opportunity Card on Standby Radar -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-primary/10 via-base-200 to-base-100 border border-primary/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-start gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-primary text-primary-content font-black text-2xl flex items-center justify-center shrink-0 shadow-md">
+            {activeJobOffer.categoryEmoji}
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="badge badge-primary badge-sm font-black text-primary-content uppercase">Nueva Chamba en Radar</span>
+              <span class="text-xs font-mono font-bold text-base-content/70">📍 {activeJobOffer.distanceKm} km • ~5 min en moto</span>
+            </div>
+            <h4 class="font-black text-base text-base-content">{activeJobOffer.title}</h4>
+            <div class="text-xs text-base-content/70 flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-base-content flex items-center gap-1">
+                <span>👤</span>
+                <span>Cliente: Mariana Garza</span>
+              </span>
+              <span>•</span>
+              <span>{activeJobOffer.address}</span>
+              <span>•</span>
+              <span class="text-warning font-bold">★ {activeJobOffer.clientRating}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 self-end sm:self-center shrink-0">
+          <div class="text-right">
+            <span class="text-[10px] text-base-content/60 uppercase font-bold block">Ganancia Neta SPEI</span>
+            <span class="font-mono font-black text-success text-xl leading-tight block">{formatMxn(activeJobOffer.payoutNetCents)}</span>
+            <span class="text-[10px] text-base-content/50 font-mono block">1% ISR incluido</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            {#if isCollabOnDuty}
+              <button
+                type="button"
+                class="btn btn-outline btn-sm rounded-xl font-bold"
+                onclick={onTriggerSimulatedJob}
+              >
+                🚨 Simular 45s
+              </button>
+              <button
+                type="button"
+                class="btn btn-success text-white btn-sm rounded-xl font-black shadow-md shadow-success/20"
+                onclick={() => onAcceptJob(activeJobOffer)}
+              >
+                ✓ Aceptar Chamba
+              </button>
+            {:else}
+              <span class="badge badge-neutral text-xs font-bold py-3 px-3">
+                Conéctate para aceptar
+              </span>
+            {/if}
+          </div>
+        </div>
+      </div>
     </div>
   {/if}
 </div>

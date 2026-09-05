@@ -1,11 +1,11 @@
 # dev.just — run, live preview, and prepare workspace
 
-[doc('Run an app on the dev server')]
+[doc('Run an app on the dev server (pass -A or --all to run all apps)')]
 [group('dev')]
 run *flags:
     {{ CLI }} dev {{ flags }}
 
-[doc('Run an app on the dev server (alias for run)')]
+[doc('Run an app on the dev server (alias for run, pass -A or --all to run all apps)')]
 [group('dev')]
 dev *flags:
     {{ CLI }} dev {{ flags }}

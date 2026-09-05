@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Logo } from '@sdk/ui';
 import type { ClientTab } from './ClientDock.svelte';
 
 interface Props {
@@ -28,21 +29,10 @@ let selectedColonia = $state('Polanco');
     <div class="flex items-center gap-3 shrink-0">
       <button
         type="button"
-        class="flex items-center gap-2.5 text-left group"
+        class="flex items-center gap-2.5 text-left group transition-transform group-hover:scale-105"
         onclick={() => onTabChange('inicio')}
       >
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-white font-black text-xl shadow-md group-hover:scale-105 transition-transform">
-          Y
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <span class="font-black text-xl tracking-tight text-base-content">Yessyfy</span>
-            <span class="badge badge-primary badge-xs font-bold uppercase">CDMX</span>
-          </div>
-          <span class="text-[10px] text-base-content/60 font-semibold tracking-wide hidden sm:block">
-            Garantía Escrow 30 Días
-          </span>
-        </div>
+        <Logo subtitle="Garantía Escrow 30 Días" badgeText="CDMX" badgeClass="badge-primary" />
       </button>
     </div>
 

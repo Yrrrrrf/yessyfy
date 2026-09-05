@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { Snippet } from 'svelte';
+import { ToastContainer } from '@sdk/ui';
 
 let { children }: { children: Snippet } = $props();
 </script>
@@ -8,4 +9,5 @@ let { children }: { children: Snippet } = $props();
   <div class="flex-1 w-full flex flex-col relative">
     {@render children()}
   </div>
+  <ToastContainer position="top-end" />
 </div>

@@ -21,6 +21,7 @@ interface GlobalOptions {
   readonly failFast?: boolean;
   readonly filter?: string;
   readonly check?: boolean;
+  readonly all?: boolean;
 }
 
 const cli = new Command()
@@ -39,6 +40,7 @@ const cli = new Command()
     "Abort suite execution immediately on first error",
   )
   .globalOption("-f, --filter <pattern:string>", "Filter targets by name")
+  .globalOption("-A, --all", "Target all workspaces / applications")
   .command("help", new HelpCommand().global())
   .command("completions", new CompletionsCommand())
   // ── TYPES ───────────────────────────────────────────────────────────
@@ -53,6 +55,7 @@ const cli = new Command()
       bench: options.bench,
       failFast: options.failFast,
       filter: target ?? options.filter,
+      all: options.all,
     });
     if (!res.success) Deno.exit(1);
   })
@@ -65,31 +68,47 @@ const cli = new Command()
       bench: options.bench,
       failFast: options.failFast,
       filter: target ?? options.filter,
+      all: options.all,
     });
     if (!res.success) Deno.exit(1);
   })
   // ── BUILD ───────────────────────────────────────────────────────────
   .command("build [app:string]", "Build production bundle for apps")
+  .option("-A, --all", "Build all applications")
   .action(async (options: GlobalOptions, app?: string) => {
     const res = await runBuildGate({
       verbose: options.verbose,
       parallel: options.parallel,
+      all: options.all,
     }, app);
     if (!res.success) Deno.exit(1);
   })
   // ── DEV / RUN ───────────────────────────────────────────────────────
   .command("dev [app:string]", "Start development server for app")
-  .action(async (_options: GlobalOptions, app?: string) => {
-    await runDev(app);
+  .option("-A, --all", "Start dev servers for all applications concurrently")
+  .action(async (options: GlobalOptions, app?: string) => {
+    await runDev(app, [], {
+      verbose: options.verbose,
+      all: options.all,
+    });
   })
   .command("run [app:string]", "Alias for dev")
-  .action(async (_options: GlobalOptions, app?: string) => {
-    await runDev(app);
+  .option("-A, --all", "Start dev servers for all applications concurrently")
+  .action(async (options: GlobalOptions, app?: string) => {
+    await runDev(app, [], {
+      verbose: options.verbose,
+      all: options.all,
+    });
   })
   // ── PREVIEW ─────────────────────────────────────────────────────────
   .command("preview [app:string]", "Build and preview production bundle")
+  .option("-A, --all", "Preview all applications concurrently")
   .action(async (options: GlobalOptions, app?: string) => {
-    await runPreview(app, { verbose: options.verbose });
+    await runPreview(app, {
+      verbose: options.verbose,
+      parallel: options.parallel,
+      all: options.all,
+    });
   })
   // ── FMT ─────────────────────────────────────────────────────────────
   .command("fmt", "Format source files using Biome")

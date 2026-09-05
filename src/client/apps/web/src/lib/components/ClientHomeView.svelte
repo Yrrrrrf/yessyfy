@@ -1,5 +1,5 @@
 <script lang="ts">
-import { CotizadorWidget, LeafletInteractiveMap, TrustBadge, TRADE_META_REGISTRY, type TechnicianPin } from '@sdk/ui';
+import { CotizadorWidget, LeafletInteractiveMap, TrustBadge, TRADE_META_REGISTRY, Logo, type TechnicianPin } from '@sdk/ui';
 import type { ServiceCategory } from '@sdk/core';
 
 export interface BookingDetails {
@@ -390,13 +390,7 @@ const AVAILABLE_CDMX_TECHS: TechnicianPin[] = [
   <footer class="w-full bg-base-200 border-t border-base-300 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
       <div class="space-y-3 md:col-span-2">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-primary text-white font-black text-lg flex items-center justify-center">
-            Y
-          </div>
-          <span class="font-black text-xl text-base-content">Yessyfy</span>
-          <span class="badge badge-primary badge-xs font-bold">CDMX</span>
-        </div>
+        <Logo size="sm" badgeText="CDMX" />
         <p class="text-xs text-base-content/70 max-w-md leading-relaxed">
           Plataforma tecnológica de intermediación de servicios y oficios para el hogar con custodia fiduciaria Escrow, aseguramiento pericial y cumplimiento fiscal SAT CFDI 4.0.
         </p>

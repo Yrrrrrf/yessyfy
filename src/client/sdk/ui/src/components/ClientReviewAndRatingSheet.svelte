@@ -52,18 +52,37 @@ function handleSubmit() {
     comment,
   });
 }
+let dialogEl = $state<HTMLDialogElement | null>(null);
+
+$effect(() => {
+  if (open) {
+    if (dialogEl && !dialogEl.open) {
+      dialogEl.showModal();
+    }
+  } else {
+    if (dialogEl?.open) {
+      dialogEl.close();
+    }
+  }
+});
+
+function handleCancel(e: Event) {
+  e.preventDefault();
+  onClose();
+}
 </script>
 
-{#if open}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick={onClose}>
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-      class="bg-base-100 border border-base-300 w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto"
-      onclick={(e) => e.stopPropagation()}
-    >
+<dialog
+  bind:this={dialogEl}
+  class="modal modal-bottom sm:modal-middle"
+  oncancel={handleCancel}
+  onclose={() => {
+    if (open) onClose();
+  }}
+>
+  <div
+    class="modal-box bg-base-100 border border-base-300 w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto"
+  >
       <div class="flex items-center justify-between">
         <div>
           <h3 class="text-lg font-black text-base-content">Validación de Calidad & Firma</h3>
@@ -118,5 +137,7 @@ function handleSubmit() {
         ✓ Firmar Conformidad & Liberar Pago Escrow
       </button>
     </div>
-  </div>
-{/if}
+  <form method="dialog" class="modal-backdrop">
+    <button type="button" onclick={onClose}>close</button>
+  </form>
+</dialog>

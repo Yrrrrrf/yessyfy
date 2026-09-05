@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Logo } from '@sdk/ui';
 import type { ColabTab } from '../types.ts';
 
 interface Props {
@@ -20,18 +21,11 @@ let {
   <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
     <!-- Brand & Pro Badge -->
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-2xl bg-accent text-accent-content font-black text-xl flex items-center justify-center shadow-md">
-        ⚡
-      </div>
-      <div>
-        <div class="flex items-center gap-1.5">
-          <span class="font-black text-lg tracking-tight text-base-content">Yessyfy Pro</span>
-          <span class="badge badge-accent badge-xs font-bold uppercase">Colaborador</span>
-        </div>
-        <span class="text-[10px] text-base-content/60 font-medium hidden sm:block">
-          Plataforma de Ejecución en Campo & Retenciones SAT
-        </span>
-      </div>
+      <Logo
+        subtitle="Plataforma de Ejecución en Campo & SAT"
+        badgeText="Pro"
+        badgeClass="badge-accent"
+      />
     </div>
 
     <!-- Desktop Nav Links -->

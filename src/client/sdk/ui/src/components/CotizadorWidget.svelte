@@ -69,11 +69,14 @@ const basePricing = $derived(
 
 const finalPricing = $derived(
   isMember
-    ? {
-        ...basePricing,
-        totalCustomerCents: Math.round(basePricing.totalCustomerCents * 0.85) as Centavos,
-      }
-    : basePricing
+    ? calculateJobPricing(
+        Math.round(BASE_RATES[selectedCategory] * 0.85),
+        {
+          locationType: selectedLocation,
+          urgency: selectedUrgency,
+        },
+      )
+    : basePricing,
 );
 
 function handleBook() {

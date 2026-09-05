@@ -5,12 +5,12 @@
 ci *flags:
     {{ CLI }} ci {{ flags }}
 
-[doc('Build applications: deno.json -> build/ (pass -v for detailed logs)')]
+[doc('Build applications: deno.json -> build/ (pass -v for detailed logs, -A or --all for all apps)')]
 [group('deploy')]
 build *flags:
     {{ CLI }} build {{ flags }}
 
-[doc('Preview production build (pass -v for detailed build logs)')]
+[doc('Preview production build (pass -v for detailed build logs, -A or --all for all apps)')]
 [group('deploy')]
 preview *flags:
     {{ CLI }} preview {{ flags }}

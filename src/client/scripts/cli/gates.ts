@@ -10,6 +10,7 @@ import {
   type ProcessResult,
   runSuite,
   Select,
+  spawnStreamingProcess,
   type SuiteResult,
   walkSync,
 } from "../../../cli/src/mod.ts";
@@ -27,6 +28,7 @@ export interface GateOptions {
   readonly bench?: boolean;
   readonly failFast?: boolean;
   readonly filter?: string;
+  readonly all?: boolean;
 }
 
 function countSourceFiles(pkgPath: string): number {
@@ -222,7 +224,8 @@ export async function runBuildGate(
   options: GateOptions = {},
   targetApp?: string,
 ): Promise<SuiteResult<ClientPackage>> {
-  const targets = getAppTargets(targetApp);
+  const isAll = Boolean(options.all || targetApp === "all" || !targetApp);
+  const targets = isAll ? getAppTargets() : getAppTargets(targetApp);
   if (targets.length === 0) {
     console.warn(colors.yellow("No applications found in apps/"));
     Deno.exit(1);
@@ -271,15 +274,78 @@ export async function runBuildGate(
   });
 }
 
+const APP_TAG_COLORS: ((s: string) => string)[] = [
+  colors.bold.cyan,
+  colors.bold.magenta,
+  colors.bold.green,
+  colors.bold.yellow,
+  colors.bold.blue,
+];
+
+function getAppTagColor(index: number): (s: string) => string {
+  return APP_TAG_COLORS[index % APP_TAG_COLORS.length]!;
+}
+
 // ── DEV SERVER ─────────────────────────────────────────────────────────
 
 export async function runDev(
   targetApp?: string,
   extraArgs: string[] = [],
+  options: GateOptions = {},
 ): Promise<void> {
   const apps = discoverPackages("apps");
   if (apps.length === 0) {
     console.warn(colors.yellow("No applications found in apps/"));
+    return;
+  }
+
+  const isAll = Boolean(options.all || targetApp === "all");
+
+  const abortController = new AbortController();
+  const handleSigint = () => {
+    abortController.abort();
+  };
+  try {
+    Deno.addSignalListener("SIGINT", handleSigint);
+  } catch {
+    // Ignored
+  }
+
+  if (isAll) {
+    console.log(
+      banner(
+        `🚀 Starting dev servers for all apps (${apps.map((a) => a.name).join(", ")})`,
+        "magenta",
+      ),
+    );
+    console.log("");
+
+    const tasks = apps.map((app, index) => {
+      const colorFn = getAppTagColor(index);
+      const tag = colorFn(`[${app.name}]`);
+      return spawnStreamingProcess({
+        cmd: ["deno", "run", "-A", "npm:vite", "dev", "--host", ...extraArgs],
+        cwd: app.path,
+        env: {
+          FORCE_COLOR: "1",
+          CLICOLOR_FORCE: "1",
+        },
+        signal: abortController.signal,
+        onLine: (line, type) => {
+          if (type === "stderr") {
+            console.error(`${tag} ${line}`);
+          } else {
+            console.log(`${tag} ${line}`);
+          }
+        },
+      });
+    });
+
+    const results = await Promise.all(tasks);
+    const anyFailed = results.some((r) => r.exitCode !== 0);
+    if (anyFailed && !abortController.signal.aborted) {
+      Deno.exit(1);
+    }
     return;
   }
 
@@ -296,6 +362,8 @@ export async function runDev(
     }
   }
 
+  const appIndex = apps.findIndex((a) => a.name === selectedApp);
+  const colorFn = getAppTagColor(appIndex >= 0 ? appIndex : 0);
   const appPath = `apps/${selectedApp}`;
   if (!existsSync(appPath)) {
     console.error(colors.red(`Application not found: ${appPath}`));
@@ -303,15 +371,29 @@ export async function runDev(
   }
 
   console.log(banner(`🚀 Starting dev server: ${appPath}`, "magenta"));
+  console.log("");
 
-  const cmd = new Deno.Command("deno", {
-    args: ["run", "-A", "npm:vite", "dev", "--host", ...extraArgs],
+  const tag = colorFn(`[${selectedApp}]`);
+
+  const res = await spawnStreamingProcess({
+    cmd: ["deno", "run", "-A", "npm:vite", "dev", "--host", ...extraArgs],
     cwd: appPath,
-    stdout: "inherit",
-    stderr: "inherit",
+    env: {
+      FORCE_COLOR: "1",
+      CLICOLOR_FORCE: "1",
+    },
+    signal: abortController.signal,
+    onLine: (line, type) => {
+      if (type === "stderr") {
+        console.error(`${tag} ${line}`);
+      } else {
+        console.log(`${tag} ${line}`);
+      }
+    },
   });
-  const status = await cmd.spawn().status;
-  if (!status.success) Deno.exit(status.code);
+  if (res.exitCode !== 0 && !abortController.signal.aborted) {
+    Deno.exit(res.exitCode);
+  }
 }
 
 // ── PREVIEW SERVER ─────────────────────────────────────────────────────
@@ -323,6 +405,60 @@ export async function runPreview(
   const apps = discoverPackages("apps");
   if (apps.length === 0) {
     console.warn(colors.yellow("No applications found in apps/"));
+    return;
+  }
+
+  const isAll = Boolean(options.all || targetApp === "all");
+
+  const abortController = new AbortController();
+  const handleSigint = () => {
+    abortController.abort();
+  };
+  try {
+    Deno.addSignalListener("SIGINT", handleSigint);
+  } catch {
+    // Ignored
+  }
+
+  if (isAll) {
+    const buildResult = await runBuildGate(options);
+    if (!buildResult.success) Deno.exit(1);
+
+    console.log("");
+    console.log(
+      banner(
+        `🎪 Previewing production builds for all apps (${apps.map((a) => a.name).join(", ")})`,
+        "magenta",
+      ),
+    );
+    console.log("");
+
+    const tasks = apps.map((app, index) => {
+      const colorFn = getAppTagColor(index);
+      const tag = colorFn(`[${app.name}]`);
+      return spawnStreamingProcess({
+        cmd: ["deno", "run", "-A", "npm:vite", "preview"],
+        cwd: app.path,
+        env: {
+          FORCE_COLOR: "1",
+          CLICOLOR_FORCE: "1",
+        },
+        signal: abortController.signal,
+        onLine: (line, type) => {
+          if (type === "stderr") {
+            console.error(`${tag} ${line}`);
+          } else {
+            console.log(`${tag} ${line}`);
+          }
+        },
+      });
+    });
+
+    const results = await Promise.all(tasks);
+    const anyFailed = results.some((r) => r.exitCode !== 0);
+    if (anyFailed && !abortController.signal.aborted) {
+      Deno.exit(1);
+    }
     return;
   }
 
@@ -353,15 +489,32 @@ export async function runPreview(
     }
   }
 
+  const appIndex = apps.findIndex((a) => a.name === selectedApp);
+  const colorFn = getAppTagColor(appIndex >= 0 ? appIndex : 0);
   const appPath = `apps/${selectedApp}`;
+  console.log("");
   console.log(banner(`🎪 Previewing production build: ${appPath}`, "magenta"));
+  console.log("");
 
-  const cmd = new Deno.Command("deno", {
-    args: ["run", "-A", "npm:vite", "preview"],
+  const tag = colorFn(`[${selectedApp}]`);
+
+  const res = await spawnStreamingProcess({
+    cmd: ["deno", "run", "-A", "npm:vite", "preview"],
     cwd: appPath,
-    stdout: "inherit",
-    stderr: "inherit",
+    env: {
+      FORCE_COLOR: "1",
+      CLICOLOR_FORCE: "1",
+    },
+    signal: abortController.signal,
+    onLine: (line, type) => {
+      if (type === "stderr") {
+        console.error(`${tag} ${line}`);
+      } else {
+        console.log(`${tag} ${line}`);
+      }
+    },
   });
-  const status = await cmd.spawn().status;
-  if (!status.success) Deno.exit(status.code);
+  if (res.exitCode !== 0 && !abortController.signal.aborted) {
+    Deno.exit(res.exitCode);
+  }
 }

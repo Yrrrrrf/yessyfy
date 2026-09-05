@@ -6,7 +6,13 @@ import {
   renderGeofenceLayer,
   renderRoutePolyline,
   renderTechnicianAndClientMarkers,
+  renderTrimmedRoutePolylines,
 } from './map/mapLayers.ts';
+import {
+  createClientDestinationDivIcon,
+  createMovingTechnicianDivIcon,
+  createTechnicianDivIcon,
+} from './map/mapIcons.ts';
 
 export type { ClientDestination, TechnicianPin };
 
@@ -16,6 +22,10 @@ interface Props {
   technicians?: TechnicianPin[];
   clientDestination?: ClientDestination | null;
   activeRoute?: Array<[number, number]> | null;
+  traveledRoute?: Array<[number, number]> | null;
+  remainingRoute?: Array<[number, number]> | null;
+  technicianHeading?: number;
+  isInsideGeofence?: boolean;
   selectedTechnicianId?: string | null;
   heightClass?: string;
   mapTheme?: 'positron' | 'dark_matter' | 'osm';
@@ -30,6 +40,10 @@ let {
   technicians = [],
   clientDestination = null,
   activeRoute = null,
+  traveledRoute = null,
+  remainingRoute = null,
+  technicianHeading = 0,
+  isInsideGeofence = false,
   selectedTechnicianId = null,
   heightClass = 'h-[400px]',
   mapTheme = 'positron',
@@ -45,6 +59,8 @@ let tileLayer: LeafletType.TileLayer | null = $state(null);
 let markersLayerGroup: LeafletType.LayerGroup | null = $state(null);
 let geofenceLayerGroup: LeafletType.LayerGroup | null = $state(null);
 let routeLayerGroup: LeafletType.LayerGroup | null = $state(null);
+let techMarkers = new Map<string, LeafletType.Marker>();
+let clientMarker: LeafletType.Marker | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let currentTheme = $state<'positron' | 'dark_matter' | 'osm'>('positron');
 
@@ -113,27 +129,105 @@ function fitAllBounds() {
   }
 }
 
+function updateMarkers() {
+  if (!mapInstance || !L) return;
+  if (!markersLayerGroup) markersLayerGroup = L.layerGroup().addTo(mapInstance);
+
+  // 1. Fluid Client Destination Marker
+  if (clientDestination) {
+    if (clientMarker) {
+      clientMarker.setLatLng(clientDestination.coords);
+    } else {
+      const destIcon = createClientDestinationDivIcon(L, clientDestination);
+      clientMarker = L.marker(clientDestination.coords, { icon: destIcon });
+      clientMarker.bindPopup(`
+        <div class="p-2 space-y-1 text-xs">
+          <span class="badge badge-error badge-xs font-bold text-white">Domicilio de Servicio</span>
+          <h4 class="font-bold text-sm text-base-content mt-0.5">${clientDestination.name}</h4>
+          <p class="text-base-content/70">${clientDestination.address}</p>
+        </div>
+      `);
+      clientMarker.addTo(markersLayerGroup);
+    }
+  } else if (clientMarker) {
+    markersLayerGroup.removeLayer(clientMarker);
+    clientMarker = null;
+  }
+
+  // 2. Fluid Technician Markers with setLatLng
+  const currentTechIds = new Set(technicians.map((t) => t.id));
+
+  for (const tech of technicians) {
+    const isSelected = tech.id === selectedTechnicianId;
+    const isMoving =
+      (traveledRoute !== null || remainingRoute !== null || technicianHeading !== 0) &&
+      (isSelected || technicians.length === 1);
+    const icon = isMoving
+      ? createMovingTechnicianDivIcon(L, tech, technicianHeading, isInsideGeofence)
+      : createTechnicianDivIcon(L, tech, isSelected);
+
+    const existingMarker = techMarkers.get(tech.id);
+    if (existingMarker) {
+      existingMarker.setLatLng(tech.coords);
+      existingMarker.setIcon(icon);
+      existingMarker.setZIndexOffset(isSelected ? 1000 : 0);
+    } else {
+      const marker = L.marker(tech.coords, {
+        icon,
+        zIndexOffset: isSelected ? 1000 : 0,
+      });
+      marker.on('click', () => {
+        onTechnicianClick?.(tech.id);
+      });
+      marker.bindPopup(`
+        <div class="p-2.5 space-y-2 min-w-[200px]">
+          <div class="flex items-center justify-between border-b border-base-300 pb-1.5">
+            <span class="badge badge-primary badge-xs font-bold text-primary-content uppercase">${tech.trade}</span>
+            <span class="font-bold text-warning text-xs">★ ${tech.rating?.toFixed(1) ?? '4.9'}</span>
+          </div>
+          <h4 class="font-black text-sm text-base-content">${tech.name}</h4>
+          <div class="flex items-center justify-between text-xs font-mono text-base-content/70">
+            <span>Tiempo estimado:</span>
+            <span class="font-bold text-primary">~${tech.etaMin ?? 15} min</span>
+          </div>
+          <div class="pt-1">
+            <span class="badge ${tech.status === 'in_transit' ? 'badge-info' : tech.status === 'on_site' ? 'badge-success' : 'badge-ghost'} badge-xs font-bold">
+              ${tech.status === 'in_transit' ? 'En Camino 🏍️' : tech.status === 'on_site' ? 'En Domicilio 🔧' : 'Disponible 🟢'}
+            </span>
+          </div>
+        </div>
+      `);
+      marker.addTo(markersLayerGroup);
+      techMarkers.set(tech.id, marker);
+    }
+  }
+
+  // Remove stale markers
+  for (const [id, marker] of techMarkers.entries()) {
+    if (!currentTechIds.has(id)) {
+      markersLayerGroup.removeLayer(marker);
+      techMarkers.delete(id);
+    }
+  }
+}
+
 function updateAllLayers() {
   if (!mapInstance || !L) return;
 
   if (!geofenceLayerGroup) geofenceLayerGroup = L.layerGroup().addTo(mapInstance);
-  renderGeofenceLayer(L, geofenceLayerGroup, clientDestination);
+  renderGeofenceLayer(L, geofenceLayerGroup, clientDestination, isInsideGeofence);
 
   if (!routeLayerGroup) routeLayerGroup = L.layerGroup().addTo(mapInstance);
-  const activeTech = selectedTechnicianId
-    ? technicians.find((t) => t.id === selectedTechnicianId)
-    : technicians[0];
-  renderRoutePolyline(L, routeLayerGroup, activeRoute, clientDestination, activeTech?.coords ?? null);
+  if (traveledRoute && remainingRoute) {
+    renderTrimmedRoutePolylines(L, routeLayerGroup, traveledRoute, remainingRoute);
+  } else {
+    const activeTech = selectedTechnicianId
+      ? technicians.find((t) => t.id === selectedTechnicianId)
+      : technicians[0];
+    renderRoutePolyline(L, routeLayerGroup, activeRoute, clientDestination, activeTech?.coords ?? null);
+  }
 
-  if (!markersLayerGroup) markersLayerGroup = L.layerGroup().addTo(mapInstance);
-  renderTechnicianAndClientMarkers(
-    L,
-    markersLayerGroup,
-    technicians,
-    clientDestination,
-    selectedTechnicianId,
-    onTechnicianClick
-  );
+  updateMarkers();
 }
 
 onMount(async () => {
@@ -199,6 +293,8 @@ $effect(() => {
 
 onDestroy(() => {
   resizeObserver?.disconnect();
+  techMarkers.clear();
+  clientMarker = null;
   if (mapInstance) {
     mapInstance.remove();
     mapInstance = null;

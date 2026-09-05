@@ -1,5 +1,4 @@
 import type { ChatMessage, ChatSenderRole } from "@sdk/core";
-import { filterAntiDisintermediation } from "@sdk/api";
 
 const DEFAULT_SEED_MESSAGES: Record<string, ChatMessage[]> = {
 	"YSF-2026-0881": [
@@ -47,12 +46,59 @@ const DEFAULT_SEED_MESSAGES: Record<string, ChatMessage[]> = {
 const STORAGE_KEY = "yessyfy_chat_store_v1";
 const SYNC_CHANNEL_NAME = "yessyfy_chat_broadcast_v1";
 
+export interface TypingState {
+	sender: ChatSenderRole;
+	senderName: string;
+	timestamp: number;
+}
+
+export type ChatSanitizer = (text: string) => {
+	sanitizedText: string;
+	intercepted: boolean;
+	warning?: string;
+};
+
+let activeSanitizer: ChatSanitizer | null = null;
+
+export function registerChatSanitizer(sanitizer: ChatSanitizer) {
+	activeSanitizer = sanitizer;
+}
+
+function playNotificationChime(isIncoming: boolean) {
+	if (typeof window === "undefined") return;
+	try {
+		const AudioCtx =
+			window.AudioContext ||
+			(window as unknown as { webkitAudioContext: typeof AudioContext })
+				.webkitAudioContext;
+		const ctx = new AudioCtx();
+		const osc = ctx.createOscillator();
+		const gain = ctx.createGain();
+		osc.type = "sine";
+		const freq1 = isIncoming ? 587.33 : 440;
+		const freq2 = isIncoming ? 880 : 659.25;
+		osc.frequency.setValueAtTime(freq1, ctx.currentTime);
+		osc.frequency.exponentialRampToValueAtTime(freq2, ctx.currentTime + 0.12);
+		gain.gain.setValueAtTime(0.08, ctx.currentTime);
+		gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+		osc.connect(gain);
+		gain.connect(ctx.destination);
+		osc.start();
+		osc.stop(ctx.currentTime + 0.2);
+	} catch (_) {}
+}
+
 class ChatStore {
 	// Reactive dictionary of messages keyed by orderCode
 	#messagesByOrder = $state<Record<string, ChatMessage[]>>({
 		...DEFAULT_SEED_MESSAGES,
 	});
+
+	// Reactive typing indicator map
+	#typingByOrder = $state<Record<string, TypingState | null>>({});
+
 	#syncChannel: BroadcastChannel | null = null;
+	#typingTimeouts: Map<string, number> = new Map();
 
 	constructor() {
 		this.#initializeStore();
@@ -75,21 +121,63 @@ class ChatStore {
 			if (typeof BroadcastChannel !== "undefined") {
 				this.#syncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
 				this.#syncChannel.onmessage = (event: MessageEvent) => {
-					if (event.data?.type === "SYNC_ALL" && event.data?.payload) {
-						this.#messagesByOrder = event.data.payload;
-					} else if (
-						event.data?.type === "NEW_MESSAGE" &&
-						event.data?.message
-					) {
-						const msg: ChatMessage = event.data.message;
-						const currentList = this.#messagesByOrder[msg.orderCode] || [];
-						if (!currentList.some((m) => m.id === msg.id)) {
-							this.#messagesByOrder[msg.orderCode] = [...currentList, msg];
-						}
-					}
+					this.#handleIncomingSyncMessage(event.data);
 				};
 			}
 		} catch (_) {}
+
+		// 3. Fallback Storage Event listener for cross-tab sync
+		try {
+			window.addEventListener("storage", (event: StorageEvent) => {
+				if (event.key === STORAGE_KEY && event.newValue) {
+					try {
+						const parsed = JSON.parse(event.newValue);
+						this.#messagesByOrder = { ...DEFAULT_SEED_MESSAGES, ...parsed };
+					} catch (_) {}
+				}
+			});
+		} catch (_) {}
+	}
+
+	#handleIncomingSyncMessage(data: unknown) {
+		if (!data || typeof data !== "object") return;
+		const payload = data as Record<string, unknown>;
+
+		if (payload.type === "SYNC_ALL" && payload.payload) {
+			this.#messagesByOrder = payload.payload as Record<string, ChatMessage[]>;
+		} else if (payload.type === "NEW_MESSAGE" && payload.message) {
+			const msg = payload.message as ChatMessage;
+			const currentList = this.#messagesByOrder[msg.orderCode] || [];
+			if (!currentList.some((m) => m.id === msg.id)) {
+				this.#messagesByOrder[msg.orderCode] = [...currentList, msg];
+				playNotificationChime(true);
+			}
+		} else if (payload.type === "TYPING_STATUS") {
+			const { orderCode, sender, senderName, isTyping } = payload as {
+				orderCode: string;
+				sender: ChatSenderRole;
+				senderName: string;
+				isTyping: boolean;
+			};
+
+			if (isTyping) {
+				this.#typingByOrder[orderCode] = {
+					sender,
+					senderName,
+					timestamp: Date.now(),
+				};
+
+				const existing = this.#typingTimeouts.get(orderCode);
+				if (existing) clearTimeout(existing);
+
+				const timer = setTimeout(() => {
+					this.#typingByOrder[orderCode] = null;
+				}, 3000) as unknown as number;
+				this.#typingTimeouts.set(orderCode, timer);
+			} else {
+				this.#typingByOrder[orderCode] = null;
+			}
+		}
 	}
 
 	#persistAndBroadcast(newMsg?: ChatMessage) {
@@ -120,13 +208,46 @@ class ChatStore {
 		return this.#messagesByOrder[orderCode] || [];
 	}
 
+	getTyping(orderCode: string): TypingState | null {
+		return this.#typingByOrder[orderCode] || null;
+	}
+
+	broadcastTyping(
+		orderCode: string,
+		sender: ChatSenderRole,
+		senderName: string,
+	) {
+		if (typeof window === "undefined") return;
+
+		try {
+			if (this.#syncChannel) {
+				this.#syncChannel.postMessage({
+					type: "TYPING_STATUS",
+					orderCode,
+					sender,
+					senderName,
+					isTyping: true,
+				});
+			}
+		} catch (_) {}
+	}
+
 	sendMessage(
 		orderCode: string,
 		sender: ChatSenderRole,
 		senderName: string,
 		rawText: string,
 	): { message: ChatMessage; intercepted: boolean; warning?: string } {
-		const filterResult = filterAntiDisintermediation(rawText);
+		let sanitizedText = rawText;
+		let intercepted = false;
+		let warning: string | undefined;
+
+		if (activeSanitizer) {
+			const res = activeSanitizer(rawText);
+			sanitizedText = res.sanitizedText;
+			intercepted = res.intercepted;
+			warning = res.warning;
+		}
 
 		const now = new Date();
 		const timestamp = now.toLocaleTimeString("es-MX", {
@@ -139,22 +260,21 @@ class ChatStore {
 			orderCode,
 			sender,
 			senderName,
-			text: filterResult.sanitizedText,
+			text: sanitizedText,
 			timestamp,
-			masked: filterResult.intercepted,
+			masked: intercepted,
 		};
 
 		const currentList = this.#messagesByOrder[orderCode] || [];
 		this.#messagesByOrder[orderCode] = [...currentList, newMsg];
 
+		playNotificationChime(false);
 		this.#persistAndBroadcast(newMsg);
 
 		return {
 			message: newMsg,
-			intercepted: filterResult.intercepted,
-			warning: filterResult.intercepted
-				? "🛡️ Aviso de Protección: Números de contacto y cuentas bancarias han sido enmascarados para proteger tu garantía Escrow de 30 días."
-				: undefined,
+			intercepted,
+			warning,
 		};
 	}
 

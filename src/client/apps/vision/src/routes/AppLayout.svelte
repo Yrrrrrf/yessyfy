@@ -9,7 +9,7 @@ import {
 } from 'rune-lab/palettes';
 import { onMount, type Snippet } from 'svelte';
 import { formatMxn } from '@sdk/core';
-import { StatusBadge, PriceBreakdown } from '@sdk/ui';
+import { StatusBadge, PriceBreakdown, ToastContainer, Logo } from '@sdk/ui';
 import { visionStore, type VisionConsole } from '../lib/visionStore.svelte.ts';
 
 let { children }: { children: Snippet } = $props();
@@ -119,9 +119,7 @@ const TACTICAL_CONSOLES: { id: VisionConsole; label: string; icon: string; badge
   {#snippet workspaceStrip()}
     <div class="h-full w-full bg-base-300/80 border-r border-base-300 flex flex-col items-center py-3 gap-3">
       <!-- App Brand Mark -->
-      <div class="w-10 h-10 rounded-2xl bg-primary text-white font-black text-xl flex items-center justify-center shadow-md mb-2">
-        V
-      </div>
+      <Logo variant="icon" size="md" class="mb-2" />
 
       <!-- Tactical Consoles Navigation -->
       {#each TACTICAL_CONSOLES as console}
@@ -315,3 +313,5 @@ const TACTICAL_CONSOLES: { id: VisionConsole; label: string; icon: string; badge
     </div>
   {/snippet}
 </WorkspaceLayout>
+
+<ToastContainer position="bottom-end" />

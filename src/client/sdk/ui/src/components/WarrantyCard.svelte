@@ -1,12 +1,15 @@
 <script lang="ts">
 import type { WarrantyCertificate } from '@sdk/core';
 import TrustBadge from './TrustBadge.svelte';
+import WarrantyCertificatePdfModal from './fiscal/WarrantyCertificatePdfModal.svelte';
 
 interface Props {
   certificate: WarrantyCertificate;
 }
 
 let { certificate }: Props = $props();
+
+let isWarrantyModalOpen = $state(false);
 
 const formatDate = (iso: string) => {
   return new Date(iso).toLocaleDateString('es-MX', {
@@ -66,6 +69,15 @@ const formatDate = (iso: string) => {
     </p>
   </div>
 
+  <!-- Action Button to View/Download Legal Warranty PDF -->
+  <button
+    type="button"
+    class="btn btn-outline btn-primary btn-sm rounded-2xl w-full font-bold min-h-[44px] gap-2 shadow-sm"
+    onclick={() => (isWarrantyModalOpen = true)}
+  >
+    📜 Ver Póliza Oficial & Cobertura Legal ($500,000 MXN) →
+  </button>
+
   <div class="flex items-center justify-between pt-3 border-t border-base-300">
     <TrustBadge kind="warranty_30d" variant="compact" />
     <span class="font-mono text-[10px] text-base-content/40 truncate max-w-[150px]">
@@ -73,3 +85,9 @@ const formatDate = (iso: string) => {
     </span>
   </div>
 </div>
+
+<WarrantyCertificatePdfModal
+  open={isWarrantyModalOpen}
+  certificate={certificate}
+  onClose={() => (isWarrantyModalOpen = false)}
+/>

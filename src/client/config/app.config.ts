@@ -19,6 +19,10 @@ export function defineGWA(options: GwaConfig = {}) {
 		overrides = {},
 	} = options;
 
+	const base = (typeof Deno !== "undefined" ? Deno.env.get("BASE_PATH") : undefined) ??
+		(typeof process !== "undefined" ? process.env?.BASE_PATH : undefined) ??
+		"";
+
 	return defineConfig({
 		resolve: {
 			alias: [
@@ -36,6 +40,9 @@ export function defineGWA(options: GwaConfig = {}) {
 					fallback,
 					strict: true,
 				}),
+				paths: {
+					base,
+				},
 			}) as unknown as PluginOption,
 			...extraPlugins,
 		],

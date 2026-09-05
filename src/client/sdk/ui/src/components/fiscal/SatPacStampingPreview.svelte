@@ -6,9 +6,10 @@ interface Props {
   stampedUuid: string;
   rfc: string;
   totalCents: number;
+  customerName?: string;
 }
 
-let { jobCode, stampedUuid, rfc, totalCents }: Props = $props();
+let { jobCode, stampedUuid, rfc, totalCents, customerName = 'Mariana Garza Lozano' }: Props = $props();
 </script>
 
 <div class="space-y-4 text-center py-4">
@@ -32,5 +33,6 @@ let { jobCode, stampedUuid, rfc, totalCents }: Props = $props();
     stampedUuid={stampedUuid}
     rfc={rfc}
     totalCents={totalCents}
+    customerName={customerName}
   />
 </div>

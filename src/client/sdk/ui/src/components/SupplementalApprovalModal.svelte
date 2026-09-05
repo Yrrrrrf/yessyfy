@@ -22,17 +22,38 @@ let {
   onApprove,
   onReject,
 }: Props = $props();
+
+let dialogEl = $state<HTMLDialogElement | null>(null);
+
+$effect(() => {
+  if (open) {
+    if (dialogEl && !dialogEl.open) {
+      dialogEl.showModal();
+    }
+  } else {
+    if (dialogEl?.open) {
+      dialogEl.close();
+    }
+  }
+});
+
+function handleCancel(e: Event) {
+  e.preventDefault();
+  onReject();
+}
 </script>
 
-{#if open}
-  <!-- Backdrop -->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div
-      class="bg-base-100 border-2 border-warning/50 w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto"
-      onclick={(e) => e.stopPropagation()}
-    >
+<dialog
+  bind:this={dialogEl}
+  class="modal modal-bottom sm:modal-middle"
+  oncancel={handleCancel}
+  onclose={() => {
+    if (open) onReject();
+  }}
+>
+  <div
+    class="modal-box bg-base-100 border-2 border-warning/50 w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto"
+  >
       <!-- Header Alert -->
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-3">
@@ -108,5 +129,7 @@ let {
         </button>
       </div>
     </div>
-  </div>
-{/if}
+  <form method="dialog" class="modal-backdrop">
+    <button type="button" onclick={onReject}>close</button>
+  </form>
+</dialog>
