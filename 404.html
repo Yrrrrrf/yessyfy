@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Yessyfy · Redirigiendo...</title>
+  <script>
+    // GitHub Pages SPA router redirect handler
+    (function() {
+      var l = window.location;
+      var path = l.pathname.replace(/^\/+/, '').split('/');
+      var repo = 'yessyfy';
+      var app = path[1]; // e.g. web, colab, vision
+      
+      if (['web', 'colab', 'vision'].indexOf(app) !== -1) {
+        var sub = path.slice(2).join('/');
+        l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/' + repo + '/' + app + '/' + (sub ? '#' + sub : '') + l.search + l.hash);
+      } else {
+        l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/' + repo + '/');
+      }
+    })();
+  </script>
+</head>
+<body style="background:#070a12;color:#94a3b8;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
+  <p>Redirigiendo a Yessyfy...</p>
+</body>
+</html>
