@@ -12,6 +12,13 @@ deploy:
 preview *flags:
     just client::preview {{ flags }}
 
-[doc('Publish full release')]
+[doc('Build and deploy all 3 applications to GitHub Pages (gh-pages)')]
 [group('deploy')]
-publish: ci deploy
+pages *flags:
+    just client::pages {{ flags }}
+
+[doc('Publish full release (CI + GitHub Pages deployment)')]
+[group('deploy')]
+publish *flags:
+    just client::publish {{ flags }}
+

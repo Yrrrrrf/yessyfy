@@ -19,8 +19,10 @@ export function defineGWA(options: GwaConfig = {}) {
 		overrides = {},
 	} = options;
 
-	const base = (typeof Deno !== "undefined" ? Deno.env.get("BASE_PATH") : undefined) ??
-		(typeof process !== "undefined" ? process.env?.BASE_PATH : undefined) ??
+	const base =
+		(typeof Deno !== "undefined" ? Deno.env.get("BASE_PATH") : undefined) ??
+		(globalThis as unknown as { process?: { env?: Record<string, string> } })
+			.process?.env?.BASE_PATH ??
 		"";
 
 	return defineConfig({

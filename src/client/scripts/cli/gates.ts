@@ -3,6 +3,8 @@ import {
   badge,
   banner,
   colors,
+  copySync,
+  ensureDirSync,
   existsSync,
   join,
   parseSvelteCheck,
@@ -14,6 +16,7 @@ import {
   type SuiteResult,
   walkSync,
 } from "../../../cli/src/mod.ts";
+import { generate404Html, generateHubHtml } from "./portal.ts";
 import {
   type ClientPackage,
   discoverPackages,
@@ -314,7 +317,9 @@ export async function runDev(
   if (isAll) {
     console.log(
       banner(
-        `🚀 Starting dev servers for all apps (${apps.map((a) => a.name).join(", ")})`,
+        `🚀 Starting dev servers for all apps (${
+          apps.map((a) => a.name).join(", ")
+        })`,
         "magenta",
       ),
     );
@@ -427,7 +432,9 @@ export async function runPreview(
     console.log("");
     console.log(
       banner(
-        `🎪 Previewing production builds for all apps (${apps.map((a) => a.name).join(", ")})`,
+        `🎪 Previewing production builds for all apps (${
+          apps.map((a) => a.name).join(", ")
+        })`,
         "magenta",
       ),
     );
@@ -517,4 +524,259 @@ export async function runPreview(
   if (res.exitCode !== 0 && !abortController.signal.aborted) {
     Deno.exit(res.exitCode);
   }
+}
+
+// ── GITHUB PAGES DEPLOY GATE ──────────────────────────────────────────
+
+export interface PagesGateOptions extends GateOptions {
+  readonly repo?: string;
+  readonly push?: boolean;
+}
+
+export async function runPagesGate(
+  options: PagesGateOptions = {},
+): Promise<SuiteResult<ClientPackage>> {
+  const repo = options.repo ?? "yessyfy";
+  const shouldPush = options.push !== false;
+  const targets = getAppTargets();
+
+  if (targets.length === 0) {
+    console.warn(colors.yellow("No applications found in apps/"));
+    Deno.exit(1);
+  }
+
+  const buildResult = await runSuite<ClientPackage>({
+    title: "GITHUB PAGES BUILD",
+    categories: [{ name: "APP (PAGES)", targets }],
+    cmdPreview: `BASE_PATH=/${repo}/<app> deno run -A npm:vite build`,
+    isVerbose: Boolean(options.verbose),
+    isParallel: Boolean(options.parallel),
+    resolver: (pkg) => ({
+      engine: "vite build",
+      cwd: pkg.path,
+      env: {
+        BASE_PATH: `/${repo}/${pkg.name}`,
+      },
+      pre: async () => {
+        try {
+          await Deno.remove(join(pkg.path, "build"), { recursive: true });
+        } catch {
+          // Ignored
+        }
+        try {
+          const syncCmd = new Deno.Command("deno", {
+            args: ["run", "-A", "npm:@sveltejs/kit@next/svelte-kit", "sync"],
+            cwd: pkg.path,
+            stdout: "null",
+            stderr: "null",
+          });
+          await syncCmd.spawn().status;
+        } catch {
+          // Ignored
+        }
+      },
+      cmd: ["deno", "run", "-A", "npm:vite", "build"],
+      displayCmd:
+        `cd <${pkg.path}> ;; BASE_PATH=/${repo}/${pkg.name} deno run -A npm:vite build`,
+    }),
+    evaluator: (res: ProcessResult) => {
+      const isOk = res.exitCode === 0;
+      return {
+        badge: isOk ? colors.green("✓ success") : colors.bold.red("✗ failed"),
+        isErr: !isOk,
+        errCount: isOk ? 0 : 1,
+      };
+    },
+    successMsg:
+      `✓ All ${targets.length} applications built for GitHub Pages (base: /${repo}/*)`,
+    failMsg: (errs) => `✗ ${errs} application builds failed`,
+  });
+
+  if (!buildResult.success) {
+    return buildResult;
+  }
+
+  // ── ASSEMBLE PAGES DIST DIRECTORY ─────────────────────────
+  console.log(
+    colors.bold.cyan("\n📦 Packaging GitHub Pages deployment bundle..."),
+  );
+
+  // Staging in root /build/gh-pages
+  const rootDir = join(Deno.cwd(), "../..");
+  const stagingDir = join(rootDir, "build/gh-pages");
+  try {
+    await Deno.remove(stagingDir, { recursive: true });
+  } catch {
+    // Ignored
+  }
+  ensureDirSync(stagingDir);
+
+  // 1. Copy each app build to staging
+  for (const target of targets) {
+    const appBuildDir = join(Deno.cwd(), target.path, "build");
+    const destDir = join(stagingDir, target.name);
+    if (!existsSync(appBuildDir)) {
+      console.error(
+        colors.red(`Error: Build directory not found: ${appBuildDir}`),
+      );
+      Deno.exit(1);
+    }
+    copySync(appBuildDir, destDir, { overwrite: true });
+
+    // Fallback 404 for SvelteKit client-side routing within the app
+    const indexPath = join(destDir, "index.html");
+    const fallbackPath = join(destDir, "404.html");
+    if (existsSync(indexPath) && !existsSync(fallbackPath)) {
+      copySync(indexPath, fallbackPath);
+    }
+    console.log(
+      `  ${colors.green("✓")} ${
+        colors.bold(target.name)
+      } SPA staged -> ${destDir}`,
+    );
+  }
+
+  // 2. Add .nojekyll to prevent Jekyll from skipping _app directory
+  await Deno.writeTextFile(join(stagingDir, ".nojekyll"), "");
+  console.log(`  ${colors.green("✓")} .nojekyll marker written`);
+
+  // 3. Get commit SHA
+  let commitSha = "latest";
+  try {
+    const gitRevCmd = new Deno.Command("git", {
+      args: ["rev-parse", "--short", "HEAD"],
+      cwd: rootDir,
+      stdout: "piped",
+      stderr: "null",
+    });
+    const out = await gitRevCmd.output();
+    if (out.success) {
+      commitSha = new TextDecoder().decode(out.stdout).trim();
+    }
+  } catch {
+    // Ignored
+  }
+
+  // 4. Generate Hub portal index.html and root 404.html
+  const hubHtml = generateHubHtml({
+    repoName: repo,
+    commitSha,
+    timestamp: new Date().toISOString(),
+  });
+  await Deno.writeTextFile(join(stagingDir, "index.html"), hubHtml);
+  console.log(
+    `  ${colors.green("✓")} Multi-App Hub Portal generated -> index.html`,
+  );
+
+  const root404Html = generate404Html(repo);
+  await Deno.writeTextFile(join(stagingDir, "404.html"), root404Html);
+  console.log(
+    `  ${colors.green("✓")} SPA routing fallback router generated -> 404.html`,
+  );
+
+  // ── PUSH TO GITHUB PAGES ──────────────────────────────────
+  if (shouldPush) {
+    console.log(
+      colors.bold.magenta("\n🚀 Pushing to GitHub (branch: gh-pages)..."),
+    );
+
+    // Find git remote URL from root repo
+    let remoteUrl = "";
+    try {
+      const gitRemoteCmd = new Deno.Command("git", {
+        args: ["remote", "get-url", "origin"],
+        cwd: rootDir,
+        stdout: "piped",
+        stderr: "null",
+      });
+      const out = await gitRemoteCmd.output();
+      if (out.success) {
+        remoteUrl = new TextDecoder().decode(out.stdout).trim();
+      }
+    } catch {
+      // Ignored
+    }
+
+    if (!remoteUrl) {
+      console.error(
+        colors.red("Error: Git remote 'origin' not configured. Push aborted."),
+      );
+      Deno.exit(1);
+    }
+
+    // Git deploy using temporary repo in stagingDir
+    const runGit = async (args: string[]) => {
+      const cmd = new Deno.Command("git", {
+        args,
+        cwd: stagingDir,
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      const status = await cmd.spawn().status;
+      if (!status.success) {
+        throw new Error(`Git command failed: git ${args.join(" ")}`);
+      }
+    };
+
+    try {
+      await runGit(["init", "-b", "gh-pages"]);
+      await runGit(["add", "-A"]);
+      await runGit([
+        "commit",
+        "-m",
+        `deploy(pages): publish 3 SPAs (web, colab, vision) at ${commitSha} [skip ci]`,
+      ]);
+      await runGit(["remote", "add", "origin", remoteUrl]);
+      await runGit(["push", "-f", "origin", "gh-pages"]);
+      console.log(
+        colors.bold.green("✓ Successfully pushed gh-pages branch to origin!"),
+      );
+
+      // Ensure GitHub Pages is enabled on the repository
+      try {
+        const ghPagesCheck = new Deno.Command("gh", {
+          args: ["api", `repos/Yrrrrrf/${repo}/pages`],
+          stdout: "null",
+          stderr: "null",
+        });
+        const checkStatus = await ghPagesCheck.spawn().status;
+        if (!checkStatus.success) {
+          console.log(colors.cyan("Enabling GitHub Pages on repository..."));
+          const ghPagesEnable = new Deno.Command("gh", {
+            args: [
+              "api",
+              "--method",
+              "POST",
+              `repos/Yrrrrrf/${repo}/pages`,
+              "-f",
+              "source[branch]=gh-pages",
+              "-f",
+              "source[path]=/",
+            ],
+            stdout: "null",
+            stderr: "null",
+          });
+          await ghPagesEnable.spawn().status;
+        }
+      } catch {
+        // Ignored
+      }
+
+      console.log(
+        banner(
+          `🎉 GitHub Pages Live:\n` +
+            `  • Hub Portal: https://yrrrrrf.github.io/${repo}/\n` +
+            `  • Cliente Web: https://yrrrrrf.github.io/${repo}/web/\n` +
+            `  • Colab Field: https://yrrrrrf.github.io/${repo}/colab/\n` +
+            `  • Vision CRM: https://yrrrrrf.github.io/${repo}/vision/`,
+          "green",
+        ),
+      );
+    } catch (err) {
+      console.error(colors.red(`Failed to push to gh-pages: ${err}`));
+      Deno.exit(1);
+    }
+  }
+
+  return buildResult;
 }

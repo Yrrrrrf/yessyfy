@@ -8,6 +8,7 @@ import {
 import {
   runBuildGate,
   runDev,
+  runPagesGate,
   runPreview,
   runTestsGate,
   runTypesGate,
@@ -254,20 +255,71 @@ const cli = new Command()
     });
     if (!testRes.success) Deno.exit(1);
   })
+  // ── PAGES ───────────────────────────────────────────────────────────
+  .command(
+    "pages",
+    "Build all 3 apps and deploy to GitHub Pages (gh-pages branch)",
+  )
+  .option("--repo <repo:string>", "GitHub repository name", {
+    default: "yessyfy",
+  })
+  .option(
+    "--no-push",
+    "Assemble deployment bundle locally without pushing to GitHub",
+  )
+  .action(
+    async (options: GlobalOptions & { repo?: string; push?: boolean }) => {
+      const res = await runPagesGate({
+        verbose: options.verbose,
+        parallel: options.parallel,
+        repo: options.repo,
+        push: options.push,
+      });
+      if (!res.success) Deno.exit(1);
+    },
+  )
   // ── PUBLISH ─────────────────────────────────────────────────────────
-  .command("publish", "Run CI pipeline and verify application build")
-  .action(async (options: GlobalOptions) => {
-    const typesRes = await runTypesGate(options);
-    if (!typesRes.success) Deno.exit(1);
+  .command(
+    "publish",
+    "Run CI pipeline and publish applications to GitHub Pages",
+  )
+  .option("--repo <repo:string>", "GitHub repository name", {
+    default: "yessyfy",
+  })
+  .option(
+    "--no-push",
+    "Assemble deployment bundle locally without pushing to GitHub",
+  )
+  .action(
+    async (options: GlobalOptions & { repo?: string; push?: boolean }) => {
+      console.log(
+        colors.bold.magenta("📦 Stage 1: Quality Gates (fmt, lint, types)"),
+      );
+      const typesRes = await runTypesGate(options);
+      if (!typesRes.success) Deno.exit(1);
 
-    const testRes = await runTestsGate(options);
-    if (!testRes.success) Deno.exit(1);
+      console.log(colors.bold.magenta("\n📦 Stage 2: Automated Tests"));
+      const testRes = await runTestsGate(options);
+      if (!testRes.success) Deno.exit(1);
 
-    const buildRes = await runBuildGate(options);
-    if (!buildRes.success) Deno.exit(1);
+      console.log(
+        colors.bold.magenta("\n📦 Stage 3: GitHub Pages Multi-SPA Deployment"),
+      );
+      const pagesRes = await runPagesGate({
+        verbose: options.verbose,
+        parallel: options.parallel,
+        repo: options.repo,
+        push: options.push,
+      });
+      if (!pagesRes.success) Deno.exit(1);
 
-    console.log(colors.bold.green("✓ publish done"));
-  });
+      console.log(
+        colors.bold.green(
+          "\n✓ Publish completed: All 3 apps live on GitHub Pages!",
+        ),
+      );
+    },
+  );
 
 if (import.meta.main) {
   await cli.parse(Deno.args);
