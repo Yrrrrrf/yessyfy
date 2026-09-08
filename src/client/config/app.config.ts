@@ -24,10 +24,14 @@ export function defineGWA(options: GwaConfig = {}) {
 		process?: { env?: Record<string, string> };
 	};
 
-	const base =
+	const rawBase =
 		globalEnv.Deno?.env?.get("BASE_PATH") ??
 		globalEnv.process?.env?.BASE_PATH ??
 		"";
+
+	const base: "" | `/${string}` = rawBase
+		? ((rawBase.startsWith("/") ? rawBase : `/${rawBase}`) as `/${string}`)
+		: "";
 
 	return defineConfig({
 		resolve: {
