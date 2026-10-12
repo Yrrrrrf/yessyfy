@@ -1,9 +1,0 @@
-{
-	"extends": ["$app/tsconfig", "../../config/tsconfig.json"],
-	"include": [
-		"src/**/*",
-		".svelte-kit/ambient.d.ts",
-		".svelte-kit/types/**/$types.d.ts",
-		"vite.config.mts"
-	]
-}

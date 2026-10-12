@@ -6,6 +6,9 @@ This file records the attributions for all the assets used in the project.
 
 ### favicon.ico
 
-| URL                                                     | Icon                                   |
-| ------------------------------------------------------- | -------------------------------------- |
+| URL                                                 | Icon                                   |
+| --------------------------------------------------- | -------------------------------------- |
 | [Brand Logo](../../../../../../docs/brand/logo.png) | <img src="./img/logo.png" width="128"> |
+
+
+

@@ -1,8 +1,0 @@
-{
-	"name": "@yessyfy/colab",
-	"version": "0.1.0",
-	"description": "Yessyfy Collaborator & Field Execution Platform",
-	"license": "MIT",
-	"authors": ["Yrrrrrf <fer.rezac@outlook.com>"],
-	"exports": "./src/lib/mod.ts"
-}
