@@ -36,3 +36,6 @@ let { jobCode, stampedUuid, rfc, totalCents, customerName = 'Mariana Garza Lozan
     customerName={customerName}
   />
 </div>
+
+
+

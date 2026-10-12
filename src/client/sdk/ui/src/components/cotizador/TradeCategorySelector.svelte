@@ -25,3 +25,6 @@ let { selectedCategory, onSelect }: Props = $props();
     {/each}
   </div>
 </div>
+
+
+

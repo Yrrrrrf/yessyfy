@@ -1,64 +1,32 @@
-import adapter from "@sveltejs/adapter-static";
-import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, type PluginOption, type UserConfig } from "vite-plus";
 
-const SDK_ROOT = new URL("../sdk", import.meta.url).pathname;
-const SDK_ENTRY = new URL("../sdk/mod.ts", import.meta.url).pathname;
+import { sdkAliases } from "./aliases.ts";
 
 export interface GwaConfig {
-  fallback?: string;
-  extraPlugins?: PluginOption[];
-  overrides?: UserConfig;
+	plugins?: PluginOption[];
+	extraPlugins?: PluginOption[];
+	overrides?: UserConfig;
 }
 
 export function defineGWA(options: GwaConfig = {}) {
-  const {
-    fallback = "index.html",
-    extraPlugins = [],
-    overrides = {},
-  } = options;
+	const { plugins = [], extraPlugins = [], overrides = {} } = options;
 
-  const globalEnv = globalThis as unknown as {
-    Deno?: { env: { get: (key: string) => string | undefined } };
-    process?: { env?: Record<string, string> };
-  };
-
-  const rawBase =
-    globalEnv.Deno?.env?.get("BASE_PATH") ??
-    globalEnv.process?.env?.BASE_PATH ??
-    "";
-
-  const base: "" | `/${string}` = rawBase
-    ? ((rawBase.startsWith("/") ? rawBase : `/${rawBase}`) as `/${string}`)
-    : "";
-
-  return defineConfig({
-    envDir: new URL("../", import.meta.url).pathname,
-    resolve: {
-      alias: [
-        { find: /^@sdk\/([^/]+)$/, replacement: `${SDK_ROOT}/$1/src/mod.ts` },
-        { find: /^@sdk\/(.*)/, replacement: `${SDK_ROOT}/$1` },
-        { find: /^@sdk$/, replacement: SDK_ENTRY },
-        { find: /^#lib\/(.*)/, replacement: "/src/lib/$1" },
-        { find: /^#lib$/, replacement: "/src/lib/mod.ts" },
-      ],
-    },
-    plugins: [
-      tailwindcss() as PluginOption,
-      sveltekit({
-        adapter: adapter({
-          fallback,
-          strict: true,
-        }),
-        paths: {
-          base,
-        },
-      }) as unknown as PluginOption,
-      ...extraPlugins,
-    ],
-    ...overrides,
-  });
+	return defineConfig({
+		resolve: {
+			alias: [
+				...sdkAliases,
+				{ find: /^#lib\/(.*)/, replacement: "/src/lib/$1" },
+				{ find: /^#lib$/, replacement: "/src/lib/mod.ts" },
+			],
+		},
+		plugins: [tailwindcss() as PluginOption, ...plugins, ...extraPlugins],
+		ssr: {
+			noExternal: ["rune-lab", "arkano", "@lucide/svelte"],
+		},
+		...overrides,
+	});
 }
 
 export default defineGWA();
+export type { PluginOption };

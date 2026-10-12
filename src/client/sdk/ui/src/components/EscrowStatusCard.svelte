@@ -34,3 +34,6 @@ let { amountCents, status }: Props = $props();
     {/if}
   </div>
 </div>
+
+
+

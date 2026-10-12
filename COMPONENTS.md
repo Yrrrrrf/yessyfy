@@ -1,13 +1,13 @@
 # `COMPONENTS.md` — Yessyfy Unified Type System & Component Specification Catalog
 
 ```
-   ██╗   ██╗███████╗███████╗███████╗██╗   ██╗███████╗██╗   ██╗
-   ╚██╗ ██╔╝██╔════╝██╔════╝██╔════╝╚██╗ ██╔╝██╔════╝╚██╗ ██╔╝
-    ╚████╔╝ █████╗  ███████╗███████╗ ╚████╔╝ █████╗   ╚████╔╝ 
-     ╚██╔╝  ██╔══╝  ╚════██║╚════██║  ╚██╔╝  ██╔══╝    ╚██╔╝  
-      ██║   ███████╗███████║███████║   ██║   ██║        ██║   
-      ╚═╝   ╚══════╝╚══════╝╚══════╝   ╚═╝   ╚═╝        ╚═╝   
-   UNIFIED TYPE SYSTEM & COMPONENT SPECIFICATION CATALOG (SVELTE 5 + DAISYUI v5)
+██╗   ██╗███████╗███████╗███████╗██╗   ██╗███████╗██╗   ██╗
+╚██╗ ██╔╝██╔════╝██╔════╝██╔════╝╚██╗ ██╔╝██╔════╝╚██╗ ██╔╝
+ ╚████╔╝ █████╗  ███████╗███████╗ ╚████╔╝ █████╗   ╚████╔╝ 
+  ╚██╔╝  ██╔══╝  ╚════██║╚════██║  ╚██╔╝  ██╔══╝    ╚██╔╝  
+   ██║   ███████╗███████║███████║   ██║   ██║        ██║   
+   ╚═╝   ╚══════╝╚══════╝╚══════╝   ╚═╝   ╚═╝        ╚═╝   
+UNIFIED TYPE SYSTEM & COMPONENT SPECIFICATION CATALOG (SVELTE 5 + DAISYUI v5)
 ```
 
 ---
@@ -51,10 +51,19 @@ graph TD
 ```
 
 ### 1.2 Anti-Duplication Enforcement Rules
-1. **Forbidden Duplication**: No TypeScript `type` or `interface` defined in `@sdk/core` shall be redefined or copied into `@sdk/ui`, `apps/web`, or `apps/vision`.
-2. **Currency Arithmetic Guard**: Floating-point arithmetic on Mexican Pesos is strictly illegal. All monetary calculations must use branded `Centavos` and pure integer kernel operations (`toCentavos`, `addCentavos`, `subtractCentavos`, `multiplyCentavos`, `percentageCentavos`).
-3. **State Machine Context Alignment**: All FSM context interfaces (`ServiceOrderContext`, `ServiceOrderEvent`) in `@sdk/state` derive directly from `@sdk/core` entity types.
-4. **Export Pathing**: Everything in `@sdk/core` is exported via `@sdk` or `@sdk/core`. `@sdk/ui` exports all components and visual metadata.
+
+1. **Forbidden Duplication**: No TypeScript `type` or `interface` defined in
+   `@sdk/core` shall be redefined or copied into `@sdk/ui`, `apps/web`, or
+   `apps/vision`.
+2. **Currency Arithmetic Guard**: Floating-point arithmetic on Mexican Pesos is
+   strictly illegal. All monetary calculations must use branded `Centavos` and
+   pure integer kernel operations (`toCentavos`, `addCentavos`,
+   `subtractCentavos`, `multiplyCentavos`, `percentageCentavos`).
+3. **State Machine Context Alignment**: All FSM context interfaces
+   (`ServiceOrderContext`, `ServiceOrderEvent`) in `@sdk/state` derive directly
+   from `@sdk/core` entity types.
+4. **Export Pathing**: Everything in `@sdk/core` is exported via `@sdk` or
+   `@sdk/core`. `@sdk/ui` exports all components and visual metadata.
 
 ---
 
@@ -423,6 +432,7 @@ export interface ChatMessage {
 ---
 
 #### `COMP-01: StatusBadge.svelte`
+
 - **[ID & Name]**: `COMP-01: StatusBadge.svelte`
 - **[Category]**: Primitive
 - **[Surface & Role]**: Universal (Consumer PWA, Field Cockpit, Vision CRM)
@@ -430,15 +440,18 @@ export interface ChatMessage {
   ```typescript
   interface Props {
     status?: JobOrderStatus;
-    escrowStatus?: 'retained' | 'released' | 'disputed';
+    escrowStatus?: "retained" | "released" | "disputed";
     urgency?: UrgencyLevel;
-    size?: 'xs' | 'sm' | 'md' | 'lg'; // default: 'md'
+    size?: "xs" | "sm" | "md" | "lg"; // default: 'md'
   }
   ```
 - **[Outputs / Event Callbacks]**: None (Presentational badge).
-- **[Slots / Snippets]**: `children?: Snippet` (Optional suffix / icon override).
+- **[Slots / Snippets]**: `children?: Snippet` (Optional suffix / icon
+  override).
 - **[Reactive State / Runes]**:
-  - `const config = $derived(() => { ... })`: Evaluates priority between `escrowStatus` > `urgency` > `status` to return label, DaisyUI badge class, and pulse indicator flag.
+  - `const config = $derived(() => { ... })`: Evaluates priority between
+    `escrowStatus` > `urgency` > `status` to return label, DaisyUI badge class,
+    and pulse indicator flag.
 - **[DaisyUI v5 Formula]**:
   ```svelte
   <span class="badge {config().badgeClass} inline-flex items-center gap-1.5 font-medium {sizeClass}">
@@ -451,12 +464,16 @@ export interface ChatMessage {
     {config().label}
   </span>
   ```
-- **[Tactile / Audio / Ergonomics]**: Passive visual pill; pulse animation restricted to live in-transit and active escrow states.
-- **[Invariants & Failure Modes]**: Fallback to `{ label: 'Estado', badgeClass: 'badge-ghost', pulse: false }` if no state prop is supplied.
+- **[Tactile / Audio / Ergonomics]**: Passive visual pill; pulse animation
+  restricted to live in-transit and active escrow states.
+- **[Invariants & Failure Modes]**: Fallback to
+  `{ label: 'Estado', badgeClass: 'badge-ghost', pulse: false }` if no state
+  prop is supplied.
 
 ---
 
 #### `COMP-02: StarRating.svelte`
+
 - **[ID & Name]**: `COMP-02: StarRating.svelte`
 - **[Category]**: Primitive
 - **[Surface & Role]**: Universal (Review Sheet, Technician Card, Directory)
@@ -465,7 +482,7 @@ export interface ChatMessage {
   interface Props {
     value?: number; // default: 5 (1 to 5)
     readonly?: boolean; // default: false
-    size?: 'xs' | 'sm' | 'md' | 'lg'; // default: 'md'
+    size?: "xs" | "sm" | "md" | "lg"; // default: 'md'
     name?: string; // default: 'rating-star'
     onChange?: (val: number) => void;
   }
@@ -490,12 +507,15 @@ export interface ChatMessage {
     {/each}
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: On selection, subtle haptic feedback (`navigator.vibrate?.(20)`), 48px interactive target per star on touch devices.
+- **[Tactile / Audio / Ergonomics]**: On selection, subtle haptic feedback
+  (`navigator.vibrate?.(20)`), 48px interactive target per star on touch
+  devices.
 - **[Invariants & Failure Modes]**: Clamps `value` strictly between 1 and 5.
 
 ---
 
 #### `COMP-03: Avatar.svelte`
+
 - **[ID & Name]**: `COMP-03: Avatar.svelte`
 - **[Category]**: Primitive
 - **[Surface & Role]**: Universal
@@ -504,9 +524,9 @@ export interface ChatMessage {
   interface Props {
     src?: string;
     name: string;
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // default: 'md'
-    shape?: 'rounded' | 'squircle' | 'circle'; // default: 'squircle'
-    statusIndicator?: 'online' | 'offline' | 'busy' | 'none'; // default: 'none'
+    size?: "xs" | "sm" | "md" | "lg" | "xl"; // default: 'md'
+    shape?: "rounded" | "squircle" | "circle"; // default: 'squircle'
+    statusIndicator?: "online" | "offline" | "busy" | "none"; // default: 'none'
   }
   ```
 - **[Outputs / Event Callbacks]**: `onClick?: () => void`
@@ -526,12 +546,15 @@ export interface ChatMessage {
     </div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Smooth scale-up on tap when `onClick` is provided.
-- **[Invariants & Failure Modes]**: Automatically falls back to high-contrast initials placeholder if image URL fails or 404s.
+- **[Tactile / Audio / Ergonomics]**: Smooth scale-up on tap when `onClick` is
+  provided.
+- **[Invariants & Failure Modes]**: Automatically falls back to high-contrast
+  initials placeholder if image URL fails or 404s.
 
 ---
 
 #### `COMP-04: Chip.svelte`
+
 - **[ID & Name]**: `COMP-04: Chip.svelte`
 - **[Category]**: Primitive
 - **[Surface & Role]**: Universal (Filters, Trade Selector, Tags)
@@ -541,12 +564,13 @@ export interface ChatMessage {
     label: string;
     active?: boolean; // default: false
     removable?: boolean; // default: false
-    color?: 'primary' | 'secondary' | 'accent' | 'neutral' | 'ghost'; // default: 'ghost'
+    color?: "primary" | "secondary" | "accent" | "neutral" | "ghost"; // default: 'ghost'
     onSelect?: () => void;
     onRemove?: () => void;
   }
   ```
-- **[Outputs / Event Callbacks]**: `onSelect?: () => void`, `onRemove?: () => void`
+- **[Outputs / Event Callbacks]**: `onSelect?: () => void`,
+  `onRemove?: () => void`
 - **[Slots / Snippets]**: `icon?: Snippet`
 - **[Reactive State / Runes]**: Stateless rune prop consumption.
 - **[DaisyUI v5 Formula]**:
@@ -563,12 +587,15 @@ export interface ChatMessage {
     {/if}
   </button>
   ```
-- **[Tactile / Audio / Ergonomics]**: 44px touch height target for mobile filters.
-- **[Invariants & Failure Modes]**: StopPropagation on remove button prevents accidental filter selection trigger.
+- **[Tactile / Audio / Ergonomics]**: 44px touch height target for mobile
+  filters.
+- **[Invariants & Failure Modes]**: StopPropagation on remove button prevents
+  accidental filter selection trigger.
 
 ---
 
 #### `COMP-05: TabBar.svelte`
+
 - **[ID & Name]**: `COMP-05: TabBar.svelte`
 - **[Category]**: Primitive
 - **[Surface & Role]**: Universal (Cockpit views, Profile views, Admin views)
@@ -583,7 +610,7 @@ export interface ChatMessage {
   interface Props<T = string> {
     tabs: TabItem<T>[];
     activeTab: T;
-    variant?: 'boxed' | 'bordered' | 'lifted'; // default: 'boxed'
+    variant?: "boxed" | "bordered" | "lifted"; // default: 'boxed'
     onTabChange: (tabId: T) => void;
   }
   ```
@@ -608,15 +635,18 @@ export interface ChatMessage {
     {/each}
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Keyboard accessible with arrow left/right tab navigation.
+- **[Tactile / Audio / Ergonomics]**: Keyboard accessible with arrow left/right
+  tab navigation.
 - **[Invariants & Failure Modes]**: Empty tabs array renders `null` gracefully.
 
 ---
 
 #### `COMP-06: PretextText.svelte`
+
 - **[ID & Name]**: `COMP-06: PretextText.svelte`
 - **[Category]**: Primitive
-- **[Surface & Role]**: Universal (Chat messages, Service Descriptions, Legal Disclaimers)
+- **[Surface & Role]**: Universal (Chat messages, Service Descriptions, Legal
+  Disclaimers)
 - **[Inputs / Props Contract]**:
   ```typescript
   interface Props {
@@ -629,7 +659,9 @@ export interface ChatMessage {
 - **[Outputs / Event Callbacks]**: `onMaskClick?: () => void`
 - **[Slots / Snippets]**: None
 - **[Reactive State / Runes]**:
-  - `const parsed = $derived(() => { ... })`: Regex pattern matching for Mexican 10-digit telephone numbers replaced with `[Teléfono Oculto por Seguridad]` if `maskPhoneNumbers` is true.
+  - `const parsed = $derived(() => { ... })`: Regex pattern matching for Mexican
+    10-digit telephone numbers replaced with `[Teléfono Oculto por Seguridad]`
+    if `maskPhoneNumbers` is true.
 - **[DaisyUI v5 Formula]**:
   ```svelte
   <div class="text-sm leading-relaxed whitespace-pre-wrap font-normal {clampLines > 0 ? `line-clamp-${clampLines}` : ''}">
@@ -654,6 +686,7 @@ export interface ChatMessage {
 ---
 
 #### `COMP-07: TechProfileCard.svelte`
+
 - **[ID & Name]**: `COMP-07: TechProfileCard.svelte`
 - **[Category]**: Identity & KYC
 - **[Surface & Role]**: Consumer PWA, Field Cockpit, Vision CRM
@@ -666,7 +699,8 @@ export interface ChatMessage {
     onMessage?: () => void;
   }
   ```
-- **[Outputs / Event Callbacks]**: `onCall?: () => void`, `onMessage?: () => void`
+- **[Outputs / Event Callbacks]**: `onCall?: () => void`,
+  `onMessage?: () => void`
 - **[Slots / Snippets]**: `actions?: Snippet`
 - **[Reactive State / Runes]**:
   - `const tradeMetas = $derived(technician.trades.map(t => TRADE_META_REGISTRY[t]))`
@@ -696,33 +730,37 @@ export interface ChatMessage {
     </div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Card taps provide smooth visual active scale feedback.
-- **[Invariants & Failure Modes]**: Renders graceful fallback for unnamed technician records.
+- **[Tactile / Audio / Ergonomics]**: Card taps provide smooth visual active
+  scale feedback.
+- **[Invariants & Failure Modes]**: Renders graceful fallback for unnamed
+  technician records.
 
 ---
 
 #### `COMP-08: TrustBadge.svelte`
+
 - **[ID & Name]**: `COMP-08: TrustBadge.svelte`
 - **[Category]**: Identity & KYC
 - **[Surface & Role]**: Consumer PWA (Checkout, Hero, Service Confirmation)
 - **[Inputs / Props Contract]**:
   ```typescript
   export type TrustBadgeKind =
-    | 'kyc_verified'
-    | 'escrow_protected'
-    | 'warranty_30d'
-    | 'insurance_500k'
-    | 'sat_cfdi';
+    | "kyc_verified"
+    | "escrow_protected"
+    | "warranty_30d"
+    | "insurance_500k"
+    | "sat_cfdi";
 
   interface Props {
     kind: TrustBadgeKind;
-    variant?: 'pill' | 'card'; // default: 'pill'
+    variant?: "pill" | "card"; // default: 'pill'
   }
   ```
 - **[Outputs / Event Callbacks]**: None.
 - **[Slots / Snippets]**: None.
 - **[Reactive State / Runes]**:
-  - `const meta = $derived(() => { ... })`: Maps `kind` to icon, title, description, and color border.
+  - `const meta = $derived(() => { ... })`: Maps `kind` to icon, title,
+    description, and color border.
 - **[DaisyUI v5 Formula]**:
   ```svelte
   {#if variant === 'pill'}
@@ -740,12 +778,15 @@ export interface ChatMessage {
     </div>
   {/if}
   ```
-- **[Tactile / Audio / Ergonomics]**: High contrast accessible borders conforming to WCAG AAA standards.
-- **[Invariants & Failure Modes]**: Exhaustive TypeScript union switch prevents missing meta entries.
+- **[Tactile / Audio / Ergonomics]**: High contrast accessible borders
+  conforming to WCAG AAA standards.
+- **[Invariants & Failure Modes]**: Exhaustive TypeScript union switch prevents
+  missing meta entries.
 
 ---
 
 #### `COMP-09: VehiclePlateCard.svelte`
+
 - **[ID & Name]**: `COMP-09: VehiclePlateCard.svelte`
 - **[Category]**: Identity & KYC
 - **[Surface & Role]**: Consumer PWA (Security Pass, Arrival Tracker)
@@ -753,7 +794,7 @@ export interface ChatMessage {
   ```typescript
   interface Props {
     plateNumber: string;
-    vehicleType?: 'moto' | 'auto' | 'camioneta' | 'bici'; // default: 'moto'
+    vehicleType?: "moto" | "auto" | "camioneta" | "bici"; // default: 'moto'
     modelName?: string;
   }
   ```
@@ -773,12 +814,14 @@ export interface ChatMessage {
     <span class="badge badge-neutral font-mono font-black text-xs px-2.5 py-3 tracking-widest">{plateNumber}</span>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Monospace high-legibility plate badge designed for gatehouse guards at distance.
+- **[Tactile / Audio / Ergonomics]**: Monospace high-legibility plate badge
+  designed for gatehouse guards at distance.
 - **[Invariants & Failure Modes]**: Normalizes plate string with uppercase trim.
 
 ---
 
 #### `COMP-10: AccessSecurityPass.svelte`
+
 - **[ID & Name]**: `COMP-10: AccessSecurityPass.svelte`
 - **[Category]**: Identity & KYC
 - **[Surface & Role]**: Consumer PWA (Residential Gatehouse Access Modal)
@@ -823,12 +866,15 @@ export interface ChatMessage {
     <div class="modal-backdrop" onclick={onClose}></div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Uses `navigator.share` on mobile, falling back to clipboard copy with 3s visual toast.
-- **[Invariants & Failure Modes]**: Formatted with standard Mexican residential authorization text under Código de Comercio regulations.
+- **[Tactile / Audio / Ergonomics]**: Uses `navigator.share` on mobile, falling
+  back to clipboard copy with 3s visual toast.
+- **[Invariants & Failure Modes]**: Formatted with standard Mexican residential
+  authorization text under Código de Comercio regulations.
 
 ---
 
 #### `COMP-11: AuthOtpModal.svelte`
+
 - **[ID & Name]**: `COMP-11: AuthOtpModal.svelte`
 - **[Category]**: Identity & KYC
 - **[Surface & Role]**: Universal (Consumer Login & Collaborator KYC)
@@ -840,7 +886,8 @@ export interface ChatMessage {
     onAuthenticated: (user: AuthUser) => void;
   }
   ```
-- **[Outputs / Event Callbacks]**: `onClose: () => void`, `onAuthenticated: (user: AuthUser) => void`
+- **[Outputs / Event Callbacks]**: `onClose: () => void`,
+  `onAuthenticated: (user: AuthUser) => void`
 - **[Slots / Snippets]**: None.
 - **[Reactive State / Runes]**:
   - `let step = $state<'phone' | 'otp'>('phone')`
@@ -862,8 +909,10 @@ export interface ChatMessage {
     <div class="modal-backdrop" onclick={onClose}></div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Auto-focuses next input on single digit entry; 56px touch target for validation button.
-- **[Invariants & Failure Modes]**: Phone regex guard requires 10 digits before OTP dispatch button is enabled.
+- **[Tactile / Audio / Ergonomics]**: Auto-focuses next input on single digit
+  entry; 56px touch target for validation button.
+- **[Invariants & Failure Modes]**: Phone regex guard requires 10 digits before
+  OTP dispatch button is enabled.
 
 ---
 
@@ -872,6 +921,7 @@ export interface ChatMessage {
 ---
 
 #### `COMP-12: CotizadorWidget.svelte`
+
 - **[ID & Name]**: `COMP-12: CotizadorWidget.svelte`
 - **[Category]**: Pricing & Fiscal
 - **[Surface & Role]**: Consumer PWA (Landing Hero, Booking Bottom Sheet)
@@ -912,12 +962,15 @@ export interface ChatMessage {
     </button>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Instant calculation updates without network delay; 56px primary CTA.
-- **[Invariants & Failure Modes]**: Uses integer Centavos to avoid rounding jitter.
+- **[Tactile / Audio / Ergonomics]**: Instant calculation updates without
+  network delay; 56px primary CTA.
+- **[Invariants & Failure Modes]**: Uses integer Centavos to avoid rounding
+  jitter.
 
 ---
 
 #### `COMP-13: PriceBreakdown.svelte`
+
 - **[ID & Name]**: `COMP-13: PriceBreakdown.svelte`
 - **[Category]**: Pricing & Fiscal
 - **[Surface & Role]**: Consumer PWA & Field Cockpit
@@ -953,11 +1006,13 @@ export interface ChatMessage {
   </div>
   ```
 - **[Tactile / Audio / Ergonomics]**: High contrast font-mono figures.
-- **[Invariants & Failure Modes]**: Guards against negative numbers with `Math.max(0, val)`.
+- **[Invariants & Failure Modes]**: Guards against negative numbers with
+  `Math.max(0, val)`.
 
 ---
 
 #### `COMP-14: EscrowStatusCard.svelte`
+
 - **[ID & Name]**: `COMP-14: EscrowStatusCard.svelte`
 - **[Category]**: Pricing & Fiscal
 - **[Surface & Role]**: Consumer PWA & Field Cockpit
@@ -965,7 +1020,7 @@ export interface ChatMessage {
   ```typescript
   interface Props {
     amountCents: number;
-    status: 'retained' | 'released' | 'disputed';
+    status: "retained" | "released" | "disputed";
     orderCode?: string;
   }
   ```
@@ -991,11 +1046,13 @@ export interface ChatMessage {
   </div>
   ```
 - **[Tactile / Audio / Ergonomics]**: Visual lock icon creates trust anchoring.
-- **[Invariants & Failure Modes]**: Disputed mode switches card background to `bg-error/10 border-error/40`.
+- **[Invariants & Failure Modes]**: Disputed mode switches card background to
+  `bg-error/10 border-error/40`.
 
 ---
 
 #### `COMP-15: FiscalInvoiceDrawer.svelte`
+
 - **[ID & Name]**: `COMP-15: FiscalInvoiceDrawer.svelte`
 - **[Category]**: Pricing & Fiscal
 - **[Surface & Role]**: Consumer PWA & Vision CRM
@@ -1008,7 +1065,8 @@ export interface ChatMessage {
     onClose: () => void;
   }
   ```
-- **[Outputs / Event Callbacks]**: `onClose: () => void`, `onInvoiceGenerated?: (invoice: TaxInvoice) => void`
+- **[Outputs / Event Callbacks]**: `onClose: () => void`,
+  `onInvoiceGenerated?: (invoice: TaxInvoice) => void`
 - **[Slots / Snippets]**: None.
 - **[Reactive State / Runes]**:
   - `let rfc = $state('')`
@@ -1034,8 +1092,10 @@ export interface ChatMessage {
     </div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: 1-tap download buttons for XML and PDF documents.
-- **[Invariants & Failure Modes]**: Enforces 12-character (Persona Moral) or 13-character (Persona Física) RFC syntax validation with Mexican SAT regex.
+- **[Tactile / Audio / Ergonomics]**: 1-tap download buttons for XML and PDF
+  documents.
+- **[Invariants & Failure Modes]**: Enforces 12-character (Persona Moral) or
+  13-character (Persona Física) RFC syntax validation with Mexican SAT regex.
 
 ---
 
@@ -1044,6 +1104,7 @@ export interface ChatMessage {
 ---
 
 #### `COMP-16: PhotoUploader.svelte`
+
 - **[ID & Name]**: `COMP-16: PhotoUploader.svelte`
 - **[Category]**: Media & QA
 - **[Surface & Role]**: Field Cockpit (Collaborator Diagnostic & Proof Capture)
@@ -1085,12 +1146,15 @@ export interface ChatMessage {
     {/if}
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Automatic HTML5 Canvas watermarking with brand badge, GPS coordinates, timestamp, and client SHA-256 calculation.
-- **[Invariants & Failure Modes]**: Image is downsampled to max 1200px dimension to prevent memory overflow on budget Android mobile browsers.
+- **[Tactile / Audio / Ergonomics]**: Automatic HTML5 Canvas watermarking with
+  brand badge, GPS coordinates, timestamp, and client SHA-256 calculation.
+- **[Invariants & Failure Modes]**: Image is downsampled to max 1200px dimension
+  to prevent memory overflow on budget Android mobile browsers.
 
 ---
 
 #### `COMP-17: BeforeAfterSlider.svelte`
+
 - **[ID & Name]**: `COMP-17: BeforeAfterSlider.svelte`
 - **[Category]**: Media & QA
 - **[Surface & Role]**: Consumer PWA & Vision CRM
@@ -1125,12 +1189,15 @@ export interface ChatMessage {
     </div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Smooth pointer events support for mouse and touch dragging across full 100% width.
-- **[Invariants & Failure Modes]**: Fallback placeholder displayed if either image URL is empty or broken.
+- **[Tactile / Audio / Ergonomics]**: Smooth pointer events support for mouse
+  and touch dragging across full 100% width.
+- **[Invariants & Failure Modes]**: Fallback placeholder displayed if either
+  image URL is empty or broken.
 
 ---
 
 #### `COMP-18: ClientReviewAndRatingSheet.svelte`
+
 - **[ID & Name]**: `COMP-18: ClientReviewAndRatingSheet.svelte`
 - **[Category]**: Media & QA
 - **[Surface & Role]**: Consumer PWA (Service Completion & Escrow Release)
@@ -1144,7 +1211,8 @@ export interface ChatMessage {
     onClose: () => void;
   }
   ```
-- **[Outputs / Event Callbacks]**: `onSubmit: (data: ReviewSubmission) => void`, `onClose: () => void`
+- **[Outputs / Event Callbacks]**: `onSubmit: (data: ReviewSubmission) => void`,
+  `onClose: () => void`
 - **[Slots / Snippets]**: None.
 - **[Reactive State / Runes]**:
   - `let rating = $state(5)`
@@ -1167,12 +1235,15 @@ export interface ChatMessage {
     <div class="modal-backdrop" onclick={onClose}></div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Touch signature canvas with smooth Bezier curve line interpolation; clear button triggers haptic tick.
-- **[Invariants & Failure Modes]**: Submit button strictly disabled until signature canvas registers at least 1 stroke (`hasSigned === true`).
+- **[Tactile / Audio / Ergonomics]**: Touch signature canvas with smooth Bezier
+  curve line interpolation; clear button triggers haptic tick.
+- **[Invariants & Failure Modes]**: Submit button strictly disabled until
+  signature canvas registers at least 1 stroke (`hasSigned === true`).
 
 ---
 
 #### `COMP-19: SupplementalApprovalModal.svelte`
+
 - **[ID & Name]**: `COMP-19: SupplementalApprovalModal.svelte`
 - **[Category]**: Media & QA
 - **[Surface & Role]**: Consumer PWA (On-Site Hidden Damage Quote Approval)
@@ -1189,7 +1260,8 @@ export interface ChatMessage {
     onReject: () => void;
   }
   ```
-- **[Outputs / Event Callbacks]**: `onApprove: () => void`, `onReject: () => void`
+- **[Outputs / Event Callbacks]**: `onApprove: () => void`,
+  `onReject: () => void`
 - **[Slots / Snippets]**: None.
 - **[Reactive State / Runes]**: Stateless modal rune controller.
 - **[DaisyUI v5 Formula]**:
@@ -1214,12 +1286,15 @@ export interface ChatMessage {
     </div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Audio chime alert (`880Hz`) upon initial modal opening.
-- **[Invariants & Failure Modes]**: Rejection returns state machine to original base budget without canceling whole order.
+- **[Tactile / Audio / Ergonomics]**: Audio chime alert (`880Hz`) upon initial
+  modal opening.
+- **[Invariants & Failure Modes]**: Rejection returns state machine to original
+  base budget without canceling whole order.
 
 ---
 
 #### `COMP-20: WarrantyCard.svelte`
+
 - **[ID & Name]**: `COMP-20: WarrantyCard.svelte`
 - **[Category]**: Media & QA
 - **[Surface & Role]**: Consumer PWA & Vision CRM
@@ -1231,7 +1306,8 @@ export interface ChatMessage {
     onClaimWarranty?: () => void;
   }
   ```
-- **[Outputs / Event Callbacks]**: `onDownloadPdf?: () => void`, `onClaimWarranty?: () => void`
+- **[Outputs / Event Callbacks]**: `onDownloadPdf?: () => void`,
+  `onClaimWarranty?: () => void`
 - **[Slots / Snippets]**: None.
 - **[Reactive State / Runes]**:
   - `const daysRemaining = $derived(Math.max(0, Math.ceil((new Date(certificate.validUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24))))`
@@ -1253,8 +1329,10 @@ export interface ChatMessage {
     </p>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Emerald gold holographic gradient border styling.
-- **[Invariants & Failure Modes]**: If `daysRemaining === 0`, badge switches to `badge-ghost` with label `Póliza Expirada`.
+- **[Tactile / Audio / Ergonomics]**: Emerald gold holographic gradient border
+  styling.
+- **[Invariants & Failure Modes]**: If `daysRemaining === 0`, badge switches to
+  `badge-ghost` with label `Póliza Expirada`.
 
 ---
 
@@ -1263,6 +1341,7 @@ export interface ChatMessage {
 ---
 
 #### `COMP-21: InAppChatDrawer.svelte`
+
 - **[ID & Name]**: `COMP-21: InAppChatDrawer.svelte`
 - **[Category]**: Navigation & Overlays
 - **[Surface & Role]**: Consumer PWA & Field Cockpit
@@ -1272,12 +1351,13 @@ export interface ChatMessage {
     open: boolean;
     jobCode: string;
     peerName?: string;
-    peerRole?: 'customer' | 'collaborator' | 'ops';
-    currentUserRole?: 'client' | 'collaborator';
+    peerRole?: "customer" | "collaborator" | "ops";
+    currentUserRole?: "client" | "collaborator";
     onClose: () => void;
   }
   ```
-- **[Outputs / Event Callbacks]**: `onClose: () => void`, `onSendMessage?: (msg: ChatMessage) => void`
+- **[Outputs / Event Callbacks]**: `onClose: () => void`,
+  `onSendMessage?: (msg: ChatMessage) => void`
 - **[Slots / Snippets]**: None.
 - **[Reactive State / Runes]**:
   - `let messages = $state<ChatMessage[]>([])`
@@ -1304,12 +1384,15 @@ export interface ChatMessage {
     </div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Subtle Web Audio message receive chime (`1046Hz`); auto-scroll to bottom on new message.
-- **[Invariants & Failure Modes]**: Client-side telephone detector automatically activates mask badge on regex match.
+- **[Tactile / Audio / Ergonomics]**: Subtle Web Audio message receive chime
+  (`1046Hz`); auto-scroll to bottom on new message.
+- **[Invariants & Failure Modes]**: Client-side telephone detector automatically
+  activates mask badge on regex match.
 
 ---
 
 #### `COMP-22: BottomSheet.svelte`
+
 - **[ID & Name]**: `COMP-22: BottomSheet.svelte`
 - **[Category]**: Navigation & Overlays
 - **[Surface & Role]**: Consumer PWA (Mobile Viewport)
@@ -1340,12 +1423,15 @@ export interface ChatMessage {
     </div>
   {/if}
   ```
-- **[Tactile / Audio / Ergonomics]**: Drag-down to dismiss gesture with velocity tracking.
-- **[Invariants & Failure Modes]**: Traps scroll inside sheet body without scrolling background body.
+- **[Tactile / Audio / Ergonomics]**: Drag-down to dismiss gesture with velocity
+  tracking.
+- **[Invariants & Failure Modes]**: Traps scroll inside sheet body without
+  scrolling background body.
 
 ---
 
 #### `COMP-23: DetailSheet.svelte`
+
 - **[ID & Name]**: `COMP-23: DetailSheet.svelte`
 - **[Category]**: Navigation & Overlays
 - **[Surface & Role]**: Vision CRM (Desktop Slide-Over Panel)
@@ -1378,12 +1464,15 @@ export interface ChatMessage {
     </div>
   </div>
   ```
-- **[Tactile / Audio / Ergonomics]**: Desktop slide-over transitions with `transition:fly={{ x: 300 }}`.
-- **[Invariants & Failure Modes]**: Bound to `Escape` key listener for instant closing.
+- **[Tactile / Audio / Ergonomics]**: Desktop slide-over transitions with
+  `transition:fly={{ x: 300 }}`.
+- **[Invariants & Failure Modes]**: Bound to `Escape` key listener for instant
+  closing.
 
 ---
 
 #### `COMP-24: CommandPalette.svelte`
+
 - **[ID & Name]**: `COMP-24: CommandPalette.svelte`
 - **[Category]**: Navigation & Overlays
 - **[Surface & Role]**: Vision CRM (Operator Shortcut Engine)
@@ -1410,11 +1499,13 @@ export interface ChatMessage {
   {/if}
   ```
 - **[Tactile / Audio / Ergonomics]**: Triggered via `Ctrl+Space` globally.
-- **[Invariants & Failure Modes]**: Closes automatically after command execution.
+- **[Invariants & Failure Modes]**: Closes automatically after command
+  execution.
 
 ---
 
 #### `COMP-25: SvgGpsTracker.svelte`
+
 - **[ID & Name]**: `COMP-25: SvgGpsTracker.svelte`
 - **[Category]**: Navigation & Overlays
 - **[Surface & Role]**: Consumer PWA & Field Cockpit (Live Telemetry Tracking)
@@ -1423,7 +1514,7 @@ export interface ChatMessage {
   interface Props {
     etaMinutes: number;
     collaboratorName: string;
-    vehicleMode?: 'moto' | 'auto' | 'bici'; // default: 'moto'
+    vehicleMode?: "moto" | "auto" | "bici"; // default: 'moto'
     progressPercent?: number; // 0 to 100, default: 50
   }
   ```
@@ -1451,11 +1542,13 @@ export interface ChatMessage {
   </div>
   ```
 - **[Tactile / Audio / Ergonomics]**: Zero DOM reflow SVG rendering.
-- **[Invariants & Failure Modes]**: Gracefully handles 0 min ETA with "Llegando a tu domicilio".
+- **[Invariants & Failure Modes]**: Gracefully handles 0 min ETA with "Llegando
+  a tu domicilio".
 
 ---
 
 #### `COMP-26: CollaboratorRadarAlert.svelte`
+
 - **[ID & Name]**: `COMP-26: CollaboratorRadarAlert.svelte`
 - **[Category]**: Navigation & Overlays
 - **[Surface & Role]**: Field Cockpit (Emergency Incoming Dispatch Takeover)
@@ -1475,7 +1568,8 @@ export interface ChatMessage {
     onReject: () => void;
   }
   ```
-- **[Outputs / Event Callbacks]**: `onAccept: () => void`, `onReject: () => void`
+- **[Outputs / Event Callbacks]**: `onAccept: () => void`,
+  `onReject: () => void`
 - **[Slots / Snippets]**: None.
 - **[Reactive State / Runes]**:
   - `let timerSeconds = $state(45)`
@@ -1498,8 +1592,10 @@ export interface ChatMessage {
     </div>
   {/if}
   ```
-- **[Tactile / Audio / Ergonomics]**: Synthesizes 880Hz A5 radar tone and triggers `[300, 100, 300, 100, 500]` vibration pulse. 64px touch target.
-- **[Invariants & Failure Modes]**: Auto-rejects upon 45s timer expiration without punitive penalization (LFT non-subordination).
+- **[Tactile / Audio / Ergonomics]**: Synthesizes 880Hz A5 radar tone and
+  triggers `[300, 100, 300, 100, 500]` vibration pulse. 64px touch target.
+- **[Invariants & Failure Modes]**: Auto-rejects upon 45s timer expiration
+  without punitive penalization (LFT non-subordination).
 
 ---
 
@@ -1508,13 +1604,14 @@ export interface ChatMessage {
 ---
 
 #### `VIEW-01: AppHeader.svelte`
+
 - **[ID & Name]**: `VIEW-01: AppHeader.svelte`
 - **[Category]**: View Orchestrator
 - **[Surface & Role]**: `apps/web` Top Header
 - **[Inputs / Props Contract]**:
   ```typescript
   interface Props {
-    roleMode: 'cliente' | 'colaborador';
+    roleMode: "cliente" | "colaborador";
     user: AuthUser | null;
     isCollabOnDuty?: boolean;
     onToggleRole: () => void;
@@ -1528,15 +1625,16 @@ export interface ChatMessage {
 ---
 
 #### `VIEW-02: ClientDock.svelte`
+
 - **[ID & Name]**: `VIEW-02: ClientDock.svelte`
 - **[Category]**: View Orchestrator
 - **[Surface & Role]**: `apps/web` Bottom Navigation Dock
 - **[Inputs / Props Contract]**:
   ```typescript
   interface Props {
-    activeTab: 'inicio' | 'buscar' | 'reservas' | 'perfil';
+    activeTab: "inicio" | "buscar" | "reservas" | "perfil";
     activeOrdersCount?: number;
-    onTabChange: (tab: 'inicio' | 'buscar' | 'reservas' | 'perfil') => void;
+    onTabChange: (tab: "inicio" | "buscar" | "reservas" | "perfil") => void;
     onQuickBook: () => void;
   }
   ```
@@ -1544,6 +1642,7 @@ export interface ChatMessage {
 ---
 
 #### `VIEW-03: ClientHomeView.svelte`
+
 - **[ID & Name]**: `VIEW-03: ClientHomeView.svelte`
 - **[Category]**: View Orchestrator
 - **[Surface & Role]**: `apps/web` Home Tab
@@ -1558,6 +1657,7 @@ export interface ChatMessage {
 ---
 
 #### `VIEW-04: CollaboratorDirectory.svelte`
+
 - **[ID & Name]**: `VIEW-04: CollaboratorDirectory.svelte`
 - **[Category]**: View Orchestrator
 - **[Surface & Role]**: `apps/web` Search Tab
@@ -1571,6 +1671,7 @@ export interface ChatMessage {
 ---
 
 #### `VIEW-05: LiveServiceCockpit.svelte`
+
 - **[ID & Name]**: `VIEW-05: LiveServiceCockpit.svelte`
 - **[Category]**: View Orchestrator
 - **[Surface & Role]**: `apps/web` Bookings & Tracking Tab
@@ -1589,6 +1690,7 @@ export interface ChatMessage {
 ---
 
 #### `VIEW-06: FieldExecutionCockpit.svelte`
+
 - **[ID & Name]**: `VIEW-06: FieldExecutionCockpit.svelte`
 - **[Category]**: View Orchestrator
 - **[Surface & Role]**: `apps/web` Collaborator Execution Tab
@@ -1604,6 +1706,7 @@ export interface ChatMessage {
 ---
 
 #### `VIEW-07: SatTaxWallet.svelte`
+
 - **[ID & Name]**: `VIEW-07: SatTaxWallet.svelte`
 - **[Category]**: View Orchestrator
 - **[Surface & Role]**: `apps/web` Collaborator Wallet Tab
@@ -1617,6 +1720,7 @@ export interface ChatMessage {
 ---
 
 #### `VIEW-08: UserProfileView.svelte`
+
 - **[ID & Name]**: `VIEW-08: UserProfileView.svelte`
 - **[Category]**: View Orchestrator
 - **[Surface & Role]**: `apps/web` Client Profile Tab
@@ -1630,4 +1734,5 @@ export interface ChatMessage {
 
 ---
 
-This exhaustive catalog serves as the single source of truth for all component engineering across the platform.
+This exhaustive catalog serves as the single source of truth for all component
+engineering across the platform.

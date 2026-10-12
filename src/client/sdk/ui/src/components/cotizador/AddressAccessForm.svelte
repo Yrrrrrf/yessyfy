@@ -22,3 +22,6 @@ let { addressText = $bindable(), gateInstructions = $bindable() }: Props = $prop
     class="input input-sm w-full text-xs"
   />
 </fieldset>
+
+
+

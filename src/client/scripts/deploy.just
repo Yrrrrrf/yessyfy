@@ -1,27 +1,26 @@
 # deploy.just — ship · build, preview, publish, and release
 
-[doc('Run quality gate (check + test) (pass -v for detailed logs)')]
+[doc('Run quality gate (check + test) (pass -v for detailed logs, -p for parallel)')]
 [group('ci')]
-ci *flags:
-    {{ CLI }} ci {{ flags }}
+[positional-arguments]
+ci *flags: (test flags) (check flags)
 
-[doc('Build applications: deno.json -> build/ (pass -v for detailed logs, -A or --all for all apps)')]
+[doc('Build applications: deno.json -> build/ (pass -v for detailed logs)')]
 [group('deploy')]
+[positional-arguments]
 build *flags:
-    {{ CLI }} build {{ flags }}
+    ^{{ CLI }} exec {{ flags }} --title BUILD --select all --cwd 'apps/*' -- deno run -A npm:vite build
 
-[doc('Preview production build (pass -v for detailed build logs, -A or --all for all apps)')]
+[doc('Preview production build (builds first, then launches preview server)')]
 [group('deploy')]
-preview *flags:
-    {{ CLI }} preview {{ flags }}
+[positional-arguments]
+preview *flags: (build flags)
+    ^{{ CLI }} exec {{ flags }} --title PREVIEW --select one --cwd 'apps/*' -- deno run -A npm:vite preview
 
-[doc('Build all 3 apps and deploy to GitHub Pages (gh-pages) (pass -v for detailed logs)')]
+[confirm("Ship release to production?")]
+[doc('Publish build release')]
 [group('deploy')]
-pages *flags:
-    {{ CLI }} pages {{ flags }}
+publish: ci build
+    error make {msg: "No hosting deployment adapter is configured; the builds are available locally"}
 
-[doc('Publish full release: CI quality pipeline + GitHub Pages deployment')]
-[group('deploy')]
-publish *flags:
-    {{ CLI }} publish {{ flags }}
-
+cycle: prepare (ci "-vp") build

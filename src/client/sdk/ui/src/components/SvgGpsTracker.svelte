@@ -86,3 +86,6 @@ const pinPosition = $derived.by(() => {
     <span class="text-[10px] text-base-content/60 font-medium">({collaboratorName} en camino)</span>
   </div>
 </div>
+
+
+

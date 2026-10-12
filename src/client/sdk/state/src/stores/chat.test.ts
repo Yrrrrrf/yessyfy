@@ -9,8 +9,9 @@ registerChatSanitizer((text) => {
 
 	let sanitized = text;
 	if (hasPhone) sanitized = sanitized.replace(/\d{10}/g, "[NUMERO PROTEGIDO]");
-	if (hasCircumvention)
+	if (hasCircumvention) {
 		sanitized = sanitized.replace(/por\s+fuera/gi, "[MENSAJE MODERADO]");
+	}
 
 	return {
 		sanitizedText: sanitized,

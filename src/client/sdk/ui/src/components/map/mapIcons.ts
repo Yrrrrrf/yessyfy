@@ -17,14 +17,30 @@ export function createTechnicianDivIcon(
 		tech.status === "on_site";
 
 	const html = `
-    <div class="relative group cursor-pointer select-none transition-transform duration-200 ${isSelected ? "scale-125 z-50" : "hover:scale-110"}">
-      ${isOnline ? '<div class="absolute -inset-2 rounded-full bg-emerald-500/30 animate-ping pointer-events-none"></div>' : ""}
-      <div class="relative flex items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-base-100/95 backdrop-blur-md border-2 ${isSelected ? "border-primary shadow-xl shadow-primary/30 ring-2 ring-primary/40" : "border-base-300 shadow-lg"} text-base-content text-xs font-bold">
+    <div class="relative group cursor-pointer select-none transition-transform duration-200 ${
+			isSelected ? "scale-125 z-50" : "hover:scale-110"
+		}">
+      ${
+				isOnline
+					? '<div class="absolute -inset-2 rounded-full bg-emerald-500/30 animate-ping pointer-events-none"></div>'
+					: ""
+			}
+      <div class="relative flex items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-base-100/95 backdrop-blur-md border-2 ${
+				isSelected
+					? "border-primary shadow-xl shadow-primary/30 ring-2 ring-primary/40"
+					: "border-base-300 shadow-lg"
+			} text-base-content text-xs font-bold">
         <span class="text-sm">${vehicleEmoji}</span>
-        <span class="truncate max-w-[90px] text-[11px]">${tech.name.split(" ")[0]}</span>
-        <span class="badge ${isSelected ? "badge-primary text-primary-content" : "badge-neutral"} badge-xs font-mono px-1 font-black">${tradeMeta.emoji}</span>
+        <span class="truncate max-w-[90px] text-[11px]">${
+					tech.name.split(" ")[0]
+				}</span>
+        <span class="badge ${
+					isSelected ? "badge-primary text-primary-content" : "badge-neutral"
+				} badge-xs font-mono px-1 font-black">${tradeMeta.emoji}</span>
       </div>
-      <div class="w-2.5 h-2.5 bg-base-100 border-r-2 border-b-2 ${isSelected ? "border-primary" : "border-base-300"} rotate-45 mx-auto -mt-1 shadow-sm"></div>
+      <div class="w-2.5 h-2.5 bg-base-100 border-r-2 border-b-2 ${
+				isSelected ? "border-primary" : "border-base-300"
+			} rotate-45 mx-auto -mt-1 shadow-sm"></div>
     </div>
   `;
 
@@ -80,22 +96,34 @@ export function createMovingTechnicianDivIcon(
 	const html = `
     <div class="relative group select-none flex flex-col items-center">
       <!-- Double Pulsating Radar Ring -->
-      <div class="absolute -inset-2.5 rounded-full ${isInsideGeofence ? "bg-emerald-500/40" : "bg-primary/30"} animate-ping pointer-events-none"></div>
-      <div class="absolute -inset-1 rounded-full ${isInsideGeofence ? "bg-emerald-400/30" : "bg-primary/20"} animate-pulse pointer-events-none"></div>
+      <div class="absolute -inset-2.5 rounded-full ${
+				isInsideGeofence ? "bg-emerald-500/40" : "bg-primary/30"
+			} animate-ping pointer-events-none"></div>
+      <div class="absolute -inset-1 rounded-full ${
+				isInsideGeofence ? "bg-emerald-400/30" : "bg-primary/20"
+			} animate-pulse pointer-events-none"></div>
 
       <!-- Tactical Moving Tech Badge -->
-      <div class="relative flex items-center gap-1.5 px-2.5 py-1 rounded-2xl bg-base-100/95 backdrop-blur-md border-2 ${isInsideGeofence ? "border-success shadow-success/40 ring-2 ring-success/30" : "border-primary shadow-primary/30 ring-2 ring-primary/40"} shadow-xl text-base-content text-xs font-bold transition-transform">
+      <div class="relative flex items-center gap-1.5 px-2.5 py-1 rounded-2xl bg-base-100/95 backdrop-blur-md border-2 ${
+				isInsideGeofence
+					? "border-success shadow-success/40 ring-2 ring-success/30"
+					: "border-primary shadow-primary/30 ring-2 ring-primary/40"
+			} shadow-xl text-base-content text-xs font-bold transition-transform">
         <span class="inline-block text-sm transition-transform duration-300" style="transform: rotate(${rotation}deg); transform-origin: center;">
           ${vehicleEmoji}
         </span>
-        <span class="truncate max-w-[80px] text-[11px] font-black">${tech.name.split(" ")[0]}</span>
+        <span class="truncate max-w-[80px] text-[11px] font-black">${
+					tech.name.split(" ")[0]
+				}</span>
         <span class="badge ${badgeColorClass} badge-xs font-mono px-1 font-black uppercase text-[10px]">
           ${badgeText}
         </span>
         <span class="badge badge-neutral badge-xs font-mono px-1 font-black">${tradeMeta.emoji}</span>
       </div>
       <!-- Pointer Tip -->
-      <div class="w-2.5 h-2.5 bg-base-100 border-r-2 border-b-2 ${isInsideGeofence ? "border-success" : "border-primary"} rotate-45 -mt-1 shadow-sm"></div>
+      <div class="w-2.5 h-2.5 bg-base-100 border-r-2 border-b-2 ${
+				isInsideGeofence ? "border-success" : "border-primary"
+			} rotate-45 -mt-1 shadow-sm"></div>
     </div>
   `;
 

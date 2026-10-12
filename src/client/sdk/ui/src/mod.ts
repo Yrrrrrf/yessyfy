@@ -1,18 +1,3 @@
-import { filterAntiDisintermediation } from "@sdk/api";
-import { registerChatSanitizer } from "@sdk/state";
-
-// Wire anti-disintermediation sanitizer to chat store
-registerChatSanitizer((text) => {
-	const res = filterAntiDisintermediation(text);
-	return {
-		sanitizedText: res.sanitizedText,
-		intercepted: res.intercepted,
-		warning: res.intercepted
-			? "🛡️ Aviso de Protección: Números de contacto y cuentas bancarias han sido enmascarados para proteger tu garantía Escrow de 30 días."
-			: undefined,
-	};
-});
-
 export { default as AccessSecurityPass } from "./components/AccessSecurityPass.svelte";
 export { default as AuthOtpModal } from "./components/AuthOtpModal.svelte";
 export { default as BeforeAfterSlider } from "./components/BeforeAfterSlider.svelte";
@@ -29,12 +14,12 @@ export { default as SatPacStampingPreview } from "./components/fiscal/SatPacStam
 export { default as InvoiceDownloadActions } from "./components/fiscal/InvoiceDownloadActions.svelte";
 export {
 	buildSatVerificationUrl,
-	generateCfdi40Xml,
-	renderQrCodeSvg,
 	downloadFile,
-	printElement,
 	downloadPdfViaPrint,
+	generateCfdi40Xml,
+	printElement,
 	type PrintOptions,
+	renderQrCodeSvg,
 } from "./components/fiscal/pdfExport.ts";
 export { default as InAppChatDrawer } from "./components/InAppChatDrawer.svelte";
 export { default as PhotoUploader } from "./components/PhotoUploader.svelte";
@@ -70,7 +55,7 @@ export { default as Showcase } from "./showcase.svelte";
 
 export { default as ToastContainer } from "./components/toast/ToastContainer.svelte";
 export { default as ToastItem } from "./components/toast/ToastItem.svelte";
-export { soundEngine, SoundEngine } from "./audio/soundEngine.ts";
+export { SoundEngine, soundEngine } from "./audio/soundEngine.ts";
 export type { ToastPosition } from "./components/toast/ToastContainer.svelte";
 
 export * from "./types.ts";

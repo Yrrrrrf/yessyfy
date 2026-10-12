@@ -1,10 +1,8 @@
 {
-  "name": "@yessyfy/vision",
-  "version": "0.1.0",
-  "description": "Vision lab app for yessyfy",
-  "license": "MIT",
-  "authors": [
-    "Yrrrrrf <fer.rezac@outlook.com>"
-  ],
-  "exports": "./src/lib/mod.ts"
+	"name": "@yessyfy/vision",
+	"version": "0.1.0",
+	"description": "Vision lab app for yessyfy",
+	"license": "MIT",
+	"authors": ["Yrrrrrf <fer.rezac@outlook.com>"],
+	"exports": "./src/lib/mod.ts"
 }

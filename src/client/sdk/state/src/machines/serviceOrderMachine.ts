@@ -284,10 +284,6 @@ export const serviceOrderMachine = setup({
 						target: "completed",
 						actions: "setWarranty",
 					},
-					{
-						target: "completed",
-						actions: "setWarranty",
-					},
 				],
 				REPORT_ISSUE: {
 					target: "disputed",

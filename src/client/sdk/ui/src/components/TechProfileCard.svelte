@@ -70,3 +70,6 @@ const primaryTrade = $derived(
     </div>
   {/if}
 </div>
+
+
+

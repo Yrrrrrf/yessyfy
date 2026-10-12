@@ -1,37 +1,24 @@
-import { svelte } from "@sveltejs/vite-plugin-svelte";
-import { defineConfig, type PluginOption } from "vite-plus";
-
-const SDK_ROOT = new URL("../sdk", import.meta.url).pathname;
-const SDK_ENTRY = new URL("../sdk/mod.ts", import.meta.url).pathname;
-
-export default defineConfig({
-  resolve: {
-    alias: [
-      { find: /^@sdk\/([^/]+)$/, replacement: `${SDK_ROOT}/$1/src/mod.ts` },
-      { find: /^@sdk\/(.*)/, replacement: `${SDK_ROOT}/$1` },
-      { find: /^@sdk$/, replacement: SDK_ENTRY },
-    ],
-  },
-  plugins: [
-    svelte({
-      configFile: false,
-      compilerOptions: {
-        runes: true,
-      },
-    }) as unknown as PluginOption,
-  ],
-  test: {
-    globals: true,
-    projects: ["./sdk/*/vite.config.ts", "./apps/*/vite.config.*"],
-    exclude: [
-      "**/node_modules/**",
-      "**/.git/**",
-      "**/.svelte-kit/**",
-      "**/dist/**",
-      "**/build/**",
-    ],
-  },
+import { defineConfig } from "vitest/config";
+import { defineSveltePkg } from "../sdk/sdk.config.ts";
+import { sdkAliases } from "./aliases.ts";
+const root = new URL("../", import.meta.url).pathname;
+const project = (name: string, include: string[]) => ({
+	extends: false as const,
+	...defineSveltePkg({
+		overrides: {
+			root,
+			resolve: { alias: sdkAliases, dedupe: ["svelte"] },
+			ssr: { noExternal: ["rune-lab", "arkano", "@lucide/svelte"] },
+			test: { name, include },
+		},
+	}),
 });
-
-
-
+export default defineConfig({
+	test: {
+		projects: [
+			project("state", ["sdk/state/src/**/*.test.ts"]),
+			project("ui", ["sdk/ui/src/**/*.test.ts"]),
+			project("minimal", ["apps/minimal/src/routes/*.test.ts"]),
+		],
+	},
+});

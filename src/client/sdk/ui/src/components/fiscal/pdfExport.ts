@@ -55,8 +55,12 @@ export function generateCfdi40Xml(invoice: SatInvoiceDocument): string {
 	const xmlParts: string[] = [
 		`<?xml version="1.0" encoding="UTF-8"?>`,
 		`<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd" Version="${invoice.version}" Serie="${invoice.serie}" Folio="${invoice.folio}" Fecha="${invoice.fecha}" Sello="${invoice.timbreFiscal.selloCfd}" FormaPago="${invoice.formaPago}" NoCertificado="${invoice.emisor.csd}" Certificado="" SubTotal="${subtotal}" Moneda="${invoice.moneda}" TipoCambio="1" Total="${total}" TipoDeComprobante="${invoice.tipoDeComprobante}" Exportacion="01" MetodoPago="${invoice.metodoPago}" LugarExpedicion="${invoice.lugarExpedicion}">`,
-		`  <cfdi:Emisor Rfc="${invoice.emisor.rfc}" Nombre="${escapeXml(invoice.emisor.nombre)}" RegimenFiscal="${invoice.emisor.regimenFiscal}"/>`,
-		`  <cfdi:Receptor Rfc="${invoice.receptor.rfc}" Nombre="${escapeXml(invoice.receptor.nombre)}" DomicilioFiscalReceptor="${invoice.receptor.domicilioFiscalReceptor}" RegimenFiscalReceptor="${invoice.receptor.regimenFiscalReceptor}" UsoCFDI="${invoice.receptor.usoCfdi}"/>`,
+		`  <cfdi:Emisor Rfc="${invoice.emisor.rfc}" Nombre="${escapeXml(
+			invoice.emisor.nombre,
+		)}" RegimenFiscal="${invoice.emisor.regimenFiscal}"/>`,
+		`  <cfdi:Receptor Rfc="${invoice.receptor.rfc}" Nombre="${escapeXml(
+			invoice.receptor.nombre,
+		)}" DomicilioFiscalReceptor="${invoice.receptor.domicilioFiscalReceptor}" RegimenFiscalReceptor="${invoice.receptor.regimenFiscalReceptor}" UsoCFDI="${invoice.receptor.usoCfdi}"/>`,
 		`  <cfdi:Conceptos>`,
 	];
 
@@ -67,7 +71,13 @@ export function generateCfdi40Xml(invoice: SatInvoiceDocument): string {
 		const tasaFmt = item.ivaTasa.toFixed(6);
 
 		xmlParts.push(
-			`    <cfdi:Concepto ClaveProdServ="${item.claveProdServ}" ${item.noIdentificacion ? `NoIdentificacion="${item.noIdentificacion}" ` : ""}Cantidad="${item.cantidad}" ClaveUnidad="${item.claveUnidad}" Unidad="${item.unidad}" Descripcion="${escapeXml(item.descripcion)}" ValorUnitario="${valUnit}" Importe="${imp}" ObjetoImp="${item.objetoImp}">`,
+			`    <cfdi:Concepto ClaveProdServ="${item.claveProdServ}" ${
+				item.noIdentificacion
+					? `NoIdentificacion="${item.noIdentificacion}" `
+					: ""
+			}Cantidad="${item.cantidad}" ClaveUnidad="${item.claveUnidad}" Unidad="${item.unidad}" Descripcion="${escapeXml(
+				item.descripcion,
+			)}" ValorUnitario="${valUnit}" Importe="${imp}" ObjetoImp="${item.objetoImp}">`,
 			`      <cfdi:Impuestos>`,
 			`        <cfdi:Traslados>`,
 			`          <cfdi:Traslado Base="${imp}" Impuesto="002" TipoFactor="Tasa" TasaOCuota="${tasaFmt}" Importe="${ivaImp}"/>`,
@@ -79,7 +89,11 @@ export function generateCfdi40Xml(invoice: SatInvoiceDocument): string {
 
 	xmlParts.push(
 		`  </cfdi:Conceptos>`,
-		`  <cfdi:Impuestos ${totalRetenidoCents > 0 ? `TotalImpuestosRetenidos="${totalRetenido}" ` : ""}TotalImpuestosTrasladados="${ivaTraslado}">`,
+		`  <cfdi:Impuestos ${
+			totalRetenidoCents > 0
+				? `TotalImpuestosRetenidos="${totalRetenido}" `
+				: ""
+		}TotalImpuestosTrasladados="${ivaTraslado}">`,
 	);
 
 	if (totalRetenidoCents > 0) {

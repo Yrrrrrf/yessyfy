@@ -8,4 +8,3 @@ import 'scripts/deploy.just'
 
 mod client 'src/client/justfile'
 mod server 'src/server/server.just'
-mod cli 'src/cli/justfile'

@@ -214,3 +214,6 @@ async function handleFileInput(e: Event) {
 		isCameraOpen = false;
 	}}
 />
+
+
+

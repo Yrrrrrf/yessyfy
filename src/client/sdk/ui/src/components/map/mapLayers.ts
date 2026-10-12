@@ -141,7 +141,9 @@ export function renderTechnicianAndClientMarkers(
       <div class="p-2.5 space-y-2 min-w-[200px]">
         <div class="flex items-center justify-between border-b border-base-300 pb-1.5">
           <span class="badge badge-primary badge-xs font-bold text-primary-content uppercase">${tech.trade}</span>
-          <span class="font-bold text-warning text-xs">★ ${tech.rating?.toFixed(1) ?? "4.9"}</span>
+          <span class="font-bold text-warning text-xs">★ ${
+						tech.rating?.toFixed(1) ?? "4.9"
+					}</span>
         </div>
         <h4 class="font-black text-sm text-base-content">${tech.name}</h4>
         <div class="flex items-center justify-between text-xs font-mono text-base-content/70">
@@ -149,8 +151,20 @@ export function renderTechnicianAndClientMarkers(
           <span class="font-bold text-primary">~${tech.etaMin ?? 15} min</span>
         </div>
         <div class="pt-1">
-          <span class="badge ${tech.status === "in_transit" ? "badge-info" : tech.status === "on_site" ? "badge-success" : "badge-ghost"} badge-xs font-bold">
-            ${tech.status === "in_transit" ? "En Camino 🏍️" : tech.status === "on_site" ? "En Domicilio 🔧" : "Disponible 🟢"}
+          <span class="badge ${
+						tech.status === "in_transit"
+							? "badge-info"
+							: tech.status === "on_site"
+								? "badge-success"
+								: "badge-ghost"
+					} badge-xs font-bold">
+            ${
+							tech.status === "in_transit"
+								? "En Camino 🏍️"
+								: tech.status === "on_site"
+									? "En Domicilio 🔧"
+									: "Disponible 🟢"
+						}
           </span>
         </div>
       </div>

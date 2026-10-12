@@ -26,3 +26,6 @@ const icon = $derived.by(() => {
     <div class="font-mono font-black text-sm tracking-wider text-base-content mt-0.5">{plateNumber}</div>
   </div>
 </div>
+
+
+

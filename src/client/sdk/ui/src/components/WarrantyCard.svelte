@@ -91,3 +91,6 @@ const formatDate = (iso: string) => {
   certificate={certificate}
   onClose={() => (isWarrantyModalOpen = false)}
 />
+
+
+

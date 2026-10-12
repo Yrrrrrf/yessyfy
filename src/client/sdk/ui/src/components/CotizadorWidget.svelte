@@ -152,3 +152,6 @@ function handleBook() {
     Pedir Servicio con Garantía ({formatMxn(finalPricing.totalCustomerCents)})
   </button>
 </div>
+
+
+

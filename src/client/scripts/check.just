@@ -2,30 +2,75 @@
 
 [doc('Format workspace')]
 [group('check')]
-fmt *flags:
-    {{ CLI }} fmt {{ flags }}
+fmt:
+    ^biome format --config-path=config/biome.json --write .
 
 [doc('Lint workspace')]
 [group('check')]
-lint *flags:
-    {{ CLI }} lint {{ flags }}
-
-[doc('Type-check workspace (SDK modules + SvelteKit apps) (pass -v for detailed logs)')]
-[group('check')]
-types *flags:
-    {{ CLI }} types {{ flags }}
+lint:
+    -^biome lint --config-path=config/biome.json .
 
 [doc('Audit all code namespaces')]
 [group('check')]
-audit *flags:
-    {{ CLI }} audit {{ flags }}
+audit:
+    ^deno run -A npm:fallow -c config/fallowrc.json
 
 [doc('Check code health')]
 [group('check')]
-health *flags:
-    {{ CLI }} health {{ flags }}
+health:
+    ^deno run -A npm:fallow health --score -c config/fallowrc.json
 
-[doc('Run all check quality gates (pass -v for detailed logs, -b for timing)')]
+# ── Dynamic Matrix Quality Gates ────────────────────────────────────────
+
+TYPES_RULES := '''
+[
+  {
+    "packages": "sdk/*",
+    "pattern": "sdk/**/*.svelte.ts",
+    "engine": "svelte-check-native",
+    "cwd": "{root}",
+    "command": ["deno", "run", "-A", "npm:svelte-check-native", "--tsconfig", "sdk/tsconfig.json", "--config", "{package}/vite.config.ts"]
+  },
+  {
+    "packages": "sdk/*",
+    "pattern": "sdk/**/src/mod.ts",
+    "engine": "deno",
+    "cwd": "{package}",
+    "command": ["deno", "check", "{file}"]
+  },
+  {
+    "packages": "apps/*",
+    "pattern": "apps/**/src/routes",
+    "engine": "svelte-check-native",
+    "cwd": "{root}",
+    "command": ["deno", "run", "-A", "npm:svelte-check-native", "--workspace", "{package}", "--tsconfig", "tsconfig.json", "--config", "vite.config.mts"]
+  },
+  {
+    "packages": "apps/*",
+    "pattern": "apps/**/src/App.vue",
+    "engine": "vue-tsc",
+    "cwd": "{root}",
+    "command": ["deno", "run", "-A", "npm:vue-tsc", "-p", "{package}/tsconfig.json", "--noEmit"]
+  },
+  {
+    "packages": "apps/*",
+    "pattern": "apps/**/src/App.tsx",
+    "engine": "tsc",
+    "cwd": "{root}",
+    "command": ["deno", "run", "-A", "npm:typescript@6/tsc", "-p", "{package}/tsconfig.json", "--noEmit"]
+  }
+]
+'''
+
+[doc('Type-check workspace across SDKs and Apps using declarative rules')]
 [group('check')]
-check *flags:
-    {{ CLI }} check {{ flags }}
+[positional-arguments]
+types *flags:
+    # needed by scn
+    ^deno install --entrypoint npm:svelte-check-native npm:@typescript/native-preview npm:typescript@6 npm:vue-tsc@3.3.11
+    -^deno run -A scripts/compat.ts -- {{ CLI }} matrix --title "TYPES" --rules '{{ TYPES_RULES }}' {{ flags }}
+
+[doc('Run all check quality gates (pass -v for detailed logs, -b for timing, -p for parallel)')]
+[group('check')]
+[positional-arguments]
+check *args: fmt lint (types args)

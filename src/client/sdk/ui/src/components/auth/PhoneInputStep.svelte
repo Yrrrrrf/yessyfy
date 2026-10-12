@@ -42,3 +42,6 @@ let { phoneNumber = $bindable(), errorMessage, onSubmit }: Props = $props();
     Continuar con SMS →
   </button>
 </div>
+
+
+

@@ -1,27 +1,24 @@
 {
-  "extends": "$app/tsconfig",
-  "compilerOptions": {
-    "allowJs": true,
-    "checkJs": false,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true
-  },
-  "exclude": [
-    "../../tests/legacy-ui",
-    "../../node_modules"
-  ],
-  "include": [
-    "src",
-    "../../sdk/ui/src/product",
-    "../../sdk/state/src/product",
-    "../../sdk/core/src/product",
-    "../../sdk/api/src/product",
-    "../../config/deployment.ts",
-    "vite.config.mts"
-  ]
+	"extends": "$app/tsconfig",
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": false,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true
+	},
+	"exclude": ["../../tests/legacy-ui", "../../node_modules"],
+	"include": [
+		"src",
+		"../../sdk/ui/src/product",
+		"../../sdk/state/src/product",
+		"../../sdk/core/src/product",
+		"../../sdk/api/src/product",
+		"../../config/deployment.ts",
+		"vite.config.mts"
+	]
 }

@@ -12,3 +12,6 @@ let { label = "SDK", status = "wired" }: Props = $props();
   <span class="opacity-70">{label}:</span>
   <span class="font-bold">{status}</span>
 </div>
+
+
+

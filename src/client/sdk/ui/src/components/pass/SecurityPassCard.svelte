@@ -44,3 +44,6 @@ let {
   <span class="text-[10px] text-base-content/60 block uppercase font-bold">Destino Autorizado</span>
   <span class="font-medium text-base-content">{destinationAddress}</span>
 </div>
+
+
+

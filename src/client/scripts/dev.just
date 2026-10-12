@@ -1,21 +1,20 @@
 # dev.just — run, live preview, and prepare workspace
 
-[doc('Run an app on the dev server (pass -A or --all to run all apps)')]
+[doc('Run an app on the dev server')]
 [group('dev')]
+[positional-arguments]
 run *flags:
-    {{ CLI }} dev {{ flags }}
+    ^{{ CLI }} exec {{ flags }} --title DEV --select one --cwd 'apps/*' -- deno run -A npm:vite dev
 
-[doc('Run an app on the dev server (alias for run, pass -A or --all to run all apps)')]
+[doc('Prune generated dependencies and build outputs; retain the lockfile')]
 [group('dev')]
-dev *flags:
-    {{ CLI }} dev {{ flags }}
+[positional-arguments]
+prune *flags:
+    ^{{ CLI }} rm --glob '**/node_modules' '**/.svelte-kit' '**/.vite' '**/build' '**/dist' '**/paraglide' {{ flags }}
 
-[doc('Purge caches & lockfiles, reinstall deps, resync generated code')]
+[doc('Install dependencies and sync generated app code')]
 [group('dev')]
-prepare:
-    {{ CLI }} prepare
-
-[doc('Prune all node_modules, .svelte-kit, .vite, deno.lock')]
-[group('dev')]
-prune:
-    {{ CLI }} prune
+[positional-arguments]
+prepare *flags:
+    ^deno install
+    ^{{ CLI }} exec {{ flags }} --title SYNC --select all --cwd 'apps/*' -- deno run -A npm:@sveltejs/kit/svelte-kit sync

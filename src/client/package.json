@@ -1,0 +1,50 @@
+{
+  "name": "yessyfy-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:main": "cd apps/main && vite --host 127.0.0.1 --port 5173 --strictPort",
+    "dev:vision": "cd apps/vision && vite --host 127.0.0.1 --port 5174 --strictPort",
+    "build": "npm run build:main && npm run build:vision",
+    "build:main": "cd apps/main && vite build",
+    "build:vision": "cd apps/vision && vite build",
+    "check": "npm run sync && cd apps/main && svelte-check --tsconfig tsconfig.json && cd ../vision && svelte-check --tsconfig tsconfig.json",
+    "test": "vitest run --config config/product-test.config.ts",
+    "test:browser": "playwright test --config tests/playwright.config.ts",
+    "fixture": "node --import tsx tests/fixtures/server.ts",
+    "sync": "cd apps/main && svelte-kit sync && cd ../vision && svelte-kit sync"
+  },
+  "dependencies": {
+    "@lucide/svelte": "1.55.0",
+    "@sveltejs/adapter-static": "4.0.0-next.4",
+    "@sveltejs/kit": "3.0.0-next.32",
+    "@sveltejs/vite-plugin-svelte": "7.0.0",
+    "arktype": "2.2.8",
+    "leaflet": "1.9.4",
+    "rune-lab": "0.5.2-rc.2",
+    "svelte": "5.57.2",
+    "up-fetch": "2.6.1",
+    "xstate": "5.33.2"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.62.1",
+    "@tailwindcss/forms": "0.5.11",
+    "@tailwindcss/typography": "0.5.20",
+    "@tailwindcss/vite": "4.3.3",
+    "@types/leaflet": "1.9.4",
+    "@types/node": "26.6.5",
+    "daisyui": "5.7.47",
+    "deno": "2.9.6",
+    "prettier": "3.9.10",
+    "prettier-plugin-svelte": "4.1.1",
+    "svelte-check": "4.7.6",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vite": "8.3.4",
+    "vite-plus": "1.1.0",
+    "vitest": "5.0.3"
+  }
+}
