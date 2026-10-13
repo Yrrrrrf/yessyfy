@@ -1,0 +1,53 @@
+[server]
+http_bind = "0.0.0.0:8080"
+grpc_bind = "0.0.0.0:50051"
+max_body_bytes = 1048576
+operation_timeout_seconds = 10
+shutdown_timeout_seconds = 15
+artifacts_dir = "/artifacts"
+[worker]
+capacity = 32
+retained_jobs = 256
+[auth]
+token_env = "GWA_API_TOKEN"
+[network]
+host = "127.0.0.1"
+
+[services.notify]
+enabled = true
+provider = "file"
+webhook_url = ""
+[services.report]
+enabled = true
+[toolchains]
+surrealdb = "3.3.3"
+nushell = "0.116.0"
+typst = "0.15.0"
+[application]
+database_url = "http://db:8000"
+namespace = "yessyfy"
+database = "main"
+database_user_env = "YESSYFY_DB_USER"
+database_password_env = "YESSYFY_DB_PASSWORD"
+signing_key_env = "YESSYFY_SIGNING_KEY"
+job_key_env = "YESSYFY_JOB_KEY"
+provider_key_env = "YESSYFY_PROVIDER_KEY"
+public_origin = "http://127.0.0.1:8080"
+main_origin = "http://127.0.0.1:5173"
+vision_origin = "http://127.0.0.1:5174"
+max_upload_bytes = 25000000
+# file writes a private development spool, not an SMS delivery claim.
+otp_provider = "file"
+otp_webhook = ""
+# disabled preserves pending outcomes; webhook sends idempotent provider requests.
+finance_provider = "disabled"
+finance_webhook = ""
+fiscal_provider = "disabled"
+fiscal_webhook = ""
+compiler = "/opt/typst/typst"
+compiler_version = "0.15.0"
+document_bundle = "/opt/yessyfy/documents"
+fee_basis_points = 1500
+withholding_basis_points = 1000
+warranty_days = 30
+warranty_terms = "Cobertura del trabajo aprobado en la orden. Las condiciones particulares se conservan con el servicio."

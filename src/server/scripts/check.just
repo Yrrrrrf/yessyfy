@@ -1,19 +1,24 @@
-[doc('Format all server components')]
-[group('check')]
-fmt: db::fmt engine::fmt rpc::fmt tests::fmt
+fmt:
+    cargo fmt --manifest-path engine/Cargo.toml
+    deno fmt --config tests/deno.json tests
 
-[doc('Lint all server components')]
-[group('check')]
-lint: db::lint engine::lint rpc::lint tests::lint
+fmt-check:
+    cargo fmt --manifest-path engine/Cargo.toml --check
+    deno fmt --check --config tests/deno.json tests
 
-[doc('Type-check all server components')]
-[group('check')]
-types: db::types engine::types rpc::types tests::types
-
-# [doc('Audit all code namespaces')]
-# [group('check')]
-# audit: db::audit engine::audit rpc::audit tests::audit
-
-[doc('Run all server quality gates')]
-[group('check')]
-check: fmt lint types
+lint:
+    cargo clippy --locked --manifest-path engine/Cargo.toml --all-targets -- -D warnings
+    deno lint --config tests/deno.json tests
+types:
+    cargo check --locked --manifest-path engine/Cargo.toml --all-targets
+    deno check --config tests/deno.json --frozen ...(glob 'tests/**/*_test.ts')
+contracts:
+    deno test --config tests/deno.json --frozen --allow-read --allow-run --allow-env tests/contracts_test.ts
+audit:
+    cargo audit --file engine/Cargo.lock
+    deno audit --config tests/deno.json --frozen
+check: fmt-check lint types contracts audit
+# Tests finish before checks; build follows CI without recursive test/build dependencies.
+ci: test-unit test check
+build: ci
+    just _images dev

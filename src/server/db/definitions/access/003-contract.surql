@@ -1,0 +1,1 @@
+DEFINE PARAM $yessyfy_contract VALUE "YESSYFY-CLIENT/1";

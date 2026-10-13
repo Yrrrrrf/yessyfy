@@ -1,6 +1,6 @@
 # Yessyfy client: Main + Vision
 
-The v0.1.0 client upgrade contains two Svelte applications and one shared service-order runtime. Main serves customers; Vision contains collaborator work and operations tools. The backend source is preserved unchanged.
+The v0.1.0 client upgrade contains two Svelte applications and one shared service-order runtime. Main serves customers; Vision contains collaborator work and operations tools. The accompanying server in `../server` now implements the matching client contract.
 
 ## Start
 
@@ -16,7 +16,7 @@ npm run dev:vision
 
 Main opens at `http://127.0.0.1:5173`; Vision opens at `http://127.0.0.1:5174`. Both read the public `.env` in this directory. Configure actual Main/Vision origins and `VITE_YESSYFY_API_ORIGIN` before connecting a real service.
 
-The service must implement the typed `ClientPort` contract documented in `docs/CLIENT_SERVICE_CONTRACT.md`. The default HTTP adapter posts to `/client/operations/<operation>`. This is a new client integration boundary, **not an endpoint already verified in the supplied backend snapshot**. Bind the port to the deployed service/gateway before production acceptance. A missing connection produces a visible configuration state; it never starts a sample workflow.
+The service must implement the typed `ClientPort` contract documented in `docs/CLIENT_SERVICE_CONTRACT.md`. The default HTTP adapter posts to `/client/operations/<operation>`. The upgraded server implements this boundary and verifies it in native integration tests. Set the local API origin to `http://127.0.0.1:8080`; accept the deployed browser-to-server connection before production release. A missing connection produces a visible configuration state; it never starts a sample workflow.
 
 ## Run the complete client demonstration
 
@@ -56,7 +56,7 @@ npm run test:browser
 
 `check` first generates the SvelteKit type definitions. Browser tests launch the fixture and both applications with explicit test configuration and shut them down afterward. An optional `PW_EXECUTABLE_PATH` supports a locally installed Chromium binary. The package lock pins the tested dependencies. Deno task wrappers (`deno task build`, `deno task check`, `deno task test`) invoke these same client commands.
 
-Build artifacts are written to `apps/main/build` and `apps/vision/build`. Serve each application from its own origin with SPA fallback to `index.html`; configure CORS and public origins on the service. Deployment/publishing was not performed. The legacy repository CLI depends on `src/cli`, which was absent from the supplied snapshot; these client commands work independently.
+Build artifacts are written to `apps/main/build` and `apps/vision/build`. Serve each application from its own origin with SPA fallback to `index.html`; configure CORS and public origins on the service. Deployment/publishing was not performed. The root and client Just recipes now invoke these npm commands directly. Former CLI source is retained for reference and is not required.
 
 ## Features
 

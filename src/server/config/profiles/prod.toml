@@ -1,0 +1,11 @@
+[profile]
+name = "prod"
+project = "yessyfy-prod"
+data_policy = "upgrade"
+seed = ""
+log_format = "json"
+
+[application]
+otp_provider = "webhook"
+finance_provider = "webhook"
+fiscal_provider = "webhook"

@@ -32,6 +32,7 @@
     tab = $state("timeline"),
     text = $state(""),
     reason = $state(""),
+    qaReason = $state(""),
     labor = $state(""),
     parts = $state(""),
     rating = $state(5),
@@ -344,10 +345,10 @@
                 disabled={busy}
                 onclick={() => void action("qa", { decision: "accept" })}
                 >{t("qaAccept")}</button
-              ><button
+              ><label>{t("reason")}<input bind:value={qaReason} maxlength="5000" /></label><button
                 class="button danger"
-                disabled={busy}
-                onclick={() => void action("qa", { decision: "reject" })}
+                disabled={busy || qaReason.trim().length < 5}
+                onclick={() => void action("qa", { decision: "reject", reason: qaReason })}
                 >{t("qaReject")}</button
               >{/if}
             {#if order.allowed_actions.includes("finance.reconcile")}<button

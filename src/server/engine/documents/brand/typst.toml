@@ -1,0 +1,11 @@
+[package]
+name = "brand"
+version = "0.0.1"
+compiler = "0.15.0"
+entrypoint = "src/lib.typ"
+authors = ["Fernando Bryan Reza Campos"]
+license = "MIT"
+description = "A native Typst brand engine for validated, reusable business documents."
+keywords = ["branding", "documents", "templates"]
+categories = ["utility"]
+exclude = ["docs/**", "examples/**", "tests/**", "scripts/**", "fonts/**", "build/**", "*.zip"]

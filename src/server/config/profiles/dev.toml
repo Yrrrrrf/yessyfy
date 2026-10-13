@@ -1,0 +1,13 @@
+[profile]
+name = "dev"
+project = "yessyfy-dev"
+data_policy = "reset"
+seed = "development"
+dev_api_token = "yessyfy-development-token"
+dev_db_password = "yessyfy-development-password"
+log_format = "pretty"
+
+dev_runtime_password = "yessyfy-development-runtime-only-1234"
+dev_signing_key = "yessyfy-development-signing-only-1234"
+dev_job_key = "yessyfy-development-job-key-only-1234"
+dev_provider_key = "yessyfy-development-provider-only-1234"

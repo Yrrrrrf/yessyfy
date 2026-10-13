@@ -1,0 +1,2 @@
+-- Maintenance provisions a separate ON DATABASE runtime user with EDITOR role.
+-- Product clients never receive database credentials or unrestricted record access.

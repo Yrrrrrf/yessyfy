@@ -1,0 +1,17 @@
+DEFINE INDEX user_phone ON user FIELDS data.phone UNIQUE;
+DEFINE INDEX job_order_code ON job_order FIELDS data.code UNIQUE;
+DEFINE INDEX job_order_customer_status ON job_order FIELDS owner, data.status ;
+DEFINE INDEX job_order_collaborator_status ON job_order FIELDS data.collaborator_id, data.status ;
+DEFINE INDEX dispatch_offer_collaborator_status ON dispatch_offer FIELDS owner, data.status ;
+DEFINE INDEX dispatch_offer_order ON dispatch_offer FIELDS order_id ;
+DEFINE INDEX quote_owner ON quote FIELDS owner ;
+DEFINE INDEX notice_owner ON notice FIELDS owner ;
+DEFINE INDEX conversation_message_order ON conversation_message FIELDS order_id ;
+DEFINE INDEX provider_event_key ON provider_event FIELDS data.provider_id UNIQUE;
+DEFINE INDEX feed_event_cursor ON feed_event FIELDS owner, data.cursor UNIQUE;
+DEFINE INDEX business_job_claim ON business_job FIELDS data.status, data.next_at ;
+DEFINE INDEX warranty_certificate_order ON warranty_certificate FIELDS order_id UNIQUE;
+DEFINE INDEX document_request_order ON document_request FIELDS order_id ;
+DEFINE INDEX operation_receipt_actor ON operation_receipt FIELDS owner ;
+DEFINE INDEX service_slot_slot ON service_slot FIELDS data.service_id, data.date, data.slot UNIQUE;
+DEFINE INDEX cfdi_uuid ON tax_invoice FIELDS data.uuid UNIQUE;
